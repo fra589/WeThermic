@@ -1,0 +1,3 @@
+[submodule "documentation/BMP180_SensorAPI"]
+	path = documentation/BMP180_SensorAPI
+	url = https://github.com/boschsensortec/BMP180_SensorAPI.git

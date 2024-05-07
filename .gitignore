@@ -1,0 +1,9 @@
+no_git
+*.hex
+*.zip
+*.o
+*.bin
+*.FCStd1
+build
+builds
+doc

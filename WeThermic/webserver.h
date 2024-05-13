@@ -29,5 +29,8 @@
   bool handleFileRead(String path);
   void handleGetValues(void);
   void handleGetVersion(void);
+  void handleGetNetworks(void);
+  void handleDeconnection(void);
+  void handleWifiConnect(void);
 
 #endif

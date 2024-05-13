@@ -43,15 +43,18 @@ char cli_ssid[MAX_SSID_LEN] = DEFAULT_CLI_SSID;
 char cli_pwd[MAX_PWD_LEN]   = DEFAULT_CLI_PWD;
 char ap_ssid[MAX_SSID_LEN]  = DEFAULT_AP_SSID;
 char ap_pwd[MAX_PWD_LEN]    = DEFAULT_AP_PWD;
+
 // mDNS
 const char *myHostname = APP_NAME;
+
 // DNS server
-const byte DNS_PORT = 53;
 DNSServer dnsServer;
+
 // Web server
 ESP8266WebServer server(80);
 
 void IRAM_ATTR hall_ISR() {
+  // Interruption du capteur à effet Hall
   if (digitalRead(HALL_PIN) == HIGH) {
     // Interruption front montant
     #ifdef DEBUG_INTERRUPT
@@ -88,12 +91,15 @@ void setup() {
   pinMode(CTN_PIN, INPUT);
   pinMode(LED_BUILTIN, OUTPUT);
 
-  // Capteur Température et pression
-  bmp180_init();
-
   // Init affichage
   affichage_init();
   afficheSplash();
+
+  // Récupération des paramètres EEPROM
+  getEepromStartupData();
+
+  // Capteur Température et pression
+  bmp180_init();
 
   // Initialisation du WiFi
   wifiApInit();

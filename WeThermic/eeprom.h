@@ -2,7 +2,7 @@
 /*                                                                          */
 /* Copyright (C) 2023-2024 Gauthier Brière (gauthier.briere "at" gmail.com) */
 /*                                                                          */
-/* This file: wwwifi.h is part of WeThermic                                 */
+/* This file: eeprom.h is part of WeThermic                                 */
 /*                                                                          */
 /* WeThermic is free software: you can redistribute it and/or modify it     */
 /* under the terms of the GNU General Public License as published by        */
@@ -19,24 +19,12 @@
 /*                                                                          */
 /****************************************************************************/
 
-#ifndef wwwifi_h
-  #define wwwifi_h
+#ifndef eeprom_h
+  #define eeprom_h
 
-  void wifiApInit(void);
-  void wifiClientInit(void);
+  void getEepromStartupData(void);
+  void resetFactory(void);
+  void EEPROM_format(void);
+  void EEPROM_writeStr(int address, char *value, int len);
 
-  String macToString(const unsigned char* mac);
-  bool isIp(String str);
-  String IPtoString(IPAddress ip);
-  String getWifiNetworks(void);
-  String getWiFiStatus(wl_status_t wifiStatus);
-
-  #ifdef DEBUG
-    void onStationConnected(const WiFiEventSoftAPModeStationConnected& evt);
-    void onStationDisconnected(const WiFiEventSoftAPModeStationDisconnected& evt);
-  #endif
-  #ifdef DEBUG_PROBE
-    void onProbeRequestPrint(const WiFiEventSoftAPModeProbeRequestReceived& evt);
-  #endif
-
-#endif // becgwifi_h
+#endif

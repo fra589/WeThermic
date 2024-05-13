@@ -50,8 +50,6 @@
 
 void wifiApInit(void) {
 
-  const byte DNS_PORT = 53;
-
   // Soft AP network parameters
   IPAddress apIP(10, 10, 10, 10);
   IPAddress netMsk(255, 255, 255, 0);
@@ -106,8 +104,9 @@ void wifiClientInit(void) {
 
   uint32_t debut;
   
-  // Empeche le wifi client de se connecter avec d'anciens paramètres résiduels en flash.
+  // Empeche le wifi client de se connecter avec d'anciens paramètres résiduels en EEPROM.
   WiFi.setAutoConnect(false);
+  WiFi.setAutoReconnect (false );
   // Connexion à un Acces Point si SSID défini
   if (cli_ssid[0] != '\0') {
     #ifdef DEBUG
@@ -149,7 +148,8 @@ void wifiClientInit(void) {
     } else {
       ;
       #ifdef DEBUG
-        Serial.println("FAIL");
+        Serial.print("FAIL, WiFi.status() = ");
+        Serial.println(getWiFiStatus(WiFi.status()));
         switch (WiFi.status()) {
           case WL_IDLE_STATUS:
             Serial.println("Erreur : Wi-Fi is in process of changing between statuses");
@@ -198,4 +198,114 @@ String IPtoString(IPAddress ip) {
   }
   res += String((ip >> (8 * 3)) & 0xFF);
   return res;
+}
+
+// renvoie en format XML la liste des SSID scannés 
+String getWifiNetworks() {
+  String XML = "";
+  int nReseaux;
+  int i;
+
+  #ifdef DEBUG_WEB
+    Serial.printf("Entrée dans getWifiNetworks()\n");
+  #endif
+
+// Voir https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/scan-examples.html#scan
+//WiFi.mode(WIFI_STA);
+//WiFi.disconnect();
+// https://randomnerdtutorials.com/esp8266-nodemcu-wi-fi-manager-asyncwebserver/
+
+  if(WiFi.isConnected()) {
+    XML += "  <activeNetwork>\n";
+    XML += "    <SSID>";
+    XML += WiFi.SSID();
+    XML += "</SSID>\n";
+    XML += "    <PSK>";
+    XML += WiFi.psk();
+    XML += "</PSK>\n";
+    XML += "    <RSSI>";
+    XML += WiFi.RSSI();
+    XML += "</RSSI>\n";
+    XML += "    <channel>";
+    XML += WiFi.channel();
+    XML += "</channel>\n";
+    XML += "    <localip>";
+    XML += IPtoString(WiFi.localIP());
+    XML += "</localip>\n";
+    XML += "  </activeNetwork>\n";
+  }
+
+  nReseaux = WiFi.scanNetworks();
+  for (i = 0; i < nReseaux; i++) {
+    XML += "  <network>\n";
+    XML += "    <SSID>";
+    XML += WiFi.SSID(i);
+    XML += "</SSID>\n";
+    XML += "    <channel>";
+    XML += WiFi.channel(i);
+    XML += "</channel>\n";
+    XML += "    <RSSI>";
+    XML += WiFi.RSSI(i);
+    XML += "</RSSI>\n";
+    XML += "    <encryption>";
+    switch (WiFi.encryptionType(i)) {
+      case (ENC_TYPE_NONE):
+        XML += "none";
+        break;
+      case (ENC_TYPE_WEP):
+        XML += "WEP";
+        break;
+      case (ENC_TYPE_TKIP):
+        XML += "WPA-PSK";
+        break;
+      case (ENC_TYPE_CCMP):
+        XML += "WPA2-PSK";
+        break;
+      case (ENC_TYPE_AUTO):
+        XML += "Auto";
+        break;
+      default:
+        XML += "Inconnue";
+    }
+    XML += "</encryption>\n";
+    XML += "  </network>\n";
+  }
+  WiFi.scanDelete();
+
+  return XML;
+
+}
+
+String getWiFiStatus(wl_status_t wifiStatus) {
+ 
+  switch (wifiStatus) {
+    case WL_NO_SHIELD:
+      return(String("WL_NO_SHIELD"));
+      break;
+    case WL_IDLE_STATUS:
+      return(String("WL_IDLE_STATUS"));
+      break;
+    case WL_NO_SSID_AVAIL:
+      return(String("WL_NO_SSID_AVAIL"));
+      break;
+    case WL_SCAN_COMPLETED:
+      return(String("WL_SCAN_COMPLETED"));
+      break;
+    case WL_CONNECTED:
+      return(String("WL_CONNECTED"));
+      break;
+    case WL_CONNECT_FAILED:
+      return(String("WL_CONNECT_FAILED"));
+      break;
+    case WL_CONNECTION_LOST:
+      return(String("WL_CONNECTION_LOST"));
+      break;
+    case WL_WRONG_PASSWORD:
+      return(String("WL_WRONG_PASSWORD"));
+      break;
+    case WL_DISCONNECTED:
+      return(String("WL_DISCONNECTED"));
+      break;
+  }
+  return(String(wifiStatus));
 }

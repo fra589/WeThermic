@@ -311,8 +311,8 @@ function index_onload() {
         beginAtZero: false,
         display: true,
         position:'left',
-        suggestedMax: tempctn + 0.25,
-        suggestedMin: tempctn - 0.25,
+        suggestedMax: ctnMoyen + 1.5,
+        suggestedMin: ctnMoyen - 0.25,
         ticks: {
           color: couleurTempCtn
         },
@@ -368,7 +368,7 @@ function index_onload() {
   Window.graphTemp.update();
   
   // Blocage de la mise en veille (ne fonctionne qu'en HTTPS ?)
-  getScreenLock();
+  ////getScreenLock();
 
 }
 
@@ -388,19 +388,32 @@ function loadStyle() {
 
 function echelleTemperature(scaleTemp) {
   // Ajustement de l'échelle des températures
+
+  var scaleMin = document.getElementById("scaleMin");
+  var scaleMax = document.getElementById("scaleMax");
+
   if (scaleTemp == 0) {
-    Window.graphTemp.options.scales['y'].suggestedMax = tempctn + 0.5;
-    Window.graphTemp.options.scales['y'].suggestedMin = tempctn - 0.5;
+    suggestedMax = ctnMoyen + 3;
+    suggestedMin = ctnMoyen - 0.5;
   } else if (scaleTemp == 1) {
-    Window.graphTemp.options.scales['y'].suggestedMax = tempctn + 0.25;
-    Window.graphTemp.options.scales['y'].suggestedMin = tempctn - 0.25;
+    suggestedMax = ctnMoyen + 2;
+    suggestedMin = ctnMoyen - 0.25;
   } else if (scaleTemp == 2) {
-    Window.graphTemp.options.scales['y'].suggestedMax = tempctn + 0.125;
-    Window.graphTemp.options.scales['y'].suggestedMin = tempctn - 0.125;
+    suggestedMax = ctnMoyen + 1;
+    suggestedMin = ctnMoyen - 0.125;
   } else if (scaleTemp == 3) {
-    Window.graphTemp.options.scales['y'].suggestedMax = tempctn;
-    Window.graphTemp.options.scales['y'].suggestedMin = tempctn;
+    suggestedMax = ctnMoyen;
+    suggestedMin = ctnMoyen;
+  } else if (scaleTemp == -1) {
+    suggestedMax = scaleMax.value;
+    suggestedMin = scaleMin.value;
   }
+  
+  scaleMin.value = suggestedMin;
+  scaleMax.value = suggestedMax;
+  Window.graphTemp.options.scales['y'].suggestedMax = suggestedMax;
+  Window.graphTemp.options.scales['y'].suggestedMin = suggestedMin;
+
 }
 
 function recalePression() {
@@ -495,6 +508,17 @@ function XMLHttpResult(requette, xml, text) {
       doc_press.innerHTML = '<span class="couleurPression">' + Number.parseFloat(pression).toFixed(1) + "hPa</span>";
 
       attenteOK = true;
+    } else if ((requette == "/getnetworks") || (requette == "http://192.168.1.107/getnetworks")) {
+      // Rempli la liste des réseaux disponibles
+      setNetworkList(xml);
+      attenteOK = true;
+    }  else if (requette == "wificonnect") {
+      result = xml.getElementsByTagName("result")[0].childNodes[0].nodeValue;
+      if (result == "OK") {
+        alert("Connexion OK.");
+      } else {
+        alert("Connexion error: \n" + result);
+      }
     }
   }
 
@@ -579,9 +603,21 @@ function calculMoyenneTemperature() {
 
 function changeSettings() {
 
-  var dialog = document.getElementById('settingsDialog')
+  var dialog = document.getElementById("settingsDialog")
   dialog.classList.remove("noshow");
+  var dlgMask = document.getElementById("dlgMask0");
+  dlgMask.classList.remove("noshow");
+  var attente = document.getElementById("attente0")
+  attente.classList.remove("noshow");
+  
+  // mise à jour des champs de saisie
+  var scaleMin = document.getElementById("scaleMin");
+  var scaleMax = document.getElementById("scaleMax");
+  scaleMax.value = Window.graphTemp.options.scales['y'].suggestedMax;
+  scaleMin.value = Window.graphTemp.options.scales['y'].suggestedMin;
 
+  // Récupère la liste des réseaux disponibles
+  get_networks();
 
 }
 
@@ -657,49 +693,243 @@ function visuCourbes() {
 
 }
 
+async function get_networks() {
 
-  
-  
-  
-  
+  // Efface les données précédentes
+  var divNetworkTable = document.getElementById("networkTable");
+  divNetworkTable.innerHTML = "";
+  var ssidActuel   = document.getElementById("ssidActuel");
+  ssidActuel.value = "";
+  var ipActuel     = document.getElementById("ipActuel");
+  ipActuel.value   = "";
 
-
-
-function isScreenLockSupported() {
- return ('wakeLock' in navigator);
+  // envoi la requette et attend la réponse
+  attenteOK = false;
+  if (location.protocol == 'file:') {
+    XMLHttpRequest_get("http://192.168.1.107/getnetworks");
+  } else {
+    XMLHttpRequest_get("/getnetworks");
+  }
+  while (!attenteOK) {
+    await sleep(100);
+  }
+  attenteOK = false;
 }
 
-async function getScreenLock() {
-  if(isScreenLockSupported()){
-    let screenLock;
-    try {
-       screenLock = await navigator.wakeLock.request('screen');
-    } catch(err) {
-       console.log(err.name, err.message);
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function setNetworkList(xml) {
+  // Fonction appelée en retour de XMLHttpRequest_get("/getnetworks")
+  var htmlNetworkTable = "";
+  var tmpSSID      = "";
+  var tmpChannel   = 0;
+  var tmpRSSI      = "";
+  var tmpCrypt     = "";
+  var tmpImgSignal = "";
+  
+  var divNetworkTable = document.getElementById("networkTable");
+  
+  htmlNetworkTable += "  <table class=\"netTables\">\n";
+  htmlNetworkTable += "    <thead>\n";
+  htmlNetworkTable += "      <tr>\n";
+  htmlNetworkTable += "        <th>&nbsp;</th>\n";
+  htmlNetworkTable += "        <th>SSID</th>\n";
+  htmlNetworkTable += "        <th>Channel</th>\n";
+  htmlNetworkTable += "        <th>Security</th>\n";
+  htmlNetworkTable += "      </tr>\n";
+  htmlNetworkTable += "    </thead>\n";
+  htmlNetworkTable += "    <tbody>\n";
+
+
+  var netCurrent = xml.getElementsByTagName("activeNetwork")
+  if (netCurrent.length == 1) {
+    var ssidActuel   = document.getElementById("ssidActuel");
+    currentSSID      = netCurrent[0].getElementsByTagName("SSID")[0].childNodes[0].nodeValue;
+    ssidActuel.value = currentSSID;
+    var ipActuel     = document.getElementById("ipActuel");
+    currentIP        = netCurrent[0].getElementsByTagName("localip")[0].childNodes[0].nodeValue;
+    ipActuel.value   = currentIP;
+  }
+  
+  var netListe = xml.getElementsByTagName("network")
+  if (netListe.length > 0) {
+    for(var i = 0; i< netListe.length; i++){
+      // Données du réseau
+      tmpSSID    = netListe[i].getElementsByTagName("SSID")[0].childNodes[0].nodeValue;
+      tmpChannel = netListe[i].getElementsByTagName("channel")[0].childNodes[0].nodeValue;
+      tmpRSSI    = netListe[i].getElementsByTagName("RSSI")[0].childNodes[0].nodeValue;
+      tmpCrypt   = netListe[i].getElementsByTagName("encryption")[0].childNodes[0].nodeValue;
+      // Choix du pictogramme en fonction de la qualité du signal
+      // RSSI (dBm) Interprétation
+      // -30 dBm    Extraordinaire (êtes vous assis sur la borne? ^^)
+      // -67 dBm    Très bon signal
+      // -70 dBm    Très acceptable
+      // -80 dBm   	as terrible du tout
+      // -90 dBm    Inutilisable
+      if (tmpRSSI <= -90) {
+        tmpImgSignal = "images/signal0.svg";
+      } else if ((tmpRSSI > -90) && (tmpRSSI <= -80)) {
+        tmpImgSignal = "images/signal1.svg";
+      } else if ((tmpRSSI > -80) && (tmpRSSI <= -70)) {
+        tmpImgSignal = "images/signal2.svg";
+      } else if ((tmpRSSI > -70) && (tmpRSSI <= -67)) {
+        tmpImgSignal = "images/signal3.svg";
+      } else if (tmpRSSI > -67) {
+        tmpImgSignal = "images/signal4.svg";
+      }
+      htmlNetworkTable += "      <tr class=\"trlink\" onclick=\"wifi_connect('" + tmpSSID + "' , '" + tmpChannel + "')\">\n";
+      htmlNetworkTable += "        <td class=\"centreVertical\"><img src=\"" + tmpImgSignal + "\" title=\"RSSI = " + tmpRSSI + "\" /></td>\n";
+      htmlNetworkTable += "        <td>" + tmpSSID + "</td>\n";
+      htmlNetworkTable += "        <td>" + tmpChannel + "</td>\n";
+      htmlNetworkTable += "        <td>" + tmpCrypt + "</td>\n";
+      htmlNetworkTable += "      </tr>\n";
     }
-    return screenLock;
+  } else {
+    htmlNetworkTable   += "      <tr>\n";
+      htmlNetworkTable += "        <td colspan=\"4\">No network available</td>";
+    htmlNetworkTable   += "      </tr>\n";
+  }
+  htmlNetworkTable += "    </tbody>\n";
+  htmlNetworkTable += "  </table>\n";
+  
+  divNetworkTable.innerHTML = htmlNetworkTable;
+
+  var attente = document.getElementById("attente0")
+  attente.classList.add("noshow");
+  var dlgMask = document.getElementById("dlgMask0");
+  dlgMask.classList.add("noshow");
+
+}
+
+async function wifi_connect(SSID, channel) {
+  // TODO saisie du mot de passe et confirmation 
+  // TODO voir pourquoi on ne reçois pas de réponse XML
+  // ? le serveur perd les infos du client lors de la déconnexion ?
+  var pwd = "";
+
+  var ssid_input = document.getElementById("ssid_input");
+  var pwd_input  = document.getElementById("pwd_input");
+  var divWait    = document.getElementById("attente0");
+  var btnConnect = document.getElementById("btnConnect");
+  var btnAnnuler = document.getElementById("btnAnnuler");
+
+  ssid_input.value = SSID + " (ch." + channel + ")";
+  
+  connectOK = true;
+  suiteOK = false;
+
+  // Affiche la boite de dialogue de saisie du mot de passe réseau
+  afficheDialog('dlgConnect');
+  // Donne le focus au champ de saisie du mot de passe
+  pwd_input.focus();
+
+  // Attente click sur bouton Connexion
+  while (!suiteOK) {
+    await sleep(100);
+  }
+  suiteOK = false;
+  
+  if (connectOK) {
+    pwd = pwd_input.value;
+    // Désactive les boutons de la boite de dialogue
+    btnConnect.disabled = true;
+    btnAnnuler.disabled = true;
+    // Affiche l'annimation d'attente
+    divWait.classList.remove("noshow");
+    // Lance la connexion de la balance
+    //alert("XMLHttpRequest_post_wificonnect(" + SSID + ", " + pwd + ", " + channel + ");");
+    XMLHttpRequest_post_wificonnect(SSID, pwd, channel);
+    // On fermera la boite de dialogue et on masquera
+    // l'animation d'attente dans 10 secondes
+    setTimeout(function() { divWait.classList.add("noshow"); }, 10000);
+    setTimeout(function() { closeDialog('dlgConnect'); }, 10000);
+  } else {
+    alert("Canceled connection.");
+    closeDialog('dlgConnect');
+    btnConnect.disabled = false;
+    btnAnnuler.disabled = false;
+    pwd_input.value = "";
+  }
+
+}
+
+function afficheDialog(dialog_id) {
+  // Affiche la boite de dialogue
+  var dlgMask = document.getElementById("dlgMask0");
+  var dlgBox  = document.getElementById(dialog_id);
+  
+  dlgMask.classList.remove("noshow");
+  window.setTimeout(function () {
+    dlgBox.classList.remove("masquer");
+  }, 0.2);
+}
+
+function closeDialog(dialog_id) {
+  // Ferme la boite de dialogue
+  var dlgMask = document.getElementById("dlgMask0");
+  var dlgBox  = document.getElementById(dialog_id);
+  dlgBox.classList.add("masquer");
+  window.setTimeout(function () {
+    dlgMask.classList.add("noshow");
+  }, 1);
+}
+
+function connect_clique() {
+  connectOK = true;
+  suiteOK   = true;
+  // Refresh wifi status
+  get_networks();
+}
+
+function connect_cancel() {
+  connectOK = false;
+  suiteOK   = true;
+}
+
+function connect_keyup(e) {
+  if (e.keyCode === 13) {
+    document.getElementById("btnConnect").click();
+  } else if (e.keyCode === 27) {
+    document.getElementById("btnAnnuler").click();
   }
 }
 
-function releaseScreenLock() { 
-  if(typeof screenLock !== "undefined" && screenLock != null) {
-    screenLock.release()
-    .then(() => {
-      console.log("Screen Lock released");
-      screenLock = null;
-    });
-  }
-}
+function XMLHttpRequest_post_wificonnect(SSID, pwd, channel) {
+  var xhttp = new XMLHttpRequest();
 
-if(isScreenLockSupported()){
-  document.addEventListener('visibilitychange', async () => {
-    if (screenLock !== null && document.visibilityState === 'visible') {
-      screenLock = await navigator.wakeLock.request('screen');
+  xhttp.onreadystatechange = function() {
+    if (xhttp.readyState == 4) {
+      if ((xhttp.status == 200) || (xhttp.status == 0)) {
+        XMLHttpResult("wificonnect", xhttp.responseXML, xhttp.responseText);
+      } else {
+        alert("XMLHttpRequest_post_wificonnect() : Error " + xhttp.status);
+      }
     }
-  });
+  };
+
+  var ssid_encode = encodeURIComponent(SSID);
+  var pwd_encode  = encodeURIComponent(pwd);
+  if (location.protocol == 'file:') {
+    xhttp.open("POST", "http://192.168.1.107/wificonnect", true);
+  } else {
+    xhttp.open("POST", "/wificonnect", true);
+  }
+  xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  xhttp.send("ssid=" + ssid_encode + "&pwd=" + pwd_encode + "&channel=" + channel);
+
 }
 
-
+function deconnect_clique() {
+  var message = "";
+  message = "Do you really want to disconnect from the current network\nand clear the client WiFi settings in the balance?";
+  if (confirm(message)) {
+    XMLHttpRequest_get("deconnexion");
+  }
+  // Refresh wifi status
+  get_networks();
+}
 
 
 

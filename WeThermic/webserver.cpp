@@ -42,6 +42,9 @@ void webServerInit(void) {
   server.on("/fwlink",           handleRoot); //Microsoft captive portal. Maybe not needed. Might be handled By notFound handler.
   server.on("/getvalues",        handleGetValues);
   server.on("/getversion",       handleGetVersion);
+  server.on("/getnetworks",      handleGetNetworks);
+  server.on("/deconnexion",      handleDeconnection);
+  server.on("/wificonnect",      handleWifiConnect);
   server.onNotFound(handleNotFound);
   
   server.begin(); // Start web server
@@ -225,5 +228,241 @@ void handleGetVersion(void) {
 
   //server.sendHeader("Access-Control-Allow-Origin", "*");
   server.send(200,"text/xml",XML);
+
+}
+
+void handleGetNetworks(void) {
+  String XML;
+
+  #ifdef DEBUG_WEB
+    Serial.printf("Entrée dans handleGetNetworks() --- %d\n", millis()/1000);
+  #endif
+
+  // Renvoi la réponse au client http
+  XML  =F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
+  //XML +=F("<?xml-stylesheet href=\"style.css\" type=\"text/css\"?>\n");
+  XML += "<networks>\n";
+  XML += getWifiNetworks();
+  XML += "</networks>\n";
+
+  server.send(200,"text/xml",XML);
+  
+}
+
+void handleDeconnection(void) {
+  String XML;
+  int i;
+  
+  #ifdef DEBUG_WEB
+    Serial.printf("Entrée dans handleDeconnection() --- %d\n", millis()/1000);
+  #endif
+
+  // Deconnexion du réseau
+  if (WiFi.status() == WL_CONNECTED) {
+    // Si on est déjà connecté, on coupe, sinoni il n'y a rien a faire...
+    #ifdef DEBUG_WEB
+      Serial.printf("  handleWifiConnect() - déconnexion du réseau précédent\n");
+      Serial.flush();
+    #endif
+    WiFi.disconnect();
+  }
+
+  //Effacement des données réseau
+  for (i=0; i<MAX_SSID_LEN; i++) {
+    cli_ssid[i] = '\xFF';
+  }
+  for (i=0; i<MAX_PWD_LEN; i++) {
+    cli_pwd[i] = '\xFF';
+  }
+  // Sauvegarde les nouveaux paramètres dans l'EEPROM
+  EEPROM_writeStr(ADDR_CLI_SSID, cli_ssid, MAX_SSID_LEN);
+  EEPROM_writeStr(ADDR_CLI_PWD, cli_pwd, MAX_PWD_LEN);
+  EEPROM.commit();
+  
+  // Réponse au client
+  XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
+  //XML +=F("<?xml-stylesheet href=\"style.css\" type=\"text/css\"?>\n");
+  XML += F("<deconnexion>\n");
+  XML += F("  <result>OK</result>\n");
+  XML += F("</deconnexion>\n");
+
+  // Renvoi la réponse au client http
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.send(200,"text/xml",XML);
+
+}
+
+void handleWifiConnect(void) {
+  String XML;
+  String ssid        = "";
+  String password    = "";
+  int8_t channel     = 0;
+  bool settingChange = false;
+  bool newConnectOK  = false;
+  String result      = "";
+  unsigned long debut = 0;
+  
+  #ifdef DEBUG_WEB
+    Serial.printf("Entrée dans handleWifiConnect() --- %d\n", millis()/1000);
+  #endif
+
+  if (server.args() > 0) {
+    //Traitement des données POST
+    for (int i = 0; i < server.args(); i++) {
+      #ifdef DEBUG_WEB
+        Serial.printf("  handleWifiConnect() - Arg n°%d –> %s = [%s]\n", i, server.argName(i), server.arg(i).c_str());
+      #endif
+      if (strncasecmp(server.argName(i).c_str(), "ssid", (size_t)4) == 0) {
+        #ifdef DEBUG_WEB
+          Serial.printf("  handleWifiConnect() - SSID = %s\n", server.arg(i).c_str());
+        #endif
+        if (strncmp(cli_ssid, server.arg(i).c_str(), MAX_SSID_LEN) != 0) {
+          strncpy(cli_ssid, server.arg(i).c_str(), MAX_SSID_LEN);
+          settingChange = true;
+        }
+      } else if (strncasecmp(server.argName(i).c_str(), "pwd", (size_t)3) == 0) {
+        #ifdef DEBUG_WEB
+          Serial.printf("  handleWifiConnect() - pwd  = %s\n", server.arg(i).c_str());
+        #endif
+        if (strncmp(cli_pwd, server.arg(i).c_str(), MAX_PWD_LEN) != 0) {
+          strncpy(cli_pwd, server.arg(i).c_str(), MAX_PWD_LEN);
+          settingChange = true;
+        }
+      } else if (strncasecmp(server.argName(i).c_str(), "channel", (size_t)7) == 0) {
+        if (server.arg(i).toInt() > 0) {
+          channel = server.arg(i).toInt();
+        }
+      }
+    }
+
+    // Si on est déjà connecté, on coupe...
+    if (WiFi.status() == WL_CONNECTED) {
+      #ifdef DEBUG_WEB
+        Serial.printf("  handleWifiConnect() - déconnexion du réseau précédent\n");
+        Serial.flush();
+      #endif
+      WiFi.disconnect();
+    }
+
+    // Connetion au réseau
+    debut = millis();
+    if (channel > 0) {
+      #ifdef DEBUG_WEB
+        Serial.printf("  handleWifiConnect() - connexion au réseau SSID = [%s] pwd=[%s] channel=%d\n", cli_ssid, cli_pwd, channel);
+        Serial.flush();
+      #endif
+      WiFi.begin(cli_ssid, cli_pwd, channel);
+    } else {
+      #ifdef DEBUG_WEB
+        Serial.printf("  handleWifiConnect() - connexion au réseau SSID = [%s] pwd=[%s]\n", cli_ssid, cli_pwd);
+        Serial.flush();
+      #endif
+      WiFi.begin(cli_ssid, cli_pwd);
+    }
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      #ifdef DEBUG_WEB
+        Serial.print(".");
+        Serial.flush();
+      #endif
+      if (millis() - debut > 10000) {
+        break; // Timeout = 10 secondes
+      }
+    }
+
+    // Vérification du résultat
+    switch (WiFi.status()) {
+      case WL_CONNECTED:
+        // Connexion OK
+        result = "OK";
+        newConnectOK = true;
+        #ifdef DEBUG_WEB
+            Serial.println(result);
+            Serial.printf("IP = %s\n",IPtoString(WiFi.localIP()).c_str());
+        #endif
+        WiFi.setAutoReconnect(true);
+        //Start mDNS with APP_NAME
+        if (MDNS.begin(myHostname, WiFi.localIP())) {
+          ;
+          #ifdef DEBUG_WEB
+            Serial.println("MDNS started");
+          #endif
+        } else {
+          ;
+          #ifdef DEBUG_WEB
+            Serial.println("MDNS failed");
+          #endif
+        }
+        break;
+      case WL_IDLE_STATUS:
+        result = "Erreur : Wi-Fi is in process of changing between statuses";
+        newConnectOK = false;
+        #ifdef DEBUG_WEB
+          Serial.println(result);
+        #endif
+      break;
+      case WL_NO_SSID_AVAIL:
+        result = "Erreur : SSID cannot be reached";
+        newConnectOK = false;
+        #ifdef DEBUG_WEB
+          Serial.println(result);
+        #endif
+      break;
+      case WL_CONNECT_FAILED:
+        result = "Erreur : Connexion failed";
+        newConnectOK = false;
+        #ifdef DEBUG_WEB
+          Serial.println(result);
+        #endif
+      break;
+      case WL_WRONG_PASSWORD:
+        result = "Erreur : Password is incorrect";
+        newConnectOK = false;
+        #ifdef DEBUG_WEB
+          Serial.println(result);
+        #endif
+      break;
+      case WL_DISCONNECTED:
+        result = "Erreur : Module is not configured in station mode";
+        newConnectOK = false;
+        #ifdef DEBUG_WEB
+          Serial.println(result);
+        #endif
+      break;
+    }
+
+    if ((newConnectOK) && (settingChange)){
+      #ifdef DEBUG_WEB
+        Serial.printf("Sauvegarde paramètres WiFi en EEPROM : SSID=[%s], pwd=[%s]\n", cli_ssid, cli_pwd);
+      #endif
+      // Sauvegarde les nouveaux paramètres dans l'EEPROM
+      EEPROM_writeStr(ADDR_CLI_SSID, cli_ssid, MAX_SSID_LEN);
+      EEPROM_writeStr(ADDR_CLI_PWD, cli_pwd, MAX_PWD_LEN);
+      EEPROM.commit();
+    }
+
+    // Réponse au client
+    XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
+    //XML +=F("<?xml-stylesheet href=\"style.css\" type=\"text/css\"?>\n");
+    XML += F("<wificonnect>\n");
+    XML += F("  <result>") + result + F("</result>\n");
+    XML += F("</wificonnect>\n");
+
+  } else { // if (server.args() > 0)
+    // Réponse au client
+    XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
+    //XML +=F("<?xml-stylesheet href=\"style.css\" type=\"text/css\"?>\n");
+    XML += F("<wificonnect>\n");
+    XML += F("  <result>wificonnect: missing parameters!</result>\n");
+    XML += F("</wificonnect>\n");
+  }
+  
+  // Renvoi la réponse au client http
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.send(200,"text/xml",XML);
+
+  #ifdef DEBUG_WEB
+    Serial.println("Réponse XML envoyée.");
+  #endif
 
 }

@@ -29,15 +29,7 @@
   //#define DEBUG_PROBE
   #define DEBUG_WEB
 
-  #define ORG_NAME              "fra589"
-  #define COPYRIGHT             "G.Brière 2024-2024"
-  #define APP_NAME              "WeThermic"
-  #define APP_VERSION_MAJOR     "0"
-  #define APP_VERSION_MINOR     "2"
-  #define APP_VERSION_DATE      "20240506"
-  #define APP_VERSION_STRING    "v" APP_VERSION_MAJOR "." APP_VERSION_MINOR "." APP_VERSION_DATE
-  #define APP_NAME_VERSION      APP_NAME " - " APP_VERSION_STRING "\0"
-
+  #include <EEPROM.h>
   #include <ESP8266WiFi.h>
   #include <ESP8266mDNS.h>
   #include <ESP8266WebServer.h>
@@ -47,11 +39,21 @@
   #include <SFE_BMP180.h>
 
   #include "WeThermicLogo.h"
+  #include "eeprom.h"
   #include "wwwifi.h"
   #include "webserver.h"
   #include "affichage.h"
   #include "sfe_bmp180.h"
   #include "thermistance.h"
+
+  #define ORG_NAME              "fra589"
+  #define COPYRIGHT             "G.Brière 2024-2024"
+  #define APP_NAME              "WeThermic"
+  #define APP_VERSION_MAJOR     "0"
+  #define APP_VERSION_MINOR     "2"
+  #define APP_VERSION_DATE      "20240506"
+  #define APP_VERSION_STRING    "v" APP_VERSION_MAJOR "." APP_VERSION_MINOR "." APP_VERSION_DATE
+  #define APP_NAME_VERSION      APP_NAME " - " APP_VERSION_STRING "\0"
 
   // Paramètres mesure du vent
   #define HALL_PIN D5 // Entrée numérique esp8266
@@ -66,10 +68,8 @@
   extern double tempCtn;
 
   // Paramètres WiFi 
-  #define DEFAULT_CLI_SSID   "DomoPassaduy"  // SSID client (la balance se connecte si défini)
-  #define DEFAULT_CLI_PWD    "C'est1secret" // WPA-PSK/WPA2-PSK client
-  //#define DEFAULT_CLI_SSID   "cohabit-2-4"  // SSID client (la balance se connecte si défini)
-  //#define DEFAULT_CLI_PWD    "lewifidecohabit" // WPA-PSK/WPA2-PSK client
+  #define DEFAULT_CLI_SSID   ""  // SSID client (la balance se connecte si défini)
+  #define DEFAULT_CLI_PWD    "" // WPA-PSK/WPA2-PSK client
   #define DEFAULT_AP_SSID    "WeThermic_"       // SSID de l'AP balance
   #define DEFAULT_AP_PWD     ""              // WPA-PSK/WPA2-PSK AP
   #define DEFAULT_AP_CHANNEL 3
@@ -82,11 +82,18 @@
   extern char ap_ssid[MAX_SSID_LEN];
   extern char ap_pwd[MAX_PWD_LEN];
 
+  // Adresses EEProm pour sauvegarde des paramètres
+  #define EEPROM_LENGTH 512
+  #define ADDR_CLI_SSID        0 //   0 + 32 =  32
+  #define ADDR_CLI_PWD        32 //  32 + 63 =  95
+
+
   // Web server
   extern ESP8266WebServer server;
   
   // DNS server
   extern DNSServer dnsServer;
+  #define DNS_PORT 53
   
   // hostname pour mDNS. devrait fonctionner au moins avec windows :
   // http://WeThermic.local

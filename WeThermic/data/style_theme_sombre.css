@@ -27,7 +27,7 @@
   --couleurTempBMP180: rgb(255, 63, 32);
   --couleurMoyBMP180: rgb(204, 27, 0);
   --couleurTempCtn: rgb(0, 255, 0);
-  --couleurMoyCtn: rgb(0, 180, 0);
+  --couleurMoyCtn: rgb(0, 160, 0);
   --couleurGrid: rgb(31, 47, 63);
 }
 html, body {

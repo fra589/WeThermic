@@ -34,7 +34,7 @@ void webServerInit(void) {
 
   // Setup web pages
   server.enableCORS(true);
-  server.on(ROOT_FILE,           handleRoot); // index.html => /<en/fr>/index.html
+  server.on(ROOT_FILE,           handleRoot); // /index.html
   server.on("/",                 handleRoot);
   server.on("/connecttest.txt",  handleRoot);
   server.on("/generate_204",     handleRoot); //Android captive portal. Maybe not needed. Might be handled By notFound handler.
@@ -46,12 +46,10 @@ void webServerInit(void) {
   server.on("/deconnexion",      handleDeconnection);
   server.on("/wificonnect",      handleWifiConnect);
   server.onNotFound(handleNotFound);
+  server.begin(); // Start http web server
   
-  server.begin(); // Start web server
-
-  ////MDNS.addService("http", "tcp", 80);
-  
-  delay(1000);
+  yield();
+  delay(500);
 
   #ifdef DEBUG
     Serial.println("Serveur web démarré.");
@@ -172,6 +170,8 @@ void handleGetValues(void) {
   float valeur = 0.0;
   String XML;
 
+  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+
   #ifdef DEBUG_WEB_VALUE
     Serial.printf("Entrée dans handleGetValues() --- %d\n", millis()/1000);
   #endif
@@ -195,6 +195,8 @@ void handleGetValues(void) {
   //server.sendHeader(" -Allow-Origin", "*");
   server.send(200,"text/xml",XML);
   
+  digitalWrite(LED_BUILTIN, LOW);   // turn the LED off by making the voltage LOW
+
 }
 
 void handleGetVersion(void) {

@@ -56,8 +56,17 @@ html, body {
 .graph_container {
   height: 50%;
 }
-#chkRefresh {
-  text-align: left;
+#fullScreenButton {
+  border: 1px solid;
+  border-radius: 5px;
+  width: fit-content;
+  margin: auto;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  background-color: darkgreen;
+  cursor: pointer;
 }
 .settingsDialog {
   /*display: inline-block;*/

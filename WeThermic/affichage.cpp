@@ -62,7 +62,7 @@ void afficheSplash(void) {
 
 void scrollScreen(void) {
   int i;
-  for (i=0; i<64; i++) {
+  for (i=0; i<64; i+=4) {
     display.clearDisplay();
     display.drawBitmap(0, 0, &WeThermicLogo[16*i], WETHERMICLOGO_WIDTH, WETHERMICLOGO_HEIGHT - i, SSD1306_WHITE);
     display.fillRect(0, WETHERMICLOGO_HEIGHT - i, SCREEN_WIDTH, i, SSD1306_BLACK);

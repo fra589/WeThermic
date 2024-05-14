@@ -61,13 +61,13 @@ void IRAM_ATTR hall_ISR() {
       ets_printf("hall_ISR() rising\n");
     #endif
     pulse++;
-    digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    //digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
   } else {
     // Interruption front descendant
     #ifdef DEBUG_INTERRUPT
       ets_printf("hall_ISR() falling\n");
     #endif
-    digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+    //digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
   }
 }
 

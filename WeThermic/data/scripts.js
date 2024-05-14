@@ -20,6 +20,7 @@
 /****************************************************************************/
 
 var cssFile = 'style_theme_sombre.css';
+var netDevURL = 'http://192.168.1.107';
 
 // Couleurs par défaut
 var couleurVent         = 'rgb(0, 180, 255)';
@@ -59,13 +60,13 @@ var showT1    = true;
 var showT2    = false;
 var showPress = true;
 
-let screenLock;
+var isFullScreen = false;
 
 function index_onload() {
 
   // Charge le fichier de style par défaut
   loadStyle();
-  
+
   // Redimentionnement des graphiques en fonction de la page
   height = window.innerHeight;
   width  = window.innerWidth;
@@ -76,7 +77,7 @@ function index_onload() {
 
   // Mise à jour des infos de version
   if (location.protocol == 'file:') {
-    XMLHttpRequest_get("http://192.168.1.107/getversion");
+    XMLHttpRequest_get(netDevURL + "/getversion");
   } else {
     XMLHttpRequest_get("/getversion");
   }
@@ -145,8 +146,8 @@ function index_onload() {
         realtime: {
           duration: 300000,
           refresh: 500,
-          delay: 50,
-          frameRate: 4,
+          delay: 250,
+          frameRate: 20,
           onRefresh: chart => {
             chart.data.datasets[0].data.push({
               x: Date.now(),
@@ -274,8 +275,8 @@ function index_onload() {
         realtime: {
           duration: 300000,
           refresh: 500,
-          delay: 50,
-          frameRate: 4,
+          delay: 250,
+          frameRate: 50,
           onRefresh: chart => {
             chart.data.datasets[0].data.push({
               x: Date.now(),
@@ -341,7 +342,7 @@ function index_onload() {
 
   // Récupération des valeurs (vent, température et pression)
   if (location.protocol == 'file:') {
-    setTimeout(function() { XMLHttpRequest_get("http://192.168.1.107/getvalues") }, 500);
+    setTimeout(function() { XMLHttpRequest_get(netDevURL + "/getvalues") }, 500);
   } else {
     setTimeout(function() { XMLHttpRequest_get("/getvalues") }, 500);
   }
@@ -428,7 +429,7 @@ function XMLHttpRequest_get_first_values() {
   // HTTP synchronous request
   const request = new XMLHttpRequest();
   if (location.protocol == 'file:') {
-    request.open("GET", "http://192.168.1.107/getvalues", false); // `false` makes the request synchronous
+    request.open("GET", netDevURL + "/getvalues", false); // `false` makes the request synchronous
   } else {
     request.open("GET", "/getvalues", false); // `false` makes the request synchronous
   }
@@ -472,12 +473,12 @@ function XMLHttpRequest_get(requette) {
 function XMLHttpResult(requette, xml, text) {
   // Traitement de la réponse XML HTTP GET si existe...
   if (xml != null) {
-    if ((requette == "/getversion") || (requette == "http://192.168.1.107/getversion")) {
+    if ((requette == "/getversion") || (requette == netDevURL + "/getversion")) {
       var version_string = xml.getElementsByTagName("string")[0].childNodes[0].nodeValue;
       var doc_version = document.getElementById("version");
       doc_version.textContent = version_string;
 
-    } else if ((requette == "/getvalues") || (requette == "http://192.168.1.107/getvalues")) {
+    } else if ((requette == "/getvalues") || (requette == netDevURL + "/getvalues")) {
       vent        = Number(xml.getElementsByTagName("vent")[0].childNodes[0].nodeValue);
       calculMoyenneVent();
 
@@ -508,7 +509,7 @@ function XMLHttpResult(requette, xml, text) {
       doc_press.innerHTML = '<span class="couleurPression">' + Number.parseFloat(pression).toFixed(1) + "hPa</span>";
 
       attenteOK = true;
-    } else if ((requette == "/getnetworks") || (requette == "http://192.168.1.107/getnetworks")) {
+    } else if ((requette == "/getnetworks") || (requette == netDevURL + "/getnetworks")) {
       // Rempli la liste des réseaux disponibles
       setNetworkList(xml);
       attenteOK = true;
@@ -522,7 +523,7 @@ function XMLHttpResult(requette, xml, text) {
     }
   }
 
-  if ((requette == "/getvalues") || (requette == "http://192.168.1.107/getvalues")) {
+  if ((requette == "/getvalues") || (requette == netDevURL + "/getvalues")) {
       // Appel recursif pour boucler au lieu d'utiliser  setInterval()
       // Cela assure que te traitement à été terminé avant de relancer
       // la requette vers le serveur web.
@@ -531,16 +532,13 @@ function XMLHttpResult(requette, xml, text) {
 }
 
 function autoRefresh() {
-  var chkRefresh = document.getElementById("auto_refresh");
-  if (chkRefresh.checked) {
-    // Appel recursif pour boucler au lieu d'utiliser  setInterval()
-    // Cela assure que te traitement à été terminé avant de relancer
-    // la requette vers le serveur web.
-    if (location.protocol == 'file:') {
-      setTimeout(function() { XMLHttpRequest_get("http://192.168.1.107/getvalues") }, 500);
-    } else {
-      setTimeout(function() { XMLHttpRequest_get("/getvalues") }, 500);
-    }
+  // Appel recursif pour boucler au lieu d'utiliser  setInterval()
+  // Cela assure que te traitement à été terminé avant de relancer
+  // la requette vers le serveur web.
+  if (location.protocol == 'file:') {
+    setTimeout(function() { XMLHttpRequest_get(netDevURL + "/getvalues") }, 500);
+  } else {
+    setTimeout(function() { XMLHttpRequest_get("/getvalues") }, 500);
   }
 }
 
@@ -706,7 +704,7 @@ async function get_networks() {
   // envoi la requette et attend la réponse
   attenteOK = false;
   if (location.protocol == 'file:') {
-    XMLHttpRequest_get("http://192.168.1.107/getnetworks");
+    XMLHttpRequest_get(netDevURL + "/getnetworks");
   } else {
     XMLHttpRequest_get("/getnetworks");
   }
@@ -912,7 +910,7 @@ function XMLHttpRequest_post_wificonnect(SSID, pwd, channel) {
   var ssid_encode = encodeURIComponent(SSID);
   var pwd_encode  = encodeURIComponent(pwd);
   if (location.protocol == 'file:') {
-    xhttp.open("POST", "http://192.168.1.107/wificonnect", true);
+    xhttp.open("POST", netDevURL + "/wificonnect", true);
   } else {
     xhttp.open("POST", "/wificonnect", true);
   }
@@ -931,6 +929,47 @@ function deconnect_clique() {
   get_networks();
 }
 
+function toggleFullscreen() {
+  if (!isFullScreen) {
+    openFullscreen();
+    isFullScreen = true;
+    document.getElementById("fullScreenButton").innerText = "Close full screen";
+  } else {
+    closeFullscreen();
+    isFullScreen = false;
+    document.getElementById("fullScreenButton").innerText = "View in full screen";
+  }
+}
 
+/* View in fullscreen */
+function openFullscreen() {
+  var elem = document.documentElement;
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  } else if (elem.webkitRequestFullscreen) { /* Safari */
+    elem.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) { /* IE11 */
+    elem.msRequestFullscreen();
+  }
+}
 
+/* Close fullscreen */
+function closeFullscreen() {
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.webkitExitFullscreen) { /* Safari */
+    document.webkitExitFullscreen();
+  } else if (document.msExitFullscreen) { /* IE11 */
+    document.msExitFullscreen();
+  }
+}
 
+function fullscreenchanged(event) {
+  // Redimentionnement des graphiques en fonction de la page
+  height = window.innerHeight;
+  width  = window.innerWidth;
+  //alert(width + "\n" + height);
+  document.getElementById("lapage").style.height = height + "px";
+  document.getElementById("lapage").style.width = width + "px";
+}
+document.addEventListener("fullscreenchange", fullscreenchanged);

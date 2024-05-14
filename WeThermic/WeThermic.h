@@ -68,10 +68,10 @@
   extern double tempCtn;
 
   // Paramètres WiFi 
-  #define DEFAULT_CLI_SSID   ""  // SSID client (la balance se connecte si défini)
-  #define DEFAULT_CLI_PWD    "" // WPA-PSK/WPA2-PSK client
-  #define DEFAULT_AP_SSID    "WeThermic_"       // SSID de l'AP balance
-  #define DEFAULT_AP_PWD     ""              // WPA-PSK/WPA2-PSK AP
+  #define DEFAULT_CLI_SSID   ""           // SSID client (la balance se connecte si défini)
+  #define DEFAULT_CLI_PWD    ""           // WPA-PSK/WPA2-PSK client
+  #define DEFAULT_AP_SSID    "WeThermic_" // SSID de l'AP balance
+  #define DEFAULT_AP_PWD     ""           // WPA-PSK/WPA2-PSK AP
   #define DEFAULT_AP_CHANNEL 3
 
   // Variable globales pour le WiFi

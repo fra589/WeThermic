@@ -15,11 +15,15 @@
 SFE_BMP180 bmp180;
 uint8_t _bmp180_OK = 0;
 
+#define LED_OUTPUT D5
+#define PRESSION_MIN 1010 // pression mini, led éteinte
+#define PRESSION_MAX 1080 // pression maxi, led 100 %
 
 void setup() {
 
   Serial.begin(115200);
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(LED_OUTPUT, OUTPUT);
 
   digitalWrite(LED_BUILTIN, LOW); // Allume la LED
 
@@ -46,7 +50,7 @@ void loop() {
 
   if (_bmp180_OK) {
 
-    digitalWrite(LED_BUILTIN, LOW); // Allume la LED
+    ////digitalWrite(LED_BUILTIN, LOW); // Allume la LED
 
     // On doit commencer par lire la température
     result = bmp180.startTemperature();
@@ -67,6 +71,15 @@ void loop() {
           result = bmp180.getPressure(P,T);
           if (result != 0) {
             Serial.printf("BMP180 pression absolue @%0.2f°C = %0.2f hPa (%0.2f mmHg)\n", T, P, P*HPA2MMHG);
+            // Allume plus ou moins fort la LED en fonction de la pression
+            if (P <= PRESSION_MIN) {
+              analogWrite(LED_OUTPUT, 0);
+            } else if (P >= PRESSION_MAX) {
+              analogWrite(LED_OUTPUT, 255);
+            } else {
+              int valeur = map(P, PRESSION_MIN, PRESSION_MAX, 0, 255);
+              analogWrite(LED_OUTPUT, valeur);
+            }
           } else {
             Serial.println("BMP180 erreur getPressure() !");
           }
@@ -80,10 +93,10 @@ void loop() {
       Serial.println("BMP180 erreur startTemperature() !");
     }
 
-    digitalWrite(LED_BUILTIN, HIGH); // Eteint la LED
+    ////digitalWrite(LED_BUILTIN, HIGH); // Eteint la LED
 
   } // _bmp180_OK
 
-  delay(1000);
+  delay(250);
   
 }

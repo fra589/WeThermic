@@ -37,6 +37,8 @@ float vent = 0;
 double temperature = 0;
 double pression = 0;
 double tempCtn = 0;
+double temperatureCumule;
+long   nombreTemperature = 0;
 
 // WiFi
 char cli_ssid[MAX_SSID_LEN] = DEFAULT_CLI_SSID;
@@ -119,18 +121,32 @@ void setup() {
 void loop() {
  
   temps1 = millis();
+
+  // Lecture thermistor CTN
+  if (nombreTemperature == 0) {
+    temperatureCumule = readCtn();
+  } else {
+    temperatureCumule += readCtn();
+  }
+  nombreTemperature++;
+
   if (temps1 > temps0 + DUREE) {
-    // Calcul du vent
-    vent = pulse * 0.245; // TODO ecrire formule de calcul de la vitesse du vent = f(pulse)
-    pulse = 0;
-    temps0 = temps1;
+
+    // Moyenne thermistor CTN
+    tempCtn = temperatureCumule / nombreTemperature;
+    nombreTemperature = 0;
+
     // Lecture du capteur de température et pression
     read_bmp180();
-    // Lecture thermistor CTN
-    tempCtn = readCtn();
+
+    // Calcul du vent
+    vent = pulse * COEF_VENT; // TODO ecrire formule de calcul de la vitesse du vent = f(pulse)
+    pulse = 0;
+    temps0 = temps1;
+    
     // Affichage sur écran
     displayTemp();
-    
+
     #ifdef DEBUG2
       Serial.print("vent = ");
       Serial.print(vent);

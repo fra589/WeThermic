@@ -92,7 +92,8 @@ function index_onload() {
   var ventData = {
     datasets: [
       {
-        cubicInterpolationMode: 'monotone',
+        ////cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'default',
         data: [],
         fill: {
           target: 'origin',
@@ -105,7 +106,7 @@ function index_onload() {
         tension: 0.4
       },
       {
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'default',
         data: [],
         fill: false,
         borderColor: couleurMoyVent,
@@ -114,7 +115,7 @@ function index_onload() {
         tension: 0.4
       },
       {
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'default',
         data: [],
         fill: {
           target: 'origin',
@@ -124,7 +125,7 @@ function index_onload() {
         borderColor: couleurPression,
         borderWidth:1,
         order: 5,
-        tension: 0.25,
+        tension: 0.4,
         yAxisID: 'y1'
       }
     ]
@@ -203,47 +204,47 @@ function index_onload() {
   var tempData = {
     datasets: [
       {
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'default',
         data: [],
         fill: false,
         borderColor: couleurTempCtn,
         borderWidth:2,
         order: 1,
-        tension: 0.25,
+        tension: 0.4,
         yAxisID: 'y'
       },
       {
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'default',
         data: [],
         fill: false,
         borderColor: couleurMoyCtn,
         borderWidth:3,
         order: 2,
-        tension: 0.25,
+        tension: 0.4,
         yAxisID: 'y'
       },
       {
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'default',
         data: [],
         fill: false,
         borderColor: couleurTempBMP180,
         borderWidth:2,
         order: 3,
-        tension: 0.25,
+        tension: 0.4,
         yAxisID: 'y'
       },
       {
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'default',
         data: [],
         fill: false,
         borderColor: couleurMoyBMP180,
         borderWidth:3,
         order: 4,
-        tension: 0.25,
+        tension: 0.4,
         yAxisID: 'y'
       },
       {
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'default',
         data: [],
         fill: {
           target: 'origin',
@@ -253,7 +254,7 @@ function index_onload() {
         borderColor: couleurPression,
         borderWidth:1,
         order: 5,
-        tension: 0.25,
+        tension: 0.4,
         yAxisID: 'y1'
       }
     ]

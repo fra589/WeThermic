@@ -170,7 +170,7 @@ void handleGetValues(void) {
   float valeur = 0.0;
   String XML;
 
-  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(LED_BUILTIN, LOW); // Allume la LED
 
   #ifdef DEBUG_WEB_VALUE
     Serial.printf("Entrée dans handleGetValues() --- %d\n", millis()/1000);
@@ -195,7 +195,7 @@ void handleGetValues(void) {
   //server.sendHeader(" -Allow-Origin", "*");
   server.send(200,"text/xml",XML);
   
-  digitalWrite(LED_BUILTIN, LOW);   // turn the LED off by making the voltage LOW
+  digitalWrite(LED_BUILTIN, HIGH); // Eteint la LED
 
 }
 

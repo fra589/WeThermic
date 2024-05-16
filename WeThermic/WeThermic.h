@@ -58,6 +58,7 @@
   // Paramètres mesure du vent
   #define HALL_PIN D5 // Entrée numérique esp8266
   #define DUREE 500   // Durée de comptage RPM (ms)
+  #define COEF_VENT 0.245
   extern volatile uint32_t pulse;
   extern float vent;
   // Mesure température et pression

@@ -1,6 +1,8 @@
 <h1>WeThermic Free Flight Thermal Detector</h1>
 
 Station météo indiquant la vitesse du vent, la température et la pression atmosphérique ainsi que l'affichage des courbes correspondantes sur un navigateur web, via un réseau WiFi, pour aider à la détection d'ascendances thermiques en modèle réduit.
+  
+Weather station indicating wind speed, temperature and atmospheric pressure as well as displaying the corresponding curves on a web browser, via a WiFi network, to help detect thermal ascents in free flight model aircraft.  
 
 ---
 
@@ -15,5 +17,5 @@ Matériel utilisé :
  
 ---
 
-Développement en cours, non finalisé pour une utilisation opérationnelle.
+Développement en cours, de nouvelles version possibles à tout moment, pas forcément sans bugs :-)
 

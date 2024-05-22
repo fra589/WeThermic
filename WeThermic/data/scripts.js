@@ -34,6 +34,7 @@ var couleurMoyVent      = 'rgb(0, 125, 179)';
 var couleurPression     = 'rgb(0, 127, 127)';
 var couleurFillPression = 'rgba(0, 127, 127, 0.2)';
 var couleurTempCtn      = 'rgb(255, 63, 32)';
+var couleurFillCtn      = 'rgba(255, 63, 32, 0.2)';
 var couleurMoyCtn       = 'rgb(204, 27, 0)';
 var couleurTempBmp180   = 'rgb(0, 255, 0)';
 var couleurMoyBMP180    = 'rgb(0, 180, 0)';
@@ -221,7 +222,11 @@ function index_onload() {
       {
         cubicInterpolationMode: 'default',
         data: histTempCtn,
-        fill: false,
+        fill: {
+          target: 'origin',
+          above: couleurFillCtn,
+          below: couleurFillCtn
+        },
         borderColor: couleurTempCtn,
         borderWidth:2,
         order: 1,

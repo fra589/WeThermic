@@ -28,6 +28,7 @@
   --couleurTempBmp180: rgb(0, 255, 0);
   --couleurMoyBMP180: rgb(0, 160, 0);
   --couleurTempCtn: rgb(255, 63, 32);
+  --couleurFillCtn: rgba(255, 63, 32, 0.2);
   --couleurMoyCtn: rgb(204, 27, 0);
   --couleurGrid: rgb(31, 47, 63);
 }

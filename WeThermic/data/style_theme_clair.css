@@ -21,13 +21,14 @@
 :root {
   --couleurVent: rgb(0, 0, 160);
   --couleurFillVent: rgba(0, 0, 160, 0.3);
-  --couleurMoyVent: rgb(160, 0, 180);
+  /*--couleurMoyVent: rgb(160, 0, 180);*/
+  --couleurMoyVent: rgb(0, 125, 179);
   --couleurPression: rgb(0, 127, 127);
   --couleurFillPression: rgba(0, 127, 127, 0.2);
-  --couleurTempBMP180: rgb(255, 63, 32);
-  --couleurMoyBMP180: rgb(204, 27, 0);
-  --couleurTempCtn: rgb(0, 127, 0);
-  --couleurMoyCtn: rgb(0, 180, 0);
+  --couleurTempBMP180: rgb(0, 127, 0);
+  --couleurMoyBMP180: rgb(0, 180, 0);
+  --couleurTempCtn: rgb(255, 63, 32);
+  --couleurMoyCtn: rgb(204, 27, 0);
   --couleurGrid: rgb(187, 229, 229);
 }
 html, body {

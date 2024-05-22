@@ -28,6 +28,7 @@
   void handleNotFound(void);
   bool handleFileRead(String path);
   void handleGetValues(void);
+  void handleGetHistory(void);
   void handleGetVersion(void);
   void handleGetNetworks(void);
   void handleDeconnection(void);

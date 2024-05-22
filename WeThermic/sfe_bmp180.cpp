@@ -99,7 +99,7 @@ void read_bmp180() {
       #endif
     }
 
-    temperature = T;
+    tempBmp180 = T;
     pression = P;
   }
 

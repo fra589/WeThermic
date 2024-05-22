@@ -41,6 +41,7 @@ void webServerInit(void) {
   server.on("/favicon.ico",      handleRoot); //Another Android captive portal. Maybe not needed. Might be handled By notFound handler. Checked on Sony Handy
   server.on("/fwlink",           handleRoot); //Microsoft captive portal. Maybe not needed. Might be handled By notFound handler.
   server.on("/getvalues",        handleGetValues);
+  server.on("/history",          handleGetHistory);
   server.on("/getversion",       handleGetVersion);
   server.on("/getnetworks",      handleGetNetworks);
   server.on("/deconnexion",      handleDeconnection);
@@ -167,7 +168,6 @@ bool handleFileRead(String path) {
 
 void handleGetValues(void) {
 
-  float valeur = 0.0;
   String XML;
 
   digitalWrite(LED_BUILTIN, LOW); // Allume la LED
@@ -183,7 +183,7 @@ void handleGetValues(void) {
   XML += String(vent);
   XML += F("  </vent>\n");
   XML += F("  <temperature>");
-  XML += String(temperature);
+  XML += String(tempBmp180);
   XML += F("  </temperature>\n");
   XML += F("  <pression>");
   XML += String(pression);
@@ -192,10 +192,154 @@ void handleGetValues(void) {
   XML += String(tempCtn);
   XML += F("  </tempctn>\n");
   XML += F("</valeurs>\n");
-  //server.sendHeader(" -Allow-Origin", "*");
+
   server.send(200,"text/xml",XML);
   
   digitalWrite(LED_BUILTIN, HIGH); // Eteint la LED
+
+}
+
+void handleGetHistory(void) {
+
+  int i;
+
+  #ifdef DEBUG_WEB
+    Serial.printf("Entrée dans handleGetHistory()\n");
+  #endif
+
+  // Renvoi la réponse au client http
+  server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  server.sendHeader("Pragma", "no-cache");
+  server.sendHeader("Expires", "-1");
+  server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+  server.send(200, "text/xml", "");
+  server.sendContent (F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n"));
+  server.sendContent (F("<history>\n"));
+  server.sendContent (F("  <history_len>\n"));
+  server.sendContent (String(DUREE_HISTORIQUE));
+  server.sendContent (F("</history_len>\n"));
+  for (i = idxHistorique; i < DUREE_HISTORIQUE; i++) {
+    server.sendContent (F("  <hist>"));
+    server.sendContent (F("    <vent>"));
+    server.sendContent (String(histVent[i]));
+    server.sendContent (F("</vent>"));
+    server.sendContent (F("  <tempctn>"));
+    server.sendContent (String(histTempCtn[i]));
+    server.sendContent (F("</tempctn>\n"));
+    server.sendContent (F("    <tbmp180>"));
+    server.sendContent (String(histBmp180[i]));
+    server.sendContent (F("</tbmp180>\n"));
+    server.sendContent (F("    <press>"));
+    server.sendContent (String(histPression[i]));
+    server.sendContent (F("</press>\n"));
+    server.sendContent (F("  </hist>\n"));
+  }
+  for (i = 0; i < idxHistorique; i++) {
+    server.sendContent (F("  <hist>"));
+    server.sendContent (F("    <vent>"));
+    server.sendContent (String(histVent[i]));
+    server.sendContent (F("</vent>"));
+    server.sendContent (F("  <tempctn>"));
+    server.sendContent (String(histTempCtn[i]));
+    server.sendContent (F("</tempctn>\n"));
+    server.sendContent (F("    <tbmp180>"));
+    server.sendContent (String(histBmp180[i]));
+    server.sendContent (F("</tbmp180>\n"));
+    server.sendContent (F("    <press>"));
+    server.sendContent (String(histPression[i]));
+    server.sendContent (F("</press>\n"));
+    server.sendContent (F("  </hist>\n"));
+  }
+  server.sendContent (F("</history>\n"));
+  server.sendContent("");
+
+  server.client().stop(); // Stop is needed because we sent no content length
+
+  #ifdef DEBUG_WEB
+    Serial.printf("Sortie de handleGetHistory()\n");
+  #endif
+
+}
+
+void handleGetHistory_old(void) {
+
+  int i;
+
+  #ifdef DEBUG_WEB
+    Serial.printf("Entrée dans handleGetHistory()\n");
+  #endif
+
+  // Renvoi la réponse au client http
+  server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  server.sendHeader("Pragma", "no-cache");
+  server.sendHeader("Expires", "-1");
+  server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+  server.send(200, "text/xml", "");
+  server.sendContent (F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n"));
+  server.sendContent (F("<history>\n"));
+  #ifdef DEBUG_WEB
+    Serial.printf("  Envoi historique vent...\n");
+  #endif
+  for (i = idxHistorique; i < DUREE_HISTORIQUE; i++) {
+    server.sendContent (F("  <histvent>"));
+    server.sendContent (String(histVent[i]));
+    server.sendContent (F("</histvent>\n"));
+  }
+  for (i = 0; i < idxHistorique; i++) {
+    server.sendContent (F("  <histvent>"));
+    server.sendContent (String(histVent[i]));
+    server.sendContent (F("</histvent>\n"));
+  }
+  #ifdef DEBUG_WEB
+    Serial.printf("  Envoi historique température CTN...\n");
+  #endif
+  for (i = idxHistorique; i < DUREE_HISTORIQUE; i++) {
+    server.sendContent (F("  <histtempctn>"));
+    server.sendContent (String(histTempCtn[i]));
+    server.sendContent (F("</histtempctn>\n"));
+  }
+  for (i = 0; i < idxHistorique; i++) {
+    server.sendContent (F("  <histtempctn>"));
+    server.sendContent (String(histTempCtn[i]));
+    server.sendContent (F("</histtempctn>\n"));
+  }
+  #ifdef DEBUG_WEB
+    Serial.printf("  Envoi historique température BMP180...\n");
+  #endif
+  for (i = idxHistorique; i < DUREE_HISTORIQUE; i++) {
+    server.sendContent (F("  <histbmp180>"));
+    server.sendContent (String(histBmp180[i]));
+    server.sendContent (F("</histbmp180>\n"));
+  }
+  for (i = 0; i < idxHistorique; i++) {
+    server.sendContent (F("  <histbmp180>"));
+    server.sendContent (String(histBmp180[i]));
+    server.sendContent (F("</histbmp180>\n"));
+  }
+  #ifdef DEBUG_WEB
+    Serial.printf("  Envoi historique pression...\n");
+  #endif
+  for (i = idxHistorique; i < DUREE_HISTORIQUE; i++) {
+    server.sendContent (F("  <histpression>"));
+    server.sendContent (String(histPression[i]));
+    server.sendContent (F("</histpression>\n"));
+  }
+  for (i = 0; i < idxHistorique; i++) {
+    server.sendContent (F("  <histpression>"));
+    server.sendContent (String(histPression[i]));
+    server.sendContent (F("</histpression>\n"));
+  }
+  server.sendContent (F("</history>\n"));
+
+  #ifdef DEBUG_WEB
+    Serial.printf("  avant client().stop()...\n");
+  #endif
+  server.sendContent("");
+  server.client().stop(); // Stop is needed because we sent no content length
+
+  #ifdef DEBUG_WEB
+    Serial.printf("Sortie de handleGetHistory()\n");
+  #endif
 
 }
 
@@ -209,7 +353,6 @@ void handleGetVersion(void) {
 
   // Renvoi la réponse au client http
   XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
-  //XML += F("<?xml-stylesheet href=\"style.css\" type=\"text/css\"?>\n");
   XML += F("<version>\n");
   XML += F("  <app>");
   XML += String(APP_NAME);
@@ -228,7 +371,6 @@ void handleGetVersion(void) {
   XML += F("  </string>\n");
   XML += F("</version>\n");
 
-  //server.sendHeader("Access-Control-Allow-Origin", "*");
   server.send(200,"text/xml",XML);
 
 }
@@ -242,7 +384,6 @@ void handleGetNetworks(void) {
 
   // Renvoi la réponse au client http
   XML  =F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
-  //XML +=F("<?xml-stylesheet href=\"style.css\" type=\"text/css\"?>\n");
   XML += "<networks>\n";
   XML += getWifiNetworks();
   XML += "</networks>\n";
@@ -445,7 +586,6 @@ void handleWifiConnect(void) {
 
     // Réponse au client
     XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
-    //XML +=F("<?xml-stylesheet href=\"style.css\" type=\"text/css\"?>\n");
     XML += F("<wificonnect>\n");
     XML += F("  <result>") + result + F("</result>\n");
     XML += F("</wificonnect>\n");
@@ -453,7 +593,6 @@ void handleWifiConnect(void) {
   } else { // if (server.args() > 0)
     // Réponse au client
     XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
-    //XML +=F("<?xml-stylesheet href=\"style.css\" type=\"text/css\"?>\n");
     XML += F("<wificonnect>\n");
     XML += F("  <result>wificonnect: missing parameters!</result>\n");
     XML += F("</wificonnect>\n");

@@ -57,22 +57,23 @@
       <p>
         WeThermic <span id="version">v0.0.00000000</span> - Copyright © Gauthier Brière (<a href="https://github.com/fra589">fra589</a>) - 2024-2024
       </p>
+      <!--------------------------------------------------------------------------------------->
       <div id="settingsDialog" class="settingsDialog noshow">
         <span class="fRight" onclick="closeSettings();"><image id="boutonClose" src="images/close.svg"/></span>
         <h1>Settings :</h1>
         <hr />
         <p class="leftAlign">
-          Thème de couleur :
+          Color theme:
           <span>
           <input type="radio" name="theme" id="sombre" value="sombre" onchange="changeTheme('sombre');" checked />
-          <label for="sombre">Sombre</label>
+          <label for="sombre">Dark</label>
           &nbsp;
           <input type="radio" name="theme" id="clair" value="clair" onchange="changeTheme('clair');" />
-          <label for="clair">Clair</label>
+          <label for="clair">Clear</label>
           </span>
         </p>
         <p class="leftAlign">
-          Echelle température :&nbsp;
+          Temperature scale:&nbsp;
           <input type="radio" name="scaleTemp" id="scale0" value="0" onclick="echelleTemperature(0);" />
           <label for="scale0">0</label>
           &nbsp;
@@ -85,33 +86,35 @@
           <input type="radio" name="scaleTemp" id="scale3" value="3" onclick="echelleTemperature(3);" />
           <label for="scale3">3</label>
           &nbsp;
-          <label class="nowarp">Ech.min.&nbsp;<input type="number" class="numScale" name="scaleMin" id="scaleMin" onchange="echelleTemperature(-1);" /></label>
+          <label class="nowarp">Min.scale&nbsp;<input type="number" class="numScale" name="scaleMin" id="scaleMin" onchange="echelleTemperature(-1);" /></label>
           &nbsp;
-          <label class="nowarp">Ech.max.&nbsp;<input type="number" class="numScale" name="scaleMax" id="scaleMax" onchange="echelleTemperature(-1);" /></label>
+          <label class="nowarp">Max.scale&nbsp;<input type="number" class="numScale" name="scaleMax" id="scaleMax" onchange="echelleTemperature(-1);" /></label>
+          <br />
+          <label class="nowarp">Average wind on&nbsp;<input type="range" id="lMoyVent" name="lMoyVent" min="1" max="5" value="1" step="1" onchange="changeLargeurVent()" oninput="inputLargeurVent()" />&nbsp;<span id="valMoyVent" >1</span>&nbsp;minute</label>
+        </p>
         <p class="leftAlign">
           <input type="checkbox" id="showPress" name="showPress" onclick="visuCourbes();" checked />
-          <label for="showPress">Voir pression atmosphérique</label>
+          <label for="showPress">See atmospheric pressure</label>
           <br />
           <input type="checkbox" id="showT1" name="showT1" onclick="visuCourbes();" checked />
-          <label for="showT1">Voir température 1</label>
+          <label for="showT1">CTN temperature</label>
           &nbsp;
           <input type="checkbox" id="showT2" name="showT2" onclick="visuCourbes();" />
-          <label for="showT2">Voir température 2</label>
-        </p>
-        <!--</p>
+          <label for="showT2">BMP180 temperature</label>
           <br />
-          <button type="button" onclick="recalePression();">Recaller la courbe de pression</button>
-        </p>-->
+          <label class="nowarp">Average temp.on&nbsp;<input type="range" id="lMoyTemp" name="lMoyTemp" min="1" max="5" value="1" step="1" onchange="changeLargeurTemp()" oninput="inputLargeurTemp()" />&nbsp;<span id="valMoyTemp" >1</span>&nbsp;minute</label>
+        </p>
+        <!--------------------------------------------------------------------------------------->
         <hr />
-        <h2>Configuration du réseau WiFi</h2>
+        <h2>WiFi network configuration</h2>
         <div id="activeNetwork">
-          <label for="ssidActuel">Réseau en cours, SSID = </label>
+          <label for="ssidActuel">Actual network, SSID = </label>
           <input type="text" name="ssidActuel" id="ssidActuel" value="" readonly />
           <br />
-          <label for="ipActuel">Réseau en cours, IP = </label>
+          <label for="ipActuel">Actual network, IP = </label>
           <input type="text" name="ipActuel" id="ipActuel" value="" readonly />
-          <div id="btnDeconnect" title="Se déconnecter du réseau en cours..." onclick="deconnect_clique()">
-            Déconnexion...
+          <div id="btnDeconnect" title="Disconnect from current network..." onclick="deconnect_clique()">
+            Disconnect...
           </div>
         </div>
         <hr class="lignePartielle" />
@@ -123,22 +126,22 @@
         <div id="dlgMask0" class="dlgMask noshow">
           <div id="dlgConnect" class="dialog masquer">
             <div id="dlgContenu0" class="dlgPwdContenu">
-              <h2>Se connecter à un nouveau WiFi</h2>
+              <h2>Connect to a new WiFi</h2>
               <p>
-                <label for="ssid_input">Connexion au réseau : SSID = </label>
+                <label for="ssid_input">Connecting to network: SSID = </label>
                 <input type="text" name="ssid_input" id="ssid_input" value="" readonly />
                 <br />
-                <label for="pwd_input">Entrez le mot de passe du réseau : </label>
+                <label for="pwd_input">Enter network password: </label>
                 <input type="password" name="pwd_input" id="pwd_input" value="" onkeyup="connect_keyup(event)" />
               </p>
             </div>
             <p class="alignement-droit" id="dlgConnectButtons">
               <button id="btnConnect" title="Se connecter au réseau" onclick="connect_clique()">
-                Connexion
+                Connect
               </button>
               &nbsp;
               <button id="btnAnnuler" title="Fermer cette boite de dialogue" onclick="connect_cancel()">
-                Annuler
+                Cancel
               </button>
             </p>
           </div> <!-- dlgConnect -->

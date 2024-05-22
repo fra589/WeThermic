@@ -61,12 +61,23 @@
   #define COEF_VENT 0.245
   extern volatile uint32_t pulse;
   extern float vent;
+  
   // Mesure température et pression
-  extern double temperature;
-  extern double pression;
+  extern float tempBmp180;
+  extern float pression;
   // Thermistor
   #define CTN_PIN A0
-  extern double tempCtn;
+  extern float tempCtn;
+
+  // Stockage 5 minutes de mesures :
+  // Taille du tableau pour stocker toute les mesure pendant 
+  // 5 minutes avec un interval de "DUREE" millisecondes.
+  #define DUREE_HISTORIQUE 600 // ( 5 * 60 / ( DUREE / 1000 ) )
+  extern float histVent[DUREE_HISTORIQUE];
+  extern float histBmp180[DUREE_HISTORIQUE];
+  extern float histPression[DUREE_HISTORIQUE];
+  extern float histTempCtn[DUREE_HISTORIQUE];
+  extern uint32_t idxHistorique;
 
   // Paramètres WiFi 
   #define DEFAULT_CLI_SSID   ""           // SSID client (la balance se connecte si défini)

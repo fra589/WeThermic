@@ -19,42 +19,55 @@
 /*                                                                          */
 /****************************************************************************/
 
+//style par défaut
 var cssFile = 'style_theme_sombre.css';
-var netDevURL = 'http://192.168.1.107';
+
+// pour dev, adresse IP de la Wemos connectée au wifi
+//var netDevURL = 'http://192.168.1.107'; // domopassaduy
+//var netDevURL = 'http://192.168.1.68'; // BlancheNeige
+var netDevURL = 'http://192.168.1.60'; // La Gouffrerie
 
 // Couleurs par défaut
 var couleurVent         = 'rgb(0, 180, 255)';
 var couleurFillVent     = 'rgba(0, 180, 255, 0.3)';
-var couleurMoyVent      = 'rgb(160, 0, 180)';
+var couleurMoyVent      = 'rgb(0, 125, 179)';
 var couleurPression     = 'rgb(0, 127, 127)';
 var couleurFillPression = 'rgba(0, 127, 127, 0.2)';
-var couleurTempBMP180   = 'rgb(255, 63, 32)';
-var couleurMoyBMP180    = 'rgb(204, 27, 0)';
-var couleurTempCtn      = 'rgb(0, 255, 0)';
-var couleurMoyCtn       = 'rgb(0, 180, 0)';
+var couleurTempCtn      = 'rgb(255, 63, 32)';
+var couleurMoyCtn       = 'rgb(204, 27, 0)';
+var couleurTempBmp180   = 'rgb(0, 255, 0)';
+var couleurMoyBMP180    = 'rgb(0, 180, 0)';
 var couleurGrid         = 'rgb(31, 47, 63)';
 
 var attenteOK  = false;
-var vent        = 0.0;
-var temperature = 0.0;
-var pression    = 0.0;
-var tempctn     = 0.0;
 
-var largeurMoyVent = 120; // Moyenne sur 1 minute
-var tblVents       = new Array(largeurMoyVent);
-var tblVentsIdx    = 0;
-var ventTotal      = 0.0;
-var ventMoyen      = 0.0;
+var histVentData    = new Array();
+var histVentMoy     = new Array();
+var vent            = 0.0;
+var histTempCtn     = new Array();
+var histTCtnMoy     = new Array();
+var tempctn         = 0.0;
+var histBmp180Data  = new Array();
+histBmp180Moy       = new Array();
+var tempBmp180      = 0.0;
+var histPression    = new Array();
+var pression        = 0.0;
+
+var largeurMoyVent  = 120; // Moyenne sur 1 minute
+tblVents            = new Array(largeurMoyVent);
+var tblVentsIdx     = 0;
+var ventTotal       = 0.0;
+var ventMoyen       = 0.0;
 
 var largeurMoyTemp  = 120; // Moyenne sur 1 minutes
-var largeurTempFull = false;
+tblTemp             = new Array(largeurMoyTemp);
 var tblTempIdx      = 0;
-var tblTemp         = new Array(largeurMoyTemp);
-var tempTotale      = 0.0;
-var tempMoyene      = 0.0;
-var tblCtn         = new Array(largeurMoyTemp);
-var ctnTotal       = 0.0;
-var ctnMoyen       = 0.0;
+var largeurTempFull = false;
+var bmp180Total     = 0.0;
+var bmp180Moyen     = 0.0;
+tblCtn              = new Array(largeurMoyTemp);
+var ctnTotal        = 0.0;
+var ctnMoyen        = 0.0;
 
 var showT1    = true;
 var showT2    = false;
@@ -83,7 +96,8 @@ function index_onload() {
   }
   // Récupère les premières valeurs de manière synchrone
   // pour initialisation des graphiques.
-  XMLHttpRequest_get_first_values();
+  // XMLHttpRequest_get_first_values(); => inclu dans get_history()
+  XMLHttpRequest_get_history();
 
   // Configuration des graphiques
   var style = getComputedStyle(document.body);
@@ -94,7 +108,8 @@ function index_onload() {
       {
         ////cubicInterpolationMode: 'monotone',
         cubicInterpolationMode: 'default',
-        data: [],
+        //data: [],
+        data: histVentData,
         fill: {
           target: 'origin',
           above: couleurFillVent,
@@ -107,7 +122,7 @@ function index_onload() {
       },
       {
         cubicInterpolationMode: 'default',
-        data: [],
+        data: histVentMoy,
         fill: false,
         borderColor: couleurMoyVent,
         borderWidth:2,
@@ -116,7 +131,7 @@ function index_onload() {
       },
       {
         cubicInterpolationMode: 'default',
-        data: [],
+        data: histPression,
         fill: {
           target: 'origin',
           above: couleurFillPression,
@@ -205,7 +220,7 @@ function index_onload() {
     datasets: [
       {
         cubicInterpolationMode: 'default',
-        data: [],
+        data: histTempCtn,
         fill: false,
         borderColor: couleurTempCtn,
         borderWidth:2,
@@ -215,7 +230,7 @@ function index_onload() {
       },
       {
         cubicInterpolationMode: 'default',
-        data: [],
+        data: histTCtnMoy,
         fill: false,
         borderColor: couleurMoyCtn,
         borderWidth:3,
@@ -225,9 +240,9 @@ function index_onload() {
       },
       {
         cubicInterpolationMode: 'default',
-        data: [],
+        data: histBmp180Data,
         fill: false,
-        borderColor: couleurTempBMP180,
+        borderColor: couleurTempBmp180,
         borderWidth:2,
         order: 3,
         tension: 0.4,
@@ -235,7 +250,7 @@ function index_onload() {
       },
       {
         cubicInterpolationMode: 'default',
-        data: [],
+        data: histBmp180Moy,
         fill: false,
         borderColor: couleurMoyBMP180,
         borderWidth:3,
@@ -245,7 +260,7 @@ function index_onload() {
       },
       {
         cubicInterpolationMode: 'default',
-        data: [],
+        data: histPression,
         fill: {
           target: 'origin',
           above: couleurFillPression,
@@ -289,11 +304,11 @@ function index_onload() {
             });
             chart.data.datasets[2].data.push({
               x: Date.now(),
-              y: temperature
+              y: tempBmp180
             });
             chart.data.datasets[3].data.push({
               x: Date.now(),
-              y: tempMoyene
+              y: bmp180Moyen
             });
             chart.data.datasets[4].data.push({
               x: Date.now(),
@@ -426,6 +441,103 @@ function recalePression() {
   Window.graphTemp.update();
 }
 
+function XMLHttpRequest_get_history() {
+
+  const request = new XMLHttpRequest();
+  if (location.protocol == 'file:') {
+    request.open("GET", netDevURL + "/history", false); // `false` makes the request synchronous
+  } else {
+    request.open("GET", "/history", false); // `false` makes the request synchronous
+  }
+  request.send(null);
+
+  if (request.status === 200) {
+    var xml = request.responseXML;
+    // nombre de millisecondes écoulées depuis le premier janvier 1970
+    tX = Date.now();
+    // Il y a 5 minutes :
+    tX = tX - (5 * 60 * 1000) 
+    hist = xml.getElementsByTagName("hist");
+    for (const h of hist) {
+      vent       = Number(h.getElementsByTagName("vent")[0].childNodes[0].nodeValue);
+      calculMoyenneVent();
+      tempctn    = Number(h.getElementsByTagName("tempctn")[0].childNodes[0].nodeValue);
+      tempBmp180 = Number(h.getElementsByTagName("tbmp180")[0].childNodes[0].nodeValue);
+      calculMoyenneTemperature();
+      pression   = Number(h.getElementsByTagName("press")[0].childNodes[0].nodeValue);
+      histVentData.push  ({x: tX, y: vent});
+      histVentMoy.push   ({x: tX, y: ventMoyen});
+      histTempCtn.push   ({x: tX, y: tempctn});
+      histTCtnMoy.push   ({x: tX, y: ctnMoyen});
+      histBmp180Data.push({x: tX, y: tempBmp180});
+      histBmp180Moy.push ({x: tX, y: bmp180Moyen});
+      histPression.push  ({x: tX, y: pression});
+      tX += 500 // pas des mesures = 500 ms
+    }
+    vent = histVentData[histVentData.length -1];
+    ventMoyen   = vent;
+    tempctn = histTempCtn[histTempCtn.length -1];
+    ctnMoyen    = tempctn;
+    tempBmp180 = histBmp180Data[histBmp180Data.length -1];
+    bmp180Moyen = tempBmp180;
+    pression = histPression[histPression.length -1];
+  }
+
+}
+
+function XMLHttpRequest_get_history_old() {
+
+  const request = new XMLHttpRequest();
+  if (location.protocol == 'file:') {
+    request.open("GET", netDevURL + "/history", false); // `false` makes the request synchronous
+  } else {
+    request.open("GET", "/history", false); // `false` makes the request synchronous
+  }
+  request.send(null);
+
+  if (request.status === 200) {
+    var xml = request.responseXML;
+    // nombre de millisecondes écoulées depuis le premier janvier 1970
+    tX = Date.now();
+    // Il y a 5 minutes :
+    tX = tX - (5 * 60 * 1000) 
+    hist = xml.getElementsByTagName("histvent");
+    for (const vent of hist) {
+      histVentData.push({x: tX, y: vent.childNodes[0].nodeValue});
+      tX += 500 // pas des mesures = 500 ms
+    }
+    vent = histVentData[histVentData.length -1];
+    ventMoyen   = vent;
+    // histtempctn
+    tX = tX - (5 * 60 * 1000) 
+    hist = xml.getElementsByTagName("histtempctn");
+    for (const temp of hist) {
+      histTempCtn.push({x: tX, y: temp.childNodes[0].nodeValue});
+      tX += 500 // pas des mesures = 500 ms
+    }
+    tempctn = histTempCtn[histTempCtn.length -1];
+    ctnMoyen    = tempctn;
+    // histbmp180
+    tX = tX - (5 * 60 * 1000) 
+    hist = xml.getElementsByTagName("histbmp180");
+    for (const bmp180 of hist) {
+      histBmp180Data.push({x: tX, y: bmp180.childNodes[0].nodeValue});
+      tX += 500 // pas des mesures = 500 ms
+    }
+    tempBmp180 = histBmp180Data[histBmp180Data.length -1];
+    bmp180Moyen = tempBmp180;
+    // histpression
+    tX = tX - (5 * 60 * 1000) 
+    hist = xml.getElementsByTagName("histpression");
+    for (const press of hist) {
+      histPression.push({x: tX, y: press.childNodes[0].nodeValue});
+      tX += 500 // pas des mesures = 500 ms
+    }
+    pression = histPression[histPression.length -1];
+  }
+
+}
+
 function XMLHttpRequest_get_first_values() {
   // HTTP synchronous request
   const request = new XMLHttpRequest();
@@ -442,8 +554,8 @@ function XMLHttpRequest_get_first_values() {
     ventMoyen   = vent;
     tempctn     = Number(xml.getElementsByTagName("tempctn")[0].childNodes[0].nodeValue);
     ctnMoyen    = tempctn;
-    temperature = Number(xml.getElementsByTagName("temperature")[0].childNodes[0].nodeValue);
-    tempMoyene  = temperature;
+    tempBmp180  = Number(xml.getElementsByTagName("temperature")[0].childNodes[0].nodeValue);
+    bmp180Moyen = tempBmp180;
     pression    = Number(xml.getElementsByTagName("pression")[0].childNodes[0].nodeValue);
   }
 
@@ -488,7 +600,7 @@ function XMLHttpResult(requette, xml, text) {
       doc_vent.innerHTML   += '<span class="couleurVent">inst = ' + Number.parseFloat(vent).toFixed(1).padStart(4, ' ') + ' m/s</span>';
 
       tempctn     = Number(xml.getElementsByTagName("tempctn")[0].childNodes[0].nodeValue);
-      temperature = Number(xml.getElementsByTagName("temperature")[0].childNodes[0].nodeValue);
+      tempBmp180  = Number(xml.getElementsByTagName("temperature")[0].childNodes[0].nodeValue);
       calculMoyenneTemperature();
 
       var showT1 = document.getElementById("showT1").checked; 
@@ -496,8 +608,8 @@ function XMLHttpResult(requette, xml, text) {
       var doc_temp = document.getElementById("valeurTemp");
       doc_temp.innerHTML    = ""
       if (showT2) {
-        doc_temp.innerHTML   += '<span class="couleurMoyBMP180">moy = '   + Number.parseFloat(tempMoyene).toFixed(1) + '</span>,&nbsp;';
-        doc_temp.innerHTML   += '<span class="couleurTempBMP180">inst = ' + Number.parseFloat(temperature).toFixed(2) + '°C</span><br />';
+        doc_temp.innerHTML   += '<span class="couleurMoyBMP180">moy = '   + Number.parseFloat(bmp180Moyen).toFixed(1) + '</span>,&nbsp;';
+        doc_temp.innerHTML   += '<span class="couleurTempBmp180">inst = ' + Number.parseFloat(tempBmp180).toFixed(2) + '°C</span><br />';
       }
       if (showT1) {
         doc_temp.innerHTML   += '<span class="couleurMoyCtn">moy = '      + Number.parseFloat(ctnMoyen).toFixed(1) + '</span>,&nbsp;';
@@ -509,12 +621,12 @@ function XMLHttpResult(requette, xml, text) {
       var doc_press = document.getElementById("valeurPress");
       doc_press.innerHTML = '<span class="couleurPression">' + Number.parseFloat(pression).toFixed(1) + "hPa</span>";
 
-      attenteOK = true;
     } else if ((requette == "/getnetworks") || (requette == netDevURL + "/getnetworks")) {
       // Rempli la liste des réseaux disponibles
       setNetworkList(xml);
-      attenteOK = true;
-    }  else if (requette == "wificonnect") {
+      attenteOK = True;
+
+    }  else if (requette == "/wificonnect") {
       result = xml.getElementsByTagName("result")[0].childNodes[0].nodeValue;
       if (result == "OK") {
         alert("Connexion OK.");
@@ -574,11 +686,11 @@ function calculMoyenneTemperature() {
     tblCtn[tblTempIdx] = 0
   }
 
-  tempTotale = tempTotale - tblTemp[tblTempIdx];
+  bmp180Total = bmp180Total - tblTemp[tblTempIdx];
   ctnTotal   = ctnTotal   - tblCtn[tblTempIdx];
-  tblTemp[tblTempIdx] = temperature;
+  tblTemp[tblTempIdx] = tempBmp180;
   tblCtn[tblTempIdx] = tempctn;
-  tempTotale = tempTotale + tblTemp[tblTempIdx];
+  bmp180Total = bmp180Total + tblTemp[tblTempIdx];
   ctnTotal = ctnTotal + tblCtn[tblTempIdx];
 
   // Avance l'indexe du tableau
@@ -590,12 +702,12 @@ function calculMoyenneTemperature() {
 
   if (largeurTempFull) {
     // calcul la moyenne sur l'ensemble du tableau
-    tempMoyene = Math.round(tempTotale / largeurMoyTemp * 100)/100;
-    ctnMoyen   = Math.round(ctnTotal / largeurMoyTemp * 100)/100;
+    bmp180Moyen = Math.round(bmp180Total / largeurMoyTemp * 100)/100;
+    ctnMoyen    = Math.round(ctnTotal / largeurMoyTemp * 100)/100;
   } else {
     // calcul la moyenne jusqu'à l'indexe (le tableau n'est pas complet).
-    tempMoyene = Math.round(tempTotale / tblTempIdx * 100)/100;
-    ctnMoyen = Math.round(ctnTotal / tblTempIdx * 100)/100;
+    bmp180Moyen = Math.round(bmp180Total / tblTempIdx * 100)/100;
+    ctnMoyen    = Math.round(ctnTotal / tblTempIdx * 100)/100;
   }
   
 }
@@ -604,11 +716,13 @@ function changeSettings() {
 
   var dialog = document.getElementById("settingsDialog")
   dialog.classList.remove("noshow");
+/*
   var dlgMask = document.getElementById("dlgMask0");
   dlgMask.classList.remove("noshow");
   var attente = document.getElementById("attente0")
   attente.classList.remove("noshow");
-  
+*/
+
   // mise à jour des champs de saisie
   var scaleMin = document.getElementById("scaleMin");
   var scaleMax = document.getElementById("scaleMax");
@@ -901,7 +1015,7 @@ function XMLHttpRequest_post_wificonnect(SSID, pwd, channel) {
   xhttp.onreadystatechange = function() {
     if (xhttp.readyState == 4) {
       if ((xhttp.status == 200) || (xhttp.status == 0)) {
-        XMLHttpResult("wificonnect", xhttp.responseXML, xhttp.responseText);
+        XMLHttpResult("/wificonnect", xhttp.responseXML, xhttp.responseText);
       } else {
         alert("XMLHttpRequest_post_wificonnect() : Error " + xhttp.status);
       }
@@ -974,3 +1088,64 @@ function fullscreenchanged(event) {
   document.getElementById("lapage").style.width = width + "px";
 }
 document.addEventListener("fullscreenchange", fullscreenchanged);
+
+function inputLargeurVent() {
+  // Modifie la largeur de calcul de la moyenne vent
+  var lbl = document.getElementById("valMoyVent");
+  var newVal = document.getElementById("lMoyVent").value;
+  lbl. innerText = newVal;
+}
+
+function changeLargeurVent() {
+  // Modifie la largeur de calcul de la moyenne vent
+  var lbl = document.getElementById("valMoyVent");
+  var newVal = document.getElementById("lMoyVent").value;
+  lbl. innerText = newVal;
+  largeurMoyVent = newVal * 120;
+  delete tblVents;
+  tblVents    = new Array(largeurMoyVent);
+  tblVentsIdx = 0
+  ventTotal   = 0.0;
+  ventMoyen   = 0.0;
+  // Efface les moyennes précédentes
+  Window.graphVent.data.datasets[1].data = [];
+}
+
+function inputLargeurTemp() {
+  // Modifie la largeur de calcul de la moyenne vent
+  var lbl = document.getElementById("valMoyTemp");
+  var newVal = document.getElementById("lMoyTemp").value;
+  lbl. innerText = newVal;
+}
+
+function changeLargeurTemp() {
+  // Modifie la largeur de calcul de la moyenne température
+  largeurMoyTemp = document.getElementById("lMoyTemp").value * 120;
+  delete tblTemp;
+  tblTemp          = new Array(largeurMoyTemp);
+  tblTempIdx       = 0;
+  largeurTempFull  = false;
+  bmp180Total      = 0.0;
+  bmp180Moyen      = 0.0;
+  delete tblCtn;
+  tblCtn           = new Array(largeurMoyTemp);
+  ctnTotal         = 0.0;
+  ctnMoyen         = 0.0;
+  // Efface les moyennes précédentes
+  Window.graphTemp.data.datasets[1].data = [];
+  Window.graphTemp.data.datasets[3].data = [];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

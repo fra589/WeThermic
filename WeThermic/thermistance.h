@@ -28,6 +28,6 @@
   #define B    3450    // Constante B du thermistor NTC
   #define C2K   273.15 // Conversion température : T °C = Température en K - C2K
 
-  double readCtn();
+  float readCtn();
   
 #endif

@@ -34,12 +34,17 @@ uint32_t temps1 = millis();
 volatile uint32_t pulse = 0;
 float vent = 0;
 // Mesure températures et pression
-double temperature = 0;
-double pression = 0;
-double tempCtn = 0;
-double temperatureCumule;
+float tempBmp180 = 0;
+float pression = 0;
+float tempCtn = 0;
+float temperatureCumule;
 long   nombreTemperature = 0;
-
+// Stockage 5 minutes de mesures :
+float histVent[DUREE_HISTORIQUE]       = {0};
+float histBmp180[DUREE_HISTORIQUE] = {0};
+float histPression[DUREE_HISTORIQUE]   = {0};
+float histTempCtn[DUREE_HISTORIQUE]    = {0};
+uint32_t idxHistorique = 0;
 // WiFi
 char cli_ssid[MAX_SSID_LEN] = DEFAULT_CLI_SSID;
 char cli_pwd[MAX_PWD_LEN]   = DEFAULT_CLI_PWD;
@@ -132,7 +137,7 @@ void loop() {
 
   if (temps1 > temps0 + DUREE) {
 
-    // Moyenne thermistor CTN
+    // Moyenne thermistor CTN sur la durée de mesure
     tempCtn = temperatureCumule / nombreTemperature;
     nombreTemperature = 0;
 
@@ -147,11 +152,20 @@ void loop() {
     // Affichage sur écran
     displayTemp();
 
+    // Mémorise les 5 dernières minutes de mesures
+    histVent[idxHistorique]       = vent;
+    histBmp180[idxHistorique] = tempBmp180;
+    histPression[idxHistorique]   = pression;
+    histTempCtn[idxHistorique++]  = tempCtn;
+    if (idxHistorique > DUREE_HISTORIQUE) {
+      idxHistorique = 0;
+    }
+
     #ifdef DEBUG2
       Serial.print("vent = ");
       Serial.print(vent);
       Serial.print(", temperature BMP180 = ");
-      Serial.print(temperature);
+      Serial.print(tempBmp180);
       Serial.print("°C, température CTN = ");
       Serial.print(tempCtn);
       Serial.print("°C, pression atmosphérique = ");

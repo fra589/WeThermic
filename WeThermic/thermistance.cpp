@@ -22,12 +22,12 @@
 #include "WeThermic.h"
 
 // Lecture thermistance 10K B3435 1% MF52B
-double readCtn() {
+float readCtn() {
 
   int t = analogRead(CTN_PIN);
   
   // Résistance du termistor CTN
-  double rCtn = (t * R1) / (1023.0F - t);
+  float rCtn = (t * R1) / (1023.0F - t);
   #ifdef DEBUG3
     Serial.print("rCtn = ");
     Serial.print(rCtn);
@@ -36,7 +36,7 @@ double readCtn() {
   // Source : https://fr.wikipedia.org/wiki/Relation_de_Steinhart-Hart
   // Pour une plage limitée de la température le calcul de la
   // température (en Kelvins) est donné par la formule suivante :
-  double T = 1/((log(rCtn / RT0) / B) + (1 / (T0 + C2K)));
+  float T = 1/((log(rCtn / RT0) / B) + (1 / (T0 + C2K)));
   // En °C :
   T = T - C2K;
   

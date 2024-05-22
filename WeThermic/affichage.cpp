@@ -91,7 +91,7 @@ void displayTemp(void) {
     display.setFont(&FreeMonoBold18pt7b);
     display.setTextSize(1);
     display.setCursor(10, 40);
-    //display.print(temperature, 1);
+    //display.print(tempBmp180, 1);
     display.print(tempCtn, 1);
     display.print("\xF7");
     display.println("C");
@@ -104,7 +104,7 @@ void displayTemp(void) {
     /*display.setFont(NULL);
     display.setTextSize(3);
     display.setCursor(8, 38);
-    display.print(temperature, 1);
+    display.print(tempBmp180, 1);
     display.print("\xF7");
     display.println("C");
     */

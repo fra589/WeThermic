@@ -14,6 +14,7 @@ Matériel utilisé :
   - 1 Capteur à effet Hall KY-003,
 - 1 Capteur de température et pression Bosch BMP180,
 - 1 Termistance 10K MF52B B3435 1%,
+- 1 écran I2C SSD1306, 0.96 Pouce, 128 x 64 Pixel.
  
 ---
 

@@ -41,7 +41,7 @@
       <div class="graph_container">
         <div id="valeursV">
           <span class="fLeft"><h1 id="valeurVent">~~~~m/s</h1></span>
-          <span class="fRight"><image id="boutonSettings" src="images/settings.svg" onclick="changeSettings();"/></span>
+          <span class="fRight"><image id="boutonSettings" src="images/settings.svg" onclick="changeSettings();" /></span>
         </div>
         <canvas id="graphVent" class="graphjs"></canvas>
       </div>
@@ -59,10 +59,10 @@
       </p>
       <!--------------------------------------------------------------------------------------->
       <div id="settingsDialog" class="settingsDialog noshow">
-        <span class="fRight" onclick="closeSettings();"><image id="boutonClose" src="images/close.svg"/></span>
+        <span class="fRight"><image id="boutonClose" src="images/close.svg" onclick="closeSettings();" /></span>
         <h1>Settings :</h1>
-        <hr />
-        <p class="leftAlign">
+        <hr id="ligneHaut" />
+        <p class="centerAlign">
           Color theme:
           <span>
           <input type="radio" name="theme" id="sombre" value="sombre" onchange="changeTheme('sombre');" checked />
@@ -72,40 +72,59 @@
           <label for="clair">Clear</label>
           </span>
         </p>
-        <p class="leftAlign">
-          Temperature scale:&nbsp;
-          <input type="radio" name="scaleTemp" id="scale0" value="0" onclick="echelleTemperature(0);" />
-          <label for="scale0">0</label>
-          &nbsp;
-          <input type="radio" name="scaleTemp" id="scale1" value="1" onclick="echelleTemperature(1);" checked />
-          <label for="scale1">1</label>
-          &nbsp;
-          <input type="radio" name="scaleTemp" id="scale2" value="2" onclick="echelleTemperature(2);" />
-          <label for="scale2">2</label>
-          &nbsp;
-          <input type="radio" name="scaleTemp" id="scale3" value="3" onclick="echelleTemperature(3);" />
-          <label for="scale3">3</label>
-          &nbsp;
-          <label class="nowarp">Min.scale&nbsp;<input type="number" class="numScale" name="scaleMin" id="scaleMin" onchange="echelleTemperature(-1);" /></label>
-          &nbsp;
-          <label class="nowarp">Max.scale&nbsp;<input type="number" class="numScale" name="scaleMax" id="scaleMax" onchange="echelleTemperature(-1);" /></label>
-          <br />
-          <label class="nowarp">Average wind on&nbsp;<input type="range" id="lMoyVent" name="lMoyVent" min="1" max="5" value="1" step="1" onchange="changeLargeurVent()" oninput="inputLargeurVent()" />&nbsp;<span id="valMoyVent" >1</span>&nbsp;minute</label>
-        </p>
-        <p class="leftAlign">
-          <input type="checkbox" id="showPress" name="showPress" onclick="visuCourbes();" checked />
-          <label for="showPress">See atmospheric pressure</label>
-          <br />
-          <input type="checkbox" id="showT1" name="showT1" onclick="visuCourbes();" checked />
-          <label for="showT1">CTN temperature</label>
-          &nbsp;
-          <input type="checkbox" id="showT2" name="showT2" onclick="visuCourbes();" />
-          <label for="showT2">BMP180 temperature</label>
-          <br />
-          <label class="nowarp">Average temp.on&nbsp;<input type="range" id="lMoyTemp" name="lMoyTemp" min="1" max="5" value="1" step="1" onchange="changeLargeurTemp()" oninput="inputLargeurTemp()" />&nbsp;<span id="valMoyTemp" >1</span>&nbsp;minute</label>
-        </p>
+        <fieldset class="settingFieldset">
+          <legend>Upper Graph</legend>
+          <p class="leftAlign">
+            <input type="checkbox" id="showWind" name="showWind" onclick="visuCourbes();" checked />
+            <label for="showWind">Show wind speed</label>
+            &nbsp;
+            <input type="checkbox" id="showPressU" name="showPressU" onclick="visuCourbes();" checked />
+            <label for="showPressU">Show atmospheric pressure</label>
+            &nbsp;
+            <input type="checkbox" id="showPressGrid" name="showPressGrid" onclick="visuCourbes();" checked />
+            <label for="showPressGrid">Show pressure grid</label>
+          </p>
+          <p class="leftAlign">
+            <label class="nowarp">Average wind on&nbsp;<input type="range" class="fullWidth" id="lMoyVent" name="lMoyVent" min="1" max="10" value="2" step="1" onchange="changeLargeurVent()" oninput="inputLargeurVent()" />&nbsp;<span id="valMoyVent" >1:30</span></label>
+          </p>
+        </fieldset>
+        <fieldset class="settingFieldset">
+          <legend>Lower Graph</legend>
+          <p class="leftAlign">
+            <input type="checkbox" id="showT1" name="showT1" onclick="visuCourbes();" checked />
+            <label for="showT1">Show CTN temperature</label>
+            &nbsp;
+            <input type="checkbox" id="showPressL" name="showPressL" onclick="visuCourbes();" />
+            <label for="showPressL">Show atmospheric pressure</label>
+            &nbsp;
+            <input type="checkbox" id="showT2" name="showT2" onclick="visuCourbes();" />
+            <label for="showT2">Show BMP180 temperature</label>
+          </p>
+          <p class="leftAlign">
+            Temperature scale:&nbsp;
+            <input type="radio" name="scaleTemp" id="scale0" value="0" onclick="echelleTemperature(0);" />
+            <label for="scale0">0</label>
+            &nbsp;
+            <input type="radio" name="scaleTemp" id="scale1" value="1" onclick="echelleTemperature(1);" checked />
+            <label for="scale1">1</label>
+            &nbsp;
+            <input type="radio" name="scaleTemp" id="scale2" value="2" onclick="echelleTemperature(2);" />
+            <label for="scale2">2</label>
+            &nbsp;
+            <input type="radio" name="scaleTemp" id="scale3" value="3" onclick="echelleTemperature(3);" />
+            <label for="scale3">3</label>
+            &nbsp;
+            <label class="nowarp">Min.scale&nbsp;<input type="number" class="numScale" name="scaleMin" id="scaleMin" onchange="echelleTemperature(-1);" /></label>
+            &nbsp;
+            <label class="nowarp">Max.scale&nbsp;<input type="number" class="numScale" name="scaleMax" id="scaleMax" onchange="echelleTemperature(-1);" /></label>
+          </p>
+          <p class="leftAlign">
+            <label class="nowarp">Average temp.on&nbsp;<input type="range" class="fullWidth" id="lMoyTemp" name="lMoyTemp" min="1" max="10" value="2" step="1" onchange="changeLargeurTemp()" oninput="inputLargeurTemp()" />&nbsp;<span id="valMoyTemp" >1:30</span></label>
+            
+          </p>
+        </fieldset>
         <!--------------------------------------------------------------------------------------->
-        <hr />
+        <!--<hr />-->
         <h2>WiFi network configuration</h2>
         <div id="activeNetwork">
           <label for="ssidActuel">Actual network, SSID = </label>

@@ -53,6 +53,13 @@ html, body {
   margin-right: 20px;
   cursor: pointer;
 }
+#boutonClose {
+  width: 64px;
+  height: 64px;
+  margin-top: 20px;
+  margin-right: 20px;
+  cursor: pointer;
+}
 .graph_container {
   height: 50%;
 }
@@ -72,10 +79,14 @@ html, body {
   /*display: inline-block;*/
   position: absolute;
   border: 1px solid;
-  top: 10%;
+  /*top: 10%;
   left: 10%;
   width: 80%;
-  height: 80%;
+  height: 80%;*/
+  top: 0%;
+  left: 0%;
+  width: 100%;
+  height: 100%;
   background-color: rgb(0 63 32 / 75%);
   color: white;
 }
@@ -93,12 +104,8 @@ html, body {
 .leftAlign {
   text-align: left;
 }
-#boutonClose {
-  width: 45px;
-  height: 45px;
-  margin-top: 20px;
-  margin-right: 20px;
-  cursor: pointer;
+.centerAlign {
+  text-align: center;
 }
 #boutonRefresh {
   width: 45px;
@@ -119,7 +126,7 @@ html, body {
 }
 .trlink {
   cursor: pointer;
-  background-color: darkgreen;
+  background-color: rgba(0,100,0,0.5);
   height: 40px;
 }
 .centreVertical {
@@ -179,6 +186,10 @@ html, body {
 .lignePartielle {
   margin-left: 18px;
   margin-right: 18px;
+  width: 2px;
+}
+#ligneHaut {
+border-top: 1px solid white;
 }
 .dlgPwdContenu {
   margin: 15px;
@@ -204,13 +215,6 @@ html, body {
   margin-right: 10px;
   text-align: right; 
 }
-/*!\ GBGB desactivé par #settingsDialog p => text-align: left;
-#dlgConnectButtons {
-  margin-right: 15px;
-  text-align: right;
-  
-}
-*/
 #cadre_attente {
   position: absolute;
   top: 40%;
@@ -235,4 +239,21 @@ html, body {
 .numScale {
   width: 5em;
 }
-.nowarp{white-space : nowrap;}
+.nowarp{
+  white-space : nowrap;
+}
+.fullWidth {
+  width: 60%;
+}
+
+
+
+
+
+
+
+
+
+
+
+

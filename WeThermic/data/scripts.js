@@ -19,15 +19,31 @@
 /*                                                                          */
 /****************************************************************************/
 
+
+//------------------------------------------------------------------------------------------
+// Paramètres par défaut, peuvent être stockés dans le localStorage (preférences utilisateur)
+//------------------------------------------------------------------------------------------
 //style par défaut
 var cssFile = 'style_theme_sombre.css';
+// Durée de calcul des moyennes
+var largeurMoyVent  = 180; // Moyenne sur 1 minute 30s
+var largeurMoyTemp  = 180; // Moyenne sur 1 minutes 30s
+// Visibilité des courbes
+var showWind      = true;
+var showT1        = true;
+var showT2        = false;
+var showPressU    = true;
+var showPressL    = false;
+var showPressGrid = true
+//------------------------------------------------------------------------------------------
 
-// pour dev, adresse IP de la Wemos connectée au wifi
-//var netDevURL = 'http://192.168.1.107'; // domopassaduy
+
+// pour debug du developpement, adresse IP de la Wemos connectée au wifi
+var netDevURL = 'http://192.168.1.107'; // domopassaduy
 //var netDevURL = 'http://192.168.1.68'; // BlancheNeige
-var netDevURL = 'http://192.168.1.60'; // La Gouffrerie
+//var netDevURL = 'http://192.168.1.60'; // La Gouffrerie
 
-// Couleurs par défaut
+// Couleurs par défaut du theme sombre
 var couleurVent         = 'rgb(0, 180, 255)';
 var couleurFillVent     = 'rgba(0, 180, 255, 0.3)';
 var couleurMoyVent      = 'rgb(0, 125, 179)';
@@ -54,13 +70,11 @@ var tempBmp180      = 0.0;
 var histPression    = new Array();
 var pression        = 0.0;
 
-var largeurMoyVent  = 120; // Moyenne sur 1 minute
 tblVents            = new Array(largeurMoyVent);
 var tblVentsIdx     = 0;
 var ventTotal       = 0.0;
 var ventMoyen       = 0.0;
 
-var largeurMoyTemp  = 120; // Moyenne sur 1 minutes
 tblTemp             = new Array(largeurMoyTemp);
 var tblTempIdx      = 0;
 var largeurTempFull = false;
@@ -70,20 +84,72 @@ tblCtn              = new Array(largeurMoyTemp);
 var ctnTotal        = 0.0;
 var ctnMoyen        = 0.0;
 
-var showT1    = true;
-var showT2    = false;
-var showPress = true;
-
 var isFullScreen = false;
 
 function index_onload() {
 
-  // Charge le fichier de style par défaut
+  // Restauration des préférences avec l'API localStorage plutôt que des cookies
+  var cssPref = localStorage.getItem("cssFile");
+  if (cssPref !== null) {
+    cssFile = cssPref;
+  }
+  if (cssFile == 'style_theme_sombre.css') {
+    document.getElementById("sombre").checked = true;
+  } else {
+    document.getElementById("clair").checked = true;
+  }
   loadStyle();
+
+  // Durée de calcul des moyennes par défaut ou celui défini dans le localStorage
+  var moyPref = localStorage.getItem("largeurMoyVent");
+  if (moyPref !== null) {
+    largeurMoyVent = Number(moyPref);
+  }
+  moyPref = localStorage.getItem("largeurMoyTemp");
+  if (moyPref !== null) {
+    largeurMoyTemp = Number(moyPref);
+  }
+  document.getElementById("lMoyVent").value = largeurMoyVent / 60;
+  inputLargeurVent();
+  document.getElementById("lMoyTemp").value = largeurMoyTemp / 60;
+  inputLargeurTemp();
+
+  // Visibilité des courbes
+  var visiPref = localStorage.getItem("showWind");
+  if (visiPref !== null) {
+    showWind = visiPref;
+  }
+  var visiPref = localStorage.getItem("showT1");
+  if (visiPref !== null) {
+    showT1 = visiPref;
+  }
+  var visiPref = localStorage.getItem("showT2");
+  if (visiPref !== null) {
+    showT2 = visiPref;
+  }
+  var visiPref = localStorage.getItem("showPressU");
+  if (visiPref !== null) {
+    showPressU = visiPref;
+  }
+  var visiPref = localStorage.getItem("showPressL");
+  if (visiPref !== null) {
+    showPressL = visiPref;
+  }
+  var visiPref = localStorage.getItem("showPressGrid");
+  if (visiPref !== null) {
+    showPressGrid = visiPref;
+  }
+  document.getElementById("showWind").checked      = showWind;
+  document.getElementById("showT1").checked        = showT1;
+  document.getElementById("showT2").checked        = showT2;
+  document.getElementById("showPressU").checked    = showPressU;
+  document.getElementById("showPressL").checked    = showPressL;
+  document.getElementById("showPressGrid").checked = showPressGrid;
 
   // Redimentionnement des graphiques en fonction de la page
   height = window.innerHeight;
   width  = window.innerWidth;
+
 
   //alert(width + "\n" + height);
   document.getElementById("lapage").style.height = height + "px";
@@ -379,15 +445,18 @@ function index_onload() {
     options: tempOptions
     //configTemp
   });
-  // Masque le graphique de pression en bas
-  Window.graphTemp.setDatasetVisibility(4, false); // hides dataset at index 1
-  Window.graphTemp.options.scales['y1'].ticks.display = false;
-  Window.graphTemp.options.scales['y1'].grid.display = false;
-  // Par défaut, le graphe de température du BMP180 est masqué (showT2 = false)
-  Window.graphTemp.setDatasetVisibility(2, showT2);
-  Window.graphTemp.setDatasetVisibility(3, showT2);
-
+  // Masque toutes les courbes
+  Window.graphVent.setDatasetVisibility(0, false);
+  Window.graphVent.setDatasetVisibility(1, false);
+  Window.graphVent.setDatasetVisibility(2, false);
+  Window.graphTemp.setDatasetVisibility(0, false);
+  Window.graphTemp.setDatasetVisibility(1, false);
+  Window.graphTemp.setDatasetVisibility(2, false);
+  Window.graphTemp.setDatasetVisibility(3, false);
+  Window.graphTemp.setDatasetVisibility(4, false);
   Window.graphTemp.update();
+  // Affiche les courbes visibles en fonction des préférences
+  visuCourbes();
   
   // Blocage de la mise en veille (ne fonctionne qu'en HTTPS ?)
   ////getScreenLock();
@@ -464,19 +533,23 @@ function XMLHttpRequest_get_history() {
     tX = tX - (5 * 60 * 1000) 
     hist = xml.getElementsByTagName("hist");
     for (const h of hist) {
-      vent       = Number(h.getElementsByTagName("vent")[0].childNodes[0].nodeValue);
-      calculMoyenneVent();
-      tempctn    = Number(h.getElementsByTagName("tempctn")[0].childNodes[0].nodeValue);
-      tempBmp180 = Number(h.getElementsByTagName("tbmp180")[0].childNodes[0].nodeValue);
-      calculMoyenneTemperature();
       pression   = Number(h.getElementsByTagName("press")[0].childNodes[0].nodeValue);
-      histVentData.push  ({x: tX, y: vent});
-      histVentMoy.push   ({x: tX, y: ventMoyen});
-      histTempCtn.push   ({x: tX, y: tempctn});
-      histTCtnMoy.push   ({x: tX, y: ctnMoyen});
-      histBmp180Data.push({x: tX, y: tempBmp180});
-      histBmp180Moy.push ({x: tX, y: bmp180Moyen});
-      histPression.push  ({x: tX, y: pression});
+      if (pression != 0) {
+        // Donnée d'historique définie uniquement si pression != 0
+        vent       = Number(h.getElementsByTagName("vent")[0].childNodes[0].nodeValue);
+        calculMoyenneVent();
+        tempctn    = Number(h.getElementsByTagName("tempctn")[0].childNodes[0].nodeValue);
+        tempBmp180 = Number(h.getElementsByTagName("tbmp180")[0].childNodes[0].nodeValue);
+        calculMoyenneTemperature();
+        // Envoie les données d'historique dans le graphique
+        histVentData.push  ({x: tX, y: vent});
+        histVentMoy.push   ({x: tX, y: ventMoyen});
+        histTempCtn.push   ({x: tX, y: tempctn});
+        histTCtnMoy.push   ({x: tX, y: ctnMoyen});
+        histBmp180Data.push({x: tX, y: tempBmp180});
+        histBmp180Moy.push ({x: tX, y: bmp180Moyen});
+        histPression.push  ({x: tX, y: pression});
+      }
       tX += 500 // pas des mesures = 500 ms
     }
     vent = histVentData[histVentData.length -1];
@@ -629,7 +702,7 @@ function XMLHttpResult(requette, xml, text) {
     } else if ((requette == "/getnetworks") || (requette == netDevURL + "/getnetworks")) {
       // Rempli la liste des réseaux disponibles
       setNetworkList(xml);
-      attenteOK = True;
+      attenteOK = true;
 
     }  else if (requette == "/wificonnect") {
       result = xml.getElementsByTagName("result")[0].childNodes[0].nodeValue;
@@ -755,9 +828,11 @@ function changeTheme(theme) {
     themeStyle = document.getElementById('cssTheme');
     themeStyle.href = cssFile;
   }
+  // Sauvegarde préférece
+  localStorage.setItem("cssFile", cssFile);
 
   setTimeout(() => {
-    // setTimeout() pour laisser le temps de recherger le CSS
+    // setTimeout() pour laisser le temps de recharger le CSS
     // Reconfiguration des graphiques --couleurVent: rgb(0 0 160);
     var style = getComputedStyle(document.body);
     couleurVent         = style.getPropertyValue('--couleurVent');
@@ -795,19 +870,60 @@ function changeTheme(theme) {
 function visuCourbes() {
   
   // Affiche ou masque les différentes courbes
-
-  showPress = document.getElementById("showPress").checked; 
-  Window.graphVent.setDatasetVisibility(2, showPress);
-  Window.graphVent.options.scales['y1'].ticks.display = showPress;
-  Window.graphVent.options.scales['y1'].grid.display = showPress;
   
-  showT1 = document.getElementById("showT1").checked; 
+  // Graphique supérieurs
+  newValue = document.getElementById("showWind").checked;
+  if (newValue != showWind) {
+    showWind = newValue;
+    localStorage.setItem("showWind", showWind);
+  }
+  Window.graphVent.setDatasetVisibility(0, showWind);
+  Window.graphVent.setDatasetVisibility(1, showWind);
+  Window.graphVent.options.scales['y'].ticks.display = showWind;
+  Window.graphVent.options.scales['y'].grid.display = showWind;
+
+  newValue = document.getElementById("showPressU").checked;
+  if (newValue != showPressU) {
+    showPressU = newValue;
+    localStorage.setItem("showPressU", showPressU);
+  }
+  Window.graphVent.setDatasetVisibility(2, showPressU);
+
+  // Graphique inférieurs
+  newValue = document.getElementById("showT1").checked;
+  if (newValue != showT1) {
+    showT1 = newValue;
+    localStorage.setItem("showT1", showT1);
+  }
   Window.graphTemp.setDatasetVisibility(0, showT1);
   Window.graphTemp.setDatasetVisibility(1, showT1);
-  
+
+  newValue = document.getElementById("showPressL").checked;
+  if (newValue != showPressL) {
+    showPressL = newValue;
+    localStorage.setItem("showPressL", showPressL);
+  }
+  Window.graphTemp.setDatasetVisibility(4, showPressL);
+
+  newValue = document.getElementById("showT2").checked;
+  if (newValue != showT2) {
+    showT2 = newValue;
+    localStorage.setItem("showT2", showT2);
+  }
   showT2 = document.getElementById("showT2").checked; 
   Window.graphTemp.setDatasetVisibility(2, showT2);
   Window.graphTemp.setDatasetVisibility(3, showT2);
+
+  // Grilles de pression athmosphérique
+  newValue = document.getElementById("showPressGrid").checked;
+  if (newValue != showPressGrid) {
+    showPressGrid = newValue;
+    localStorage.setItem("showPressGrid", showPressGrid);
+  }
+  Window.graphVent.options.scales['y1'].ticks.display = showPressGrid;
+  Window.graphVent.options.scales['y1'].grid.display  = showPressGrid;
+  Window.graphTemp.options.scales['y1'].ticks.display = showPressGrid;
+  Window.graphTemp.options.scales['y1'].grid.display  = showPressGrid;
 
 }
 
@@ -1095,18 +1211,17 @@ function fullscreenchanged(event) {
 document.addEventListener("fullscreenchange", fullscreenchanged);
 
 function inputLargeurVent() {
-  // Modifie la largeur de calcul de la moyenne vent
+  // Affiche la largeur de calcul de la moyenne vent
   var lbl = document.getElementById("valMoyVent");
   var newVal = document.getElementById("lMoyVent").value;
-  lbl. innerText = newVal;
+  secondes = newVal * 30;
+  lbl. innerText = new Date(secondes * 1000).toISOString().substring(15, 19);
 }
 
 function changeLargeurVent() {
   // Modifie la largeur de calcul de la moyenne vent
-  var lbl = document.getElementById("valMoyVent");
   var newVal = document.getElementById("lMoyVent").value;
-  lbl. innerText = newVal;
-  largeurMoyVent = newVal * 120;
+  largeurMoyVent = newVal * 60;
   delete tblVents;
   tblVents    = new Array(largeurMoyVent);
   tblVentsIdx = 0
@@ -1114,18 +1229,22 @@ function changeLargeurVent() {
   ventMoyen   = 0.0;
   // Efface les moyennes précédentes
   Window.graphVent.data.datasets[1].data = [];
+  // Stocke la préférence dans le localStorage
+  localStorage.setItem("largeurMoyVent", largeurMoyVent);
 }
 
 function inputLargeurTemp() {
-  // Modifie la largeur de calcul de la moyenne vent
+  // Affiche la largeur de calcul de la moyenne vent
   var lbl = document.getElementById("valMoyTemp");
   var newVal = document.getElementById("lMoyTemp").value;
-  lbl. innerText = newVal;
+  secondes = newVal * 30;
+  lbl. innerText = new Date(secondes * 1000).toISOString().substring(15, 19);
 }
 
 function changeLargeurTemp() {
   // Modifie la largeur de calcul de la moyenne température
-  largeurMoyTemp = document.getElementById("lMoyTemp").value * 120;
+  var newVal = document.getElementById("lMoyTemp").value 
+  largeurMoyTemp = newVal * 60;
   delete tblTemp;
   tblTemp          = new Array(largeurMoyTemp);
   tblTempIdx       = 0;
@@ -1139,9 +1258,9 @@ function changeLargeurTemp() {
   // Efface les moyennes précédentes
   Window.graphTemp.data.datasets[1].data = [];
   Window.graphTemp.data.datasets[3].data = [];
+  // Stocke la préférence dans le localStorage
+  localStorage.setItem("largeurMoyTemp", largeurMoyTemp);
 }
-
-
 
 
 

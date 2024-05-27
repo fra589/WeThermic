@@ -28,6 +28,7 @@
   --couleurTempBMP180: rgb(0, 127, 0);
   --couleurMoyBMP180: rgb(0, 180, 0);
   --couleurTempCtn: rgb(255, 63, 32);
+  --couleurFillCtn: rgba(255, 63, 32, 0.2);
   --couleurMoyCtn: rgb(204, 27, 0);
   --couleurGrid: rgb(187, 229, 229);
 }
@@ -36,7 +37,7 @@ html, body {
   color: black;
 }
 .couleurVent {
-  color: var(--couleurredVent);
+  color: var(--couleurVent);
 }.couleurMoyVent {
   color: var(--couleurMoyVent);
 }

@@ -47,7 +47,7 @@ Weather station indicating wind speed, temperature and atmospheric pressure as w
 <li><a href="https://github.com/esp8266/Arduino">Noyau Arduino pour puce WiFi ESP8266</a>,</li>
 <li><a href="https://github.com/earlephilhower/arduino-esp8266littlefs-plugin">Téléchargeur système de fichiers ESP8266 LittleFS</a>,</li>
 <li><a href="https://github.com/adafruit/Adafruit_SSD1306">Adafruit_SSD1306</a>,</li>
-<li><a href="https://github.com/sparkfun/BMP180_Breakout_Arduino_Library">SFE_BMP180</a>,</li>
+<li><a href="https://github.com/sparkfun/BMP180_Breakout_Arduino_Library">BMP180_Breakout_Arduino_Library </a>,</li>
 </ul>
 </ul>
 </td>
@@ -59,7 +59,7 @@ Weather station indicating wind speed, temperature and atmospheric pressure as w
 <li><a href="https://github.com/esp8266/Arduino">Arduino core for ESP8266 WiFi chip</a>,
 <li><a href="https://github.com/earlephilhower/arduino-esp8266littlefs-plugin">Arduino ESP8266 LittleFS Filesystem Uploader</a>,</li>
 <li><a href="https://github.com/adafruit/Adafruit_SSD1306">Adafruit_SSD1306</a>,</li>
-<li><a href="https://github.com/sparkfun/BMP180_Breakout_Arduino_Library">SFE_BMP180</a>,</li>
+<li><a href="https://github.com/sparkfun/BMP180_Breakout_Arduino_Library">BMP180_Breakout_Arduino_Library </a>,</li>
 </ul>
 </ul>
 </td>

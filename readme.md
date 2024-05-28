@@ -11,7 +11,7 @@ Weather station indicating wind speed, temperature and atmospheric pressure as w
 <b>Matériel utilisé :</b>
 <ul>
 <li>Boitier imprimé en 3D,</li>
-<li>1 x Carte microcontrôleur WiFi ESP8266 de type Wemos D1 mini,</li>
+<li>1 x Carte microcontrôleur WiFi ESP8266 Wemos D1 mini,</li>
 <li>1 x Capteur de vent imprimé en 3D :</li>
 <ul>
 <li>2 x Aimants néodyme Ø2x2,</li>
@@ -34,7 +34,7 @@ Weather station indicating wind speed, temperature and atmospheric pressure as w
 </ul>
 <li>1 x Bosch BMP180 temperature and pressure sensor,</li>
 <li>1 x Termistor 10K MF52B B3435 1%,</li>
-<li>1 x I2C SSD1306 OLED screen, 0.96 Inch, 128 x 64 Pixel.</li>
+<li>1 x I2C SSD1306 OLED screen, 0.96 Inch, 128x64 Pixel.</li>
 </ul>
 </td>
 </tr>

@@ -42,18 +42,24 @@ Weather station indicating wind speed, temperature and atmospheric pressure as w
 <td>
 <b>Prérequis logiciels :</b>
 <ul>
-<li>Environnement de développement Arduino v1.8.19,</li>
+<li><a href="https://www.arduino.cc/en/software">Environnement de développement Arduino v1.8.19</a>,</li>
 <ul>
-... la suite bientôt...
+<li><a href="https://github.com/esp8266/Arduino">Noyau Arduino pour puce WiFi ESP8266</a>,</li>
+<li><a href="https://github.com/earlephilhower/arduino-esp8266littlefs-plugin">Téléchargeur de système de fichiers Arduino ESP8266 LittleFS</a>,</li>
+<li><a href="https://github.com/adafruit/Adafruit_SSD1306">Adafruit_SSD1306</a>,</li>
+<li><a href="https://github.com/sparkfun/BMP180_Breakout_Arduino_Library">SFE_BMP180</a>,</li>
 </ul>
 </ul>
 </td>
 <td>
 <b>Requisites software:</b>
 <ul>
-<li>Arduino ide v1.8.19,</li>
+<li><a href="https://www.arduino.cc/en/software">Arduino ide v1.8.19</a>,</li>
 <ul>
-... to be continued...
+<li><a href="https://github.com/esp8266/Arduino">Arduino core for ESP8266 WiFi chip</a>,
+<li><a href="https://github.com/earlephilhower/arduino-esp8266littlefs-plugin">Arduino ESP8266 LittleFS Filesystem Uploader</a>,</li>
+<li><a href="https://github.com/adafruit/Adafruit_SSD1306">Adafruit_SSD1306</a>,</li>
+<li><a href="https://github.com/sparkfun/BMP180_Breakout_Arduino_Library">SFE_BMP180</a>,</li>
 </ul>
 </ul>
 </td>

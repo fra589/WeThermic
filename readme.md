@@ -1,22 +1,67 @@
 <h1>WeThermic Free Flight Thermal Detector</h1>
-
-Station météo indiquant la vitesse du vent, la température et la pression atmosphérique ainsi que l'affichage des courbes correspondantes sur un navigateur web, via un réseau WiFi, pour aider à la détection d'ascendances thermiques en modèle réduit.
-  
+<p>
+Station météo indiquant la vitesse du vent, la température et la pression atmosphérique ainsi que l'affichage des courbes correspondantes sur un navigateur web, via un réseau WiFi, pour aider à la détection d'ascendances thermiques en modèle réduit de vol libre.
+</p>
+<p>
 Weather station indicating wind speed, temperature and atmospheric pressure as well as displaying the corresponding curves on a web browser, via a WiFi network, to help detect thermal ascents in free flight model aircraft.  
-
----
-
-Matériel utilisé :
-- Boitier imprimé en 3D,
-- 1 Carte microcontrôleur WiFi ESP8266 de type Wemos D1 mini,
-- 1 Capteur de vent imprimé en 3D,
-  - 2 Aimants néodyme Ø2x2,
-  - 1 Capteur à effet Hall KY-003,
-- 1 Capteur de température et pression Bosch BMP180,
-- 1 Termistance 10K MF52B B3435 1%,
-- 1 écran I2C SSD1306, 0.96 Pouce, 128 x 64 Pixel.
- 
----
-
+</p>
+<table>
+<tr>
+<td>
+<b>Matériel utilisé :</b>
+<ul>
+<li>Boitier imprimé en 3D,</li>
+<li>1 x Carte microcontrôleur WiFi ESP8266 de type Wemos D1 mini,</li>
+<li>1 x Capteur de vent imprimé en 3D :</li>
+<ul>
+<li>2 x Aimants néodyme Ø2x2,</li>
+<li>1 x Capteur à effet Hall KY-003,</li>
+</ul>
+<li>1 x Capteur de température et pression Bosch BMP180,</li>
+<li>1 x Termistance 10K MF52B B3435 1%,</li>
+<li>1 x écran I2C SSD1306, 0.96 Pouce, 128 x 64 Pixel.</li>
+</ul>
+</td>
+<td>
+<b>Hardware:</b>
+<ul>
+<li>3D printed case</li>
+<li>1 x Wemos D1 mini ESP8266 WiFi microcontroller card,</li>
+<li>1 x 3D printed wind sensor:</li>
+<ul>
+<li>2 x Ø2x2 neodymium magnets,</li>
+<li>1 x Hall effect sensor KY-003,</li>
+</ul>
+<li>1 x Bosch BMP180 temperature and pressure sensor,</li>
+<li>1 x Termistor 10K MF52B B3435 1%,</li>
+<li>1 x I2C SSD1306 screen, 0.96 Inch, 128 x 64 Pixel.</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td>
+<b>Prérequis logiciels :</b>
+<ul>
+<li>Environnement de développement Arduino v1.8.19,</li>
+<ul>
+... la suite bientôt...
+</ul>
+</ul>
+</td>
+<td>
+<b>Requisites software:</b>
+<ul>
+<li>Arduino ide v1.8.19,</li>
+<ul>
+... to be continued...
+</ul>
+</ul>
+</td>
+</tr>
+</table>
+<p>
 Développement en cours, de nouvelles version possibles à tout moment, pas forcément sans bugs :-)
-
+</p>
+<p>
+Development in progress, new versions possible at any time, not necessarily without bugless :-)
+</p>

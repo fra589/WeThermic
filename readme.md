@@ -12,7 +12,7 @@ Weather station indicating wind speed, temperature and atmospheric pressure as w
 <ul>
 <li>Boitier imprimé en 3D,</li>
 <li>1 x Carte microcontrôleur WiFi ESP8266 Wemos D1 mini,</li>
-<li>1 x Capteur de vent imprimé en 3D :</li>
+<li>1 x Capteur de vent :</li>
 <ul>
 <li>2 x Aimants néodyme Ø2x2,</li>
 <li>1 x Capteur à effet Hall KY-003,</li>
@@ -28,7 +28,7 @@ Weather station indicating wind speed, temperature and atmospheric pressure as w
 <ul>
 <li>3D printed case</li>
 <li>1 x Wemos D1 mini ESP8266 WiFi microcontroller card,</li>
-<li>1 x 3D printed wind sensor:</li>
+<li>1 x Wind sensor:</li>
 <ul>
 <li>2 x Ø2x2 neodymium magnets,</li>
 <li>1 x Hall effect sensor KY-003,</li>

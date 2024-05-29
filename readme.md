@@ -19,6 +19,7 @@ Weather station indicating wind speed, temperature and atmospheric pressure as w
 </ul>
 <li>1 x Capteur de température et pression Bosch BMP180,</li>
 <li>1 x Termistance 10K MF52B B3435 1%,</li>
+<li>1 x Résistance 10KΩ 1/4W 1%,</li>
 <li>1 x écran OLED I2C SSD1306, 0.96 Pouce, 128 x 64 Pixel.</li>
 </ul>
 </td>
@@ -34,6 +35,7 @@ Weather station indicating wind speed, temperature and atmospheric pressure as w
 </ul>
 <li>1 x Bosch BMP180 temperature and pressure sensor,</li>
 <li>1 x Termistor 10K MF52B B3435 1%,</li>
+<li>1 x Resistance 10KΩ 1/4W 1%,</li>
 <li>1 x I2C SSD1306 OLED screen, 0.96 Inch, 128x64 Pixel.</li>
 </ul>
 </td>

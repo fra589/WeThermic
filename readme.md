@@ -96,5 +96,5 @@ Développement en cours, de nouvelles version possibles à tout moment, pas forc
 Development in progress, new versions possible at any time, not necessarily without bugless :-)
 </p>
 <p align='center'>
-<B>Wiki ocumentation in progress...</B>
+<a href='https://github.com/fra589/WeThermic/wiki'><B>Wiki ocumentation in progress...</B></a>
 </p>

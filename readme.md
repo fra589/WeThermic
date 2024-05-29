@@ -41,6 +41,8 @@ Weather station indicating wind speed, temperature and atmospheric pressure as w
 <tr>
 <td>
 <b>Prérequis logiciels :</b>
+<p><br />
+Pour construction à partir des sources :
 <ul>
 <li><a href="https://www.arduino.cc/en/software">Environnement de développement Arduino v1.8.19</a>,</li>
 <ul>
@@ -49,10 +51,21 @@ Weather station indicating wind speed, temperature and atmospheric pressure as w
 <li><a href="https://github.com/adafruit/Adafruit_SSD1306">Adafruit_SSD1306</a>,</li>
 <li><a href="https://github.com/sparkfun/BMP180_Breakout_Arduino_Library">BMP180_Breakout_Arduino_Library </a>,</li>
 </ul>
+</p>
 </ul>
+<p>
+Flashage a partir des realeases binaires (Windows only):
+<ul>
+<li><a href="https://www.espressif.com/en/support/download/other-tools">Flash Download Tools</a>,</li>
+<li><a href="https://github.com/fra589/WeThermic/releases">Dernier firmware (WeThermic.firmware_v<span>_X.Y.ZZZZZZ</span>.bin)</a></li>
+<li><a href="https://github.com/fra589/WeThermic/releases">Dernière application (WeThermic.application_v<span>_X.Y.ZZZZZZ</span>.bin)</a></li>
+</ul>
+</p>
 </td>
 <td>
 <b>Requisites software:</b>
+<p><br />
+To build from sources:
 <ul>
 <li><a href="https://www.arduino.cc/en/software">Arduino ide v1.8.19</a>,</li>
 <ul>
@@ -61,7 +74,16 @@ Weather station indicating wind speed, temperature and atmospheric pressure as w
 <li><a href="https://github.com/adafruit/Adafruit_SSD1306">Adafruit_SSD1306</a>,</li>
 <li><a href="https://github.com/sparkfun/BMP180_Breakout_Arduino_Library">BMP180_Breakout_Arduino_Library </a>,</li>
 </ul>
+</p>
 </ul>
+<p>
+To flash from binary realeases (Windows only):
+<ul>
+<li><a href="https://www.espressif.com/en/support/download/other-tools">Flash Download Tools</a>,</li>
+<li><a href="https://github.com/fra589/WeThermic/releases">Latest firmware (WeThermic.firmware_v<span>_X.Y.ZZZZZZ</span>.bin)</a></li>
+<li><a href="https://github.com/fra589/WeThermic/releases">Latest application (WeThermic.application_v<span>_X.Y.ZZZZZZ</span>.bin)</a></li>
+</ul>
+</p>
 </td>
 </tr>
 </table>

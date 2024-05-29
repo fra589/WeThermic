@@ -1,4 +1,4 @@
-<h1 align='center'><img align="left" src='https://github.com/fra589/WeThermic/blob/master/images/WeThermic.svg' width='25%' />WeThermic Free Flight Thermal Detector</h1>
+<h1 align='center'><img align="left" src='https://github.com/fra589/WeThermic/blob/master/images/WeThermic.svg' width='17%' />WeThermic Free Flight Thermal Detector</h1>
 <p>
 Station météo indiquant la vitesse du vent, la température et la pression atmosphérique ainsi que l'affichage des courbes correspondantes sur un navigateur web, via un réseau WiFi, pour aider à la détection d'ascendances thermiques en modèle réduit de vol libre.
 </p>

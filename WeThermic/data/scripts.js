@@ -815,12 +815,9 @@ function changeSettings() {
 
   var dialog = document.getElementById("settingsDialog")
   dialog.classList.remove("noshow");
-/*
-  var dlgMask = document.getElementById("dlgMask0");
-  dlgMask.classList.remove("noshow");
+
   var attente = document.getElementById("attente0")
   attente.classList.remove("noshow");
-*/
 
   // mise à jour des champs de saisie
   var scaleMin = document.getElementById("scaleMin");
@@ -1058,8 +1055,6 @@ function setNetworkList(xml) {
 
   var attente = document.getElementById("attente0")
   attente.classList.add("noshow");
-  var dlgMask = document.getElementById("dlgMask0");
-  dlgMask.classList.add("noshow");
 
 }
 
@@ -1357,7 +1352,10 @@ function updateAPconfig() {
   }
 }
 
-
+function resetSettings() {
+  localStorage.clear();
+  window.location.reload();
+}
 
 
 

@@ -61,7 +61,8 @@
       <!-- Config dialog                                                                     -->
       <!--------------------------------------------------------------------------------------->
       <div id="settingsDialog" class="settingsDialog noshow">
-        <span class="fRight"><image id="boutonClose" src="images/close.svg" onclick="closeSettings();" /></span>
+        <span class="fRight"><image id="boutonClose" src="images/close.svg" title="Close settings" onclick="closeSettings();" /></span>
+        <span class="fLeft"><image id="boutonReset" src="images/factory.svg" title="Reset to default" onclick="resetSettings();" /></span>
         <h1>Settings :</h1>
         <hr id="ligneHaut" />
         <p class="centerAlign">
@@ -190,10 +191,10 @@
               </button>
             </p>
           </div> <!-- dlgConnect -->
-          <div id="cadre_attente">
-            <div id="attente0" class="attente noshow"></div>
-          </div>
         </div> <!-- dlgMask0 -->
+        <div id="cadre_attente">
+          <div id="attente0" class="attente noshow"></div>
+        </div>
 
       </div> <!-- settingsDialog -->
       

@@ -678,7 +678,6 @@ void handleSetAPconfig(void) {
     }
 
     // Reconfigure le point d'accès
-    //////WiFi.softAPdisconnect(false);
     WiFi.softAP(ap_ssid, ap_pwd, DEFAULT_AP_CHANNEL); // (AP ouverte si de mot de passe vide ou null)
 
     if (settingChange) {

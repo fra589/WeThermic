@@ -46,6 +46,8 @@ void webServerInit(void) {
   server.on("/getnetworks",      handleGetNetworks);
   server.on("/deconnexion",      handleDeconnection);
   server.on("/wificonnect",      handleWifiConnect);
+  server.on("/getapconfig",      handleGetAPconfig);
+  server.on("/setapconfig",      handleSetAPconfig);
   server.onNotFound(handleNotFound);
   server.begin(); // Start http web server
   
@@ -181,16 +183,16 @@ void handleGetValues(void) {
   XML += F("<valeurs>\n");
   XML += F("  <vent>");
   XML += String(vent);
-  XML += F("  </vent>\n");
+  XML += F("</vent>\n");
   XML += F("  <temperature>");
   XML += String(tempBmp180);
-  XML += F("  </temperature>\n");
+  XML += F("</temperature>\n");
   XML += F("  <pression>");
   XML += String(pression);
-  XML += F("  </pression>\n");
+  XML += F("</pression>\n");
   XML += F("  <tempctn>");
   XML += String(tempCtn);
-  XML += F("  </tempctn>\n");
+  XML += F("</tempctn>\n");
   XML += F("</valeurs>\n");
 
   server.send(200,"text/xml",XML);
@@ -605,5 +607,106 @@ void handleWifiConnect(void) {
   #ifdef DEBUG_WEB
     Serial.println("Réponse XML envoyée.");
   #endif
+
+}
+
+void handleGetAPconfig(void) {
+
+  String XML;
+
+  #ifdef DEBUG_WEB
+    Serial.printf("Entrée dans handleGetAPconfig()\n");
+  #endif
+
+  // Renvoi la réponse au client http
+  XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
+  XML += F("<apconfig>\n");
+  XML += F("  <ssid>");
+  XML += String(ap_ssid);
+  XML += F("</ssid>\n");
+  XML += F("  <pwd>");
+  XML += String(ap_pwd);
+  XML += F("</pwd>\n");
+  XML += F("</apconfig>\n");
+
+  server.send(200,"text/xml",XML);
+  
+}
+
+void handleSetAPconfig(void) {
+
+  String XML;
+  String ssid        = "";
+  String password    = "";
+  bool settingChange = false;
+  
+  #ifdef DEBUG_WEB
+    Serial.printf("Entrée dans handleSetAPconfig() --- %d\n", millis()/1000);
+  #endif
+
+  if (server.args() > 0) {
+    //Traitement des données POST
+    for (int i = 0; i < server.args(); i++) {
+      #ifdef DEBUG_WEB
+        Serial.printf("  handleSetAPconfig() - Arg n°%d –> %s = [%s]\n", i, server.argName(i), server.arg(i).c_str());
+      #endif
+      if (strncasecmp(server.argName(i).c_str(), "ssid", (size_t)4) == 0) {
+        #ifdef DEBUG_WEB
+          Serial.printf("  handleSetAPconfig() - SSID = %s\n", server.arg(i).c_str());
+        #endif
+        if (strncmp(ap_ssid, server.arg(i).c_str(), MAX_SSID_LEN) != 0) {
+          strncpy(ap_ssid, server.arg(i).c_str(), MAX_SSID_LEN);
+          settingChange = true;
+        }
+        // Si SSID vide, on rétabli la valeur par défaut
+        if (server.arg(i) == "") {
+          String SSID_MAC = String(DEFAULT_AP_SSID + WiFi.softAPmacAddress().substring(9));
+          SSID_MAC.toCharArray(ap_ssid, MAX_SSID_LEN);
+          #ifdef DEBUG_WEB
+            Serial.printf("  handleSetAPconfig() - reset SSID to default: %s\n", ap_ssid);
+          #endif
+        }
+      } else if (strncasecmp(server.argName(i).c_str(), "pwd", (size_t)3) == 0) {
+        #ifdef DEBUG_WEB
+          Serial.printf("  handleSetAPconfig() - pwd  = %s\n", server.arg(i).c_str());
+        #endif
+        if (strncmp(ap_pwd, server.arg(i).c_str(), MAX_PWD_LEN) != 0) {
+          strncpy(ap_pwd, server.arg(i).c_str(), MAX_PWD_LEN);
+          settingChange = true;
+        }
+      }
+    }
+
+    // Reconfigure le point d'accès
+    //////WiFi.softAPdisconnect(false);
+    WiFi.softAP(ap_ssid, ap_pwd, DEFAULT_AP_CHANNEL); // (AP ouverte si de mot de passe vide ou null)
+
+    if (settingChange) {
+      #ifdef DEBUG_WEB
+        Serial.printf(" Sauvegarde paramètres AP en EEPROM : SSID=[%s], pwd=[%s]\n", ap_ssid, ap_pwd);
+      #endif
+      // Sauvegarde les nouveaux paramètres dans l'EEPROM
+      EEPROM_writeStr(ADDR_AP_SSID, ap_ssid, MAX_SSID_LEN);
+      EEPROM_writeStr(ADDR_AP_PWD, ap_pwd, MAX_PWD_LEN);
+      EEPROM.commit();
+    }
+
+    // Réponse au client
+    XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
+    XML += F("<setapconfig>\n");
+    XML += F("  <result>OK</result>\n");
+    XML += F("</setapconfig>\n");
+
+  } else { // if (server.args() > 0)
+    // Réponse au client
+    XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
+    XML += F("<setapconfig>\n");
+    XML += F("  <result>setapconfig: missing parameters!</result>\n");
+    XML += F("</setapconfig>\n");
+  }
+  
+  // Renvoi la réponse au client http
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.send(200,"text/xml",XML);
 
 }

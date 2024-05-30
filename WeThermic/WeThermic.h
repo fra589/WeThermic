@@ -50,8 +50,8 @@
   #define COPYRIGHT             "G.Brière 2024-2024"
   #define APP_NAME              "WeThermic"
   #define APP_VERSION_MAJOR     "0"
-  #define APP_VERSION_MINOR     "2"
-  #define APP_VERSION_DATE      "20240506"
+  #define APP_VERSION_MINOR     "5"
+  #define APP_VERSION_DATE      "20240530"
   #define APP_VERSION_STRING    "v" APP_VERSION_MAJOR "." APP_VERSION_MINOR "." APP_VERSION_DATE
   #define APP_NAME_VERSION      APP_NAME " - " APP_VERSION_STRING "\0"
 
@@ -80,10 +80,10 @@
   extern uint32_t idxHistorique;
 
   // Paramètres WiFi 
-  #define DEFAULT_CLI_SSID   ""           // SSID client (la balance se connecte si défini)
-  #define DEFAULT_CLI_PWD    ""           // WPA-PSK/WPA2-PSK client
   #define DEFAULT_AP_SSID    "WeThermic_" // SSID de l'AP balance
   #define DEFAULT_AP_PWD     ""           // WPA-PSK/WPA2-PSK AP
+  #define DEFAULT_CLI_SSID   ""           // SSID client (la balance se connecte si défini)
+  #define DEFAULT_CLI_PWD    ""           // WPA-PSK/WPA2-PSK client
   #define DEFAULT_AP_CHANNEL 3
 
   // Variable globales pour le WiFi
@@ -96,9 +96,10 @@
 
   // Adresses EEProm pour sauvegarde des paramètres
   #define EEPROM_LENGTH 512
-  #define ADDR_CLI_SSID        0 //   0 + 32 =  32
-  #define ADDR_CLI_PWD        32 //  32 + 63 =  95
-
+  #define ADDR_AP_SSID         0 //   0 + 32 =  32
+  #define ADDR_AP_PWD         32 //  32 + 63 =  95
+  #define ADDR_CLI_SSID       95 //  95 + 32 = 127
+  #define ADDR_CLI_PWD       127 //  32 + 63 = 190
 
   // Web server
   extern ESP8266WebServer server;

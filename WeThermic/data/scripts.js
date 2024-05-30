@@ -64,11 +64,15 @@ var vent            = 0.0;
 var histTempCtn     = new Array();
 var histTCtnMoy     = new Array();
 var tempctn         = 0.0;
+var ctnSuggestedMax = 0.0;
+var ctnSuggestedMin = 0.0;
 var histBmp180Data  = new Array();
 histBmp180Moy       = new Array();
 var tempBmp180      = 0.0;
 var histPression    = new Array();
 var pression        = 0.0;
+var pSuggestedMax = 0.0;
+var pSuggestedMin = 0.0;
 
 tblVents            = new Array(largeurMoyVent);
 var tblVentsIdx     = 0;
@@ -84,7 +88,9 @@ tblCtn              = new Array(largeurMoyTemp);
 var ctnTotal        = 0.0;
 var ctnMoyen        = 0.0;
 
-var isFullScreen = false;
+var isFullScreen    = false;
+
+var apConfigChange  = false;
 
 function index_onload() {
 
@@ -165,6 +171,11 @@ function index_onload() {
   // pour initialisation des graphiques.
   // XMLHttpRequest_get_first_values(); => inclu dans get_history()
   XMLHttpRequest_get_history();
+
+  ctnSuggestedMax = ctnMoyen.y + 1.5;
+  ctnSuggestedMin = ctnMoyen.y - 0.25;
+  pSuggestedMax   = pression.y + 0.5;
+  pSuggestedMin   = pression.y - 0.05;
 
   // Configuration des graphiques
   var style = getComputedStyle(document.body);
@@ -269,8 +280,8 @@ function index_onload() {
         beginAtZero: false,
         display: true,
         position:'right',
-        suggestedMax: pression + 0.5,
-        suggestedMin: pression - 0.05,
+        suggestedMax: pSuggestedMax,
+        suggestedMin: pSuggestedMin,
         ticks: {
           color: couleurPression
         },
@@ -399,8 +410,8 @@ function index_onload() {
         beginAtZero: false,
         display: true,
         position:'left',
-        suggestedMax: ctnMoyen + 1.5,
-        suggestedMin: ctnMoyen - 0.25,
+        suggestedMax: ctnSuggestedMax,
+        suggestedMin: ctnSuggestedMin,
         ticks: {
           color: couleurTempCtn
         },
@@ -413,8 +424,8 @@ function index_onload() {
         beginAtZero: false,
         display: true,
         position:'right',
-        suggestedMax: pression + 0.5,
-        suggestedMin: pression - 0.05,
+        suggestedMax: pSuggestedMax,
+        suggestedMin: pSuggestedMin,
         ticks: {
           color: couleurPression
         },
@@ -711,7 +722,17 @@ function XMLHttpResult(requette, xml, text) {
       } else {
         alert("Connexion error: \n" + result);
       }
+    } else if ((requette == "/getapconfig") || (requette == netDevURL + "/getapconfig")) {
+      var ssid       = xml.getElementsByTagName("ssid")[0].textContent;
+      var pwd        = xml.getElementsByTagName("pwd")[0].textContent;
+      var apSSID     = document.getElementById('apSSID');
+      var apPwd1     = document.getElementById('apPwd1');
+      apSSID.value   = ssid;
+      apPwd1.value   = pwd;
+      apConfigChange = false;
+      inputConfigAP();
     }
+    
   }
 
   if ((requette == "/getvalues") || (requette == netDevURL + "/getvalues")) {
@@ -804,8 +825,13 @@ function changeSettings() {
   // mise à jour des champs de saisie
   var scaleMin = document.getElementById("scaleMin");
   var scaleMax = document.getElementById("scaleMax");
-  scaleMax.value = Window.graphTemp.options.scales['y'].suggestedMax;
-  scaleMin.value = Window.graphTemp.options.scales['y'].suggestedMin;
+  var valeur = Window.graphTemp.scales['y'].max;
+  scaleMax.value = valeur;
+  var valeur = Window.graphTemp.scales['y'].min;
+  scaleMin.value = valeur;
+
+  // récupère la config AP
+  getAPconfig();
 
   // Récupère la liste des réseaux disponibles
   get_networks();
@@ -989,7 +1015,7 @@ function setNetworkList(xml) {
   
   var netListe = xml.getElementsByTagName("network")
   if (netListe.length > 0) {
-    for(var i = 0; i< netListe.length; i++){
+    for (var i = 0; i< netListe.length; i++) {
       // Données du réseau
       tmpSSID    = netListe[i].getElementsByTagName("SSID")[0].childNodes[0].nodeValue;
       tmpChannel = netListe[i].getElementsByTagName("channel")[0].childNodes[0].nodeValue;
@@ -1262,9 +1288,74 @@ function changeLargeurTemp() {
   localStorage.setItem("largeurMoyTemp", largeurMoyTemp);
 }
 
+function getAPconfig() {
+  if (location.protocol == 'file:') {
+    XMLHttpRequest_get(netDevURL + "/getapconfig");
+  } else {
+    XMLHttpRequest_get("/getapconfig");
+  }
+}
 
+function toogleShowPasswd() {
+  const bouton = document.getElementById('btnShowPasswd');
+  var apPwd1 = document.getElementById('apPwd1');
+  var apPwd2 = document.getElementById('apPwd2');
+  if (apPwd1.type === "password") {
+    apPwd1.type = "text";
+    apPwd2.type = "text";
+    bouton.src="images/oeuil-barre.svg"
+    bouton.title="Hide password"
+  } else {
+    apPwd1.type = "password";
+    apPwd2.type = "password";
+    bouton.src="images/oeuil.svg"
+    bouton.title="Show password"
+  }
+}
 
+function inputConfigAP() {
+  var apSSID      = document.getElementById('apSSID');
+  var apPwd1      = document.getElementById('apPwd1');
+  var apPwd2      = document.getElementById('apPwd2');
+  var btnValideAP = document.getElementById('btnValideAP');
+  if ((apPwd1.value == apPwd2.value) && ((apPwd1.value.length == 0) || (apPwd1.value.length >= 8)) && apConfigChange) {
+    btnValideAP.src = "images/valid.svg";
+    btnValideAP.style.cursor = "pointer";
+  } else {
+    btnValideAP.src = "images/valid-disable.svg";
+    btnValideAP.style.cursor = "default";
+  }
+}
 
+function updateAPconfig() {
+  var apSSID      = document.getElementById('apSSID');
+  var apPwd1      = document.getElementById('apPwd1');
+  var apPwd2      = document.getElementById('apPwd2');
+  if ((apPwd1.value == apPwd2.value) && ((apPwd1.value.length == 0) || (apPwd1.value.length >= 8)) && apConfigChange) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (xhttp.readyState == 4) {
+        if ((xhttp.status == 200) || (xhttp.status == 0)) {
+          ////XMLHttpResult("/setapconfig", xhttp.responseXML, xhttp.responseText);
+          alert("updateAPconfig():\n" + xhttp.responseText);
+        } else {
+          alert("updateAPconfig() : Error " + xhttp.status);
+        }
+      }
+    };
+    var ssid_encode = encodeURIComponent(apSSID.value);
+    var pwd_encode  = encodeURIComponent(apPwd1.value);
+    if (location.protocol == 'file:') {
+      xhttp.open("POST", netDevURL + "/setapconfig", true);
+    } else {
+      xhttp.open("POST", "/setapconfig", true);
+    }
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhttp.send("ssid=" + ssid_encode + "&pwd=" + pwd_encode);
+  } else {
+    alert("Entered passwords are not identical!");
+  }
+}
 
 
 

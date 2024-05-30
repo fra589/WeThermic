@@ -33,5 +33,7 @@
   void handleGetNetworks(void);
   void handleDeconnection(void);
   void handleWifiConnect(void);
+  void handleGetAPconfig(void);
+  void handleSetAPconfig(void);
 
 #endif

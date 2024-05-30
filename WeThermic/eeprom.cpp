@@ -28,6 +28,22 @@ void getEepromStartupData(void) {
 
   EEPROM.begin(EEPROM_LENGTH);
   
+  charTmp = char(EEPROM.read(ADDR_AP_SSID));
+  if (charTmp != 0xFF) {
+    ap_ssid[0] = charTmp;
+    for (int i=1; i<MAX_SSID_LEN; i++) {
+      ap_ssid[i] = char(EEPROM.read(ADDR_AP_SSID + i));
+    }
+  }
+  
+  charTmp = char(EEPROM.read(ADDR_AP_PWD));
+  if (charTmp != 0xFF) {
+    ap_pwd[0] = charTmp;
+    for (int i=1; i<MAX_PWD_LEN; i++) {
+      ap_pwd[i] = char(EEPROM.read(ADDR_AP_PWD + i));
+    }
+  }
+
   charTmp = char(EEPROM.read(ADDR_CLI_SSID));
   if (charTmp != 0xFF) {
     cli_ssid[0] = charTmp;
@@ -45,6 +61,8 @@ void getEepromStartupData(void) {
   }
 
   #ifdef DEBUG
+    Serial.printf("ap_ssid................ = %s\n", ap_ssid);
+    Serial.printf("ap_pwd................. = %s\n", ap_pwd);
     Serial.printf("cli_ssid............... = %s\n", cli_ssid);
     Serial.printf("cli_pwd................ = %s\n", cli_pwd);
   #endif
@@ -59,14 +77,18 @@ void resetFactory(void) {
     Serial.printf("Entrée dans resetFactory()\n");
   #endif
 
+  strcpy(ap_ssid,  DEFAULT_AP_SSID);
+  strcpy(ap_pwd,   DEFAULT_AP_PWD);
   strcpy(cli_ssid, DEFAULT_CLI_SSID);
   strcpy(cli_pwd,  DEFAULT_CLI_PWD);
 
   // Sauvegarde en EEPROM
   EEPROM_format(); // On efface tout
 
+  EEPROM_writeStr(ADDR_AP_SSID,  ap_ssid,  MAX_SSID_LEN);
+  EEPROM_writeStr(ADDR_AP_PWD,   ap_pwd,   MAX_PWD_LEN);
   EEPROM_writeStr(ADDR_CLI_SSID, cli_ssid, MAX_SSID_LEN);
-  EEPROM_writeStr(ADDR_CLI_PWD, cli_pwd, MAX_PWD_LEN);
+  EEPROM_writeStr(ADDR_CLI_PWD,  cli_pwd,  MAX_PWD_LEN);
 
   #ifdef DEBUG
     Serial.printf("  EEPROM.commit()\n");

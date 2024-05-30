@@ -154,7 +154,7 @@ void loop() {
 
     // Mémorise les 5 dernières minutes de mesures
     histVent[idxHistorique]       = vent;
-    histBmp180[idxHistorique] = tempBmp180;
+    histBmp180[idxHistorique]     = tempBmp180;
     histPression[idxHistorique]   = pression;
     histTempCtn[idxHistorique++]  = tempCtn;
     if (idxHistorique > DUREE_HISTORIQUE) {

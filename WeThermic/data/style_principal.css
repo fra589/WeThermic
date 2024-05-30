@@ -87,6 +87,7 @@ html, body {
   left: 0%;
   width: 100%;
   height: 100%;
+  overflow:auto;
   background-color: rgb(0 63 32 / 75%);
   color: white;
 }
@@ -245,8 +246,32 @@ border-top: 1px solid white;
 .fullWidth {
   width: 60%;
 }
-
-
+#apConfig {
+  text-align: left;
+  display: table;
+}
+#apConfig input {
+  margin-bottom: 3px;
+  text-align: center;
+  display: inline-block;
+}
+#apConfig label {
+  margin-left: 18px;
+  width: 13em;
+  display: inline-block;
+}
+.tblPwd {
+  display: table-cell;
+  vertical-align: top;
+}
+.tblPwdCenter {
+  display: table-cell;
+  vertical-align: middle;
+}
+#btnShowPasswd, #btnValideAP {
+  margin-left: 20px;
+  cursor: pointer;
+}
 
 
 

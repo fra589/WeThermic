@@ -58,6 +58,8 @@
         WeThermic <span id="version">v0.0.00000000</span> - Copyright © Gauthier Brière (<a href="https://github.com/fra589">fra589</a>) - 2024-2024
       </p>
       <!--------------------------------------------------------------------------------------->
+      <!-- Config dialog                                                                     -->
+      <!--------------------------------------------------------------------------------------->
       <div id="settingsDialog" class="settingsDialog noshow">
         <span class="fRight"><image id="boutonClose" src="images/close.svg" onclick="closeSettings();" /></span>
         <h1>Settings :</h1>
@@ -72,7 +74,7 @@
           <label for="clair">Clear</label>
           </span>
         </p>
-        <fieldset class="settingFieldset">
+        <fieldset class="settingFieldset" id="upperGraphFieldset">
           <legend>Upper Graph</legend>
           <p class="leftAlign">
             <input type="checkbox" id="showWind" name="showWind" onclick="visuCourbes();" checked />
@@ -88,7 +90,7 @@
             <label class="nowarp">Average wind on&nbsp;<input type="range" class="fullWidth" id="lMoyVent" name="lMoyVent" min="1" max="10" value="2" step="1" onchange="changeLargeurVent()" oninput="inputLargeurVent()" />&nbsp;<span id="valMoyVent" >1:30</span></label>
           </p>
         </fieldset>
-        <fieldset class="settingFieldset">
+        <fieldset class="settingFieldset" id="lowerGraphFieldset">
           <legend>Lower Graph</legend>
           <p class="leftAlign">
             <input type="checkbox" id="showT1" name="showT1" onclick="visuCourbes();" checked />
@@ -124,8 +126,31 @@
           </p>
         </fieldset>
         <!--------------------------------------------------------------------------------------->
-        <!--<hr />-->
+        <!-- Config réseau                                                                     -->
+        <!--------------------------------------------------------------------------------------->
         <h2>WiFi network configuration</h2>
+        <div id="apConfig">
+          <div class="tblPwd">
+            <label for="apSSID">Access Point SSID</label>
+            <input type="text" name="apSSID" id="apSSID" value="" maxlength="32" oninput="apConfigChange = true; inputConfigAP()" />
+          </div>
+          <div class="tblPwd">
+            &nbsp;
+          </div>
+          <div class="tblPwd">
+            <label for="apPwd1">Access Point password</label>
+            <input type="password" name="apPwd1" id="apPwd1" value="" maxlength="63" title="Enter AP password:&#010;min len=8, max len=63&#010;or leave it empty for no password." oninput="apConfigChange = true; inputConfigAP()" />
+            <br />
+            <label for="apPwd2">Repeat AP password</label>
+            <input type="password" name="apPwd2" id="apPwd2" value="" maxlength="63" oninput="apConfigChange = true; inputConfigAP()" />
+          </div>
+          <div class="tblPwdCenter">
+            <span><image id="btnShowPasswd" src="images/oeuil.svg" title="Show password" onclick="toogleShowPasswd();" /></span>
+            <span><image id="btnValideAP" src="images/valid-disable.svg" title="Update APconfig" onclick="updateAPconfig();" /></span>
+          </div>
+        </div>
+        <hr />
+        <!--------------------------------------------------------------------------------------->
         <div id="activeNetwork">
           <label for="ssidActuel">Actual network, SSID = </label>
           <input type="text" name="ssidActuel" id="ssidActuel" value="" readonly />
@@ -138,6 +163,7 @@
         </div>
         <hr class="lignePartielle" />
         <div id="networkTable">
+          <!-- Rempli par script.js: setNetworkList() -->
         </div>
         <span class="fRight" onclick="get_networks();"><image id="boutonRefresh" src="images/refresh.svg"/></span>
 

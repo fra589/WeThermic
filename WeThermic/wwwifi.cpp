@@ -61,18 +61,21 @@ void wifiApInit(void) {
 
   // Ouverture access point de la balance
   #ifdef DEBUG
-    Serial.print("\nConfiguring access point, SSID = ");
+    Serial.print("\nConfiguring access point, SSID = <");
     Serial.print(ap_ssid);
-    Serial.println("...");
+    Serial.println(">");
     Serial.flush();
   #endif
 
   WiFi.softAPConfig(apIP, apIP, netMsk);
-  WiFi.softAP(ap_ssid, ap_pwd, DEFAULT_AP_CHANNEL); // (AP ouverte si de mot de passe vide ou null)
+  WiFi.softAP(ap_ssid, "12345678", DEFAULT_AP_CHANNEL); // (AP ouverte si de mot de passe vide ou null)
 
   delay(500); // Without delay I've seen the IP address blank
 
   #ifdef DEBUG
+    Serial.print("AP SSID:       <");
+    Serial.print(WiFi.softAPSSID());
+    Serial.println(">");
     Serial.print("AP IP address: ");
     Serial.println(WiFi.softAPIP());
     Serial.printf("AP MAC address = %s\n", WiFi.softAPmacAddress().c_str());

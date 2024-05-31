@@ -155,8 +155,6 @@ function index_onload() {
   // Redimentionnement des graphiques en fonction de la page
   height = window.innerHeight;
   width  = window.innerWidth;
-
-
   //alert(width + "\n" + height);
   document.getElementById("lapage").style.height = height + "px";
   document.getElementById("lapage").style.width = width + "px";
@@ -167,18 +165,17 @@ function index_onload() {
   } else {
     XMLHttpRequest_get("/getversion");
   }
+
   // Récupère les premières valeurs de manière synchrone
   // pour initialisation des graphiques.
   // XMLHttpRequest_get_first_values(); => inclu dans get_history()
   XMLHttpRequest_get_history();
 
-  ctnSuggestedMax = ctnMoyen.y + 1.5;
-  ctnSuggestedMin = ctnMoyen.y - 0.25;
-  pSuggestedMax   = pression.y + 0.5;
-  pSuggestedMin   = pression.y - 0.05;
-
-  // Configuration des graphiques
-  var style = getComputedStyle(document.body);
+  // Ajuste les échelles Y
+  ctnSuggestedMax = ctnMoyen + 1.5;
+  ctnSuggestedMin = ctnMoyen - 0.25;
+  pSuggestedMax   = pression + 0.5;
+  pSuggestedMin   = pression - 0.05;
 
   // vent
   var ventData = {
@@ -457,6 +454,7 @@ function index_onload() {
     //configTemp
   });
   // Masque toutes les courbes
+  // (pour éviter le flash des courbes non visibles)
   Window.graphVent.setDatasetVisibility(0, false);
   Window.graphVent.setDatasetVisibility(1, false);
   Window.graphVent.setDatasetVisibility(2, false);
@@ -468,9 +466,15 @@ function index_onload() {
   Window.graphTemp.update();
   // Affiche les courbes visibles en fonction des préférences
   visuCourbes();
-  
-  // Blocage de la mise en veille (ne fonctionne qu'en HTTPS ?)
-  ////getScreenLock();
+
+  /* A compléter...
+   * cf. https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API
+   * cf. https://mdn.github.io/dom-examples/screen-wake-lock-api/
+  // Blocage de la mise en veille - ne fonctionne qu'en HTTPS :-(
+  if (location.protocol == 'https:') {
+    getScreenLock();
+  }
+  */
 
 }
 
@@ -563,13 +567,6 @@ function XMLHttpRequest_get_history() {
       }
       tX += 500 // pas des mesures = 500 ms
     }
-    vent = histVentData[histVentData.length -1];
-    ventMoyen   = vent;
-    tempctn = histTempCtn[histTempCtn.length -1];
-    ctnMoyen    = tempctn;
-    tempBmp180 = histBmp180Data[histBmp180Data.length -1];
-    bmp180Moyen = tempBmp180;
-    pression = histPression[histPression.length -1];
   }
 
 }

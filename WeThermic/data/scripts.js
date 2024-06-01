@@ -49,6 +49,7 @@ var couleurFillVent     = 'rgba(0, 180, 255, 0.3)';
 var couleurMoyVent      = 'rgb(0, 125, 179)';
 var couleurPression     = 'rgb(0, 127, 127)';
 var couleurFillPression = 'rgba(0, 127, 127, 0.2)';
+var couleurMoyPres      = 'rgb(0, 80, 80)';
 var couleurTempCtn      = 'rgb(255, 63, 32)';
 var couleurFillCtn      = 'rgba(255, 63, 32, 0.2)';
 var couleurMoyCtn       = 'rgb(204, 27, 0)';
@@ -70,14 +71,22 @@ var histBmp180Data  = new Array();
 histBmp180Moy       = new Array();
 var tempBmp180      = 0.0;
 var histPression    = new Array();
+var histPresMoy     = new Array();
 var pression        = 0.0;
 var pSuggestedMax = 0.0;
 var pSuggestedMin = 0.0;
 
 tblVents            = new Array(largeurMoyVent);
 var tblVentsIdx     = 0;
+var largeurVentFull = false;
 var ventTotal       = 0.0;
 var ventMoyen       = 0.0;
+
+tblPress            = new Array(largeurMoyVent);
+var tblPressIdx     = 0;
+var largeurPresFull = false;
+var presTotal       = 0.0;
+var presMoyen       = 0.0;
 
 tblTemp             = new Array(largeurMoyTemp);
 var tblTempIdx      = 0;
@@ -226,6 +235,16 @@ async function index_onload() {
         order: 5,
         tension: 0.4,
         yAxisID: 'y1'
+      },
+      {
+        cubicInterpolationMode: 'default',
+        data: histPresMoy,
+        fill: false,
+        borderColor: couleurMoyPres,
+        borderWidth:2,
+        order: 4,
+        tension: 0.4,
+        yAxisID: 'y1'
       }
     ]
   };
@@ -260,6 +279,10 @@ async function index_onload() {
             chart.data.datasets[2].data.push({
               x: Date.now(),
               y: pression
+            });              
+            chart.data.datasets[3].data.push({
+              x: Date.now(),
+              y: presMoyen
             });              
           }
         },
@@ -359,6 +382,16 @@ async function index_onload() {
         order: 5,
         tension: 0.4,
         yAxisID: 'y1'
+      },
+      {
+        cubicInterpolationMode: 'default',
+        data: histPresMoy,
+        fill: false,
+        borderColor: couleurMoyPres,
+        borderWidth:2,
+        order: 4,
+        tension: 0.4,
+        yAxisID: 'y1'
       }
     ]
   };
@@ -401,6 +434,10 @@ async function index_onload() {
             chart.data.datasets[4].data.push({
               x: Date.now(),
               y: pression
+            });              
+            chart.data.datasets[5].data.push({
+              x: Date.now(),
+              y: presMoyen
             });              
           }
         },
@@ -466,6 +503,7 @@ async function index_onload() {
   Window.graphTemp.setDatasetVisibility(2, false);
   Window.graphTemp.setDatasetVisibility(3, false);
   Window.graphTemp.setDatasetVisibility(4, false);
+  Window.graphTemp.setDatasetVisibility(5, false);
   Window.graphTemp.update();
   // Affiche les courbes visibles en fonction des préférences
   visuCourbes();
@@ -598,6 +636,7 @@ function XMLHttpResult(requette, xml, text) {
       }
 
       pression    = Number(xml.getElementsByTagName("pression")[0].childNodes[0].nodeValue);
+      calculMoyennePres();
 
       var doc_press = document.getElementById("valeurPress");
       doc_press.innerHTML = '<span class="couleurPression">' + Number.parseFloat(pression).toFixed(1) + "hPa</span>";
@@ -647,6 +686,7 @@ function graphHistoryintegration(xml) {
     pression   = Number(h.getElementsByTagName("press")[0].childNodes[0].nodeValue);
     if (pression != 0) {
       // Donnée d'historique définie uniquement si pression != 0
+      calculMoyennePres();
       vent       = Number(h.getElementsByTagName("vent")[0].childNodes[0].nodeValue);
       calculMoyenneVent();
       tempctn    = Number(h.getElementsByTagName("tempctn")[0].childNodes[0].nodeValue);
@@ -660,6 +700,7 @@ function graphHistoryintegration(xml) {
       histBmp180Data.push({x: tX, y: tempBmp180});
       histBmp180Moy.push ({x: tX, y: bmp180Moyen});
       histPression.push  ({x: tX, y: pression});
+      histPresMoy.push   ({x: tX, y: presMoyen});
     }
     tX += 500 // pas des mesures = 500 ms
   }
@@ -693,12 +734,48 @@ function calculMoyenneVent() {
   tblVentsIdx = tblVentsIdx + 1;
   if (tblVentsIdx >= largeurMoyVent) {
     tblVentsIdx = 0;
+    largeurVentFull = true;
   }
 
-  // calcul la moyenne
-  ventMoyen = Math.round(ventTotal / largeurMoyVent * 10)/10;
+  if (largeurVentFull) {
+    // calcul la moyenne sur l'ensemble du tableau
+    ventMoyen = Math.round(ventTotal / largeurMoyVent * 10)/10;
+  } else {
+    // calcul la moyenne jusqu'à l'indexe (le tableau n'est pas complet).
+    ventMoyen = Math.round(ventTotal / tblVentsIdx * 10)/10;
+  }
+}
+
+function calculMoyennePres() {
+
+  // Remplace l'élément pointé par l'indexe et recalcul le total
+  if (isNaN(tblPress[tblPressIdx])) {
+    // Initialise l'élément du tableau pour la première fois
+    tblPress[tblPressIdx] = 0
+  }
+  presTotal = presTotal - tblPress[tblPressIdx];
+  tblPress[tblPressIdx] = pression;
+  presTotal = presTotal + tblPress[tblPressIdx];
+
+  // Avance l'indexe du tableau
+  tblPressIdx = tblPressIdx + 1;
+  if (tblPressIdx >= largeurMoyVent) {
+    tblPressIdx = 0;
+    largeurPresFull = true;
+  }
+
+  if (largeurVentFull) {
+    // calcul la moyenne sur l'ensemble du tableau
+    presMoyen = Math.round(presTotal / largeurMoyVent * 100)/100;
+  } else {
+    presMoyen = Math.round(presTotal / tblPressIdx * 100)/100;
+  }
   
 }
+
+
+
+
 
 function calculMoyenneTemperature() {
 
@@ -835,6 +912,7 @@ function visuCourbes() {
     localStorage.setItem("showPressU", showPressU);
   }
   Window.graphVent.setDatasetVisibility(2, showPressU);
+  Window.graphVent.setDatasetVisibility(3, showPressU);
 
   // Graphique inférieurs
   newValue = document.getElementById("showT1").checked;
@@ -851,6 +929,7 @@ function visuCourbes() {
     localStorage.setItem("showPressL", showPressL);
   }
   Window.graphTemp.setDatasetVisibility(4, showPressL);
+  Window.graphTemp.setDatasetVisibility(5, showPressL);
 
   newValue = document.getElementById("showT2").checked;
   if (newValue != showT2) {

@@ -21,10 +21,10 @@
 :root {
   --couleurVent: rgb(0, 180, 255);
   --couleurFillVent: rgba(0, 180, 255, 0.3);
-  /*--couleurMoyVent: rgb(160, 0, 180);*/
   --couleurMoyVent: rgb(0, 125, 179);
   --couleurPression: rgb(0, 127, 127);
   --couleurFillPression: rgba(0, 127, 127, 0.2);
+  --couleurMoyPres: rgb(0, 80, 80);
   --couleurTempBmp180: rgb(0, 255, 0);
   --couleurMoyBMP180: rgb(0, 160, 0);
   --couleurTempCtn: rgb(255, 63, 32);
@@ -53,4 +53,7 @@ html, body {
 }
 .couleurPression {
   color: var(--couleurPression);
+}
+.couleurMoyPres {
+  color: var(--couleurMoyPres);
 }

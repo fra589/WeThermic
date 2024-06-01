@@ -27,7 +27,7 @@
 var cssFile = 'style_theme_sombre.css';
 // Durée de calcul des moyennes
 var largeurMoyVent  = 180; // Moyenne sur 1 minute 30s
-var largeurMoyTemp  = 180; // Moyenne sur 1 minutes 30s
+var largeurMoyTemp  = 180; // Moyenne sur 1 minute 30s
 // Visibilité des courbes
 var showWind      = true;
 var showT1        = true;
@@ -92,7 +92,7 @@ var isFullScreen    = false;
 
 var apConfigChange  = false;
 
-function index_onload() {
+async function index_onload() {
 
   // Restauration des préférences avec l'API localStorage plutôt que des cookies
   var cssPref = localStorage.getItem("cssFile");
@@ -166,11 +166,20 @@ function index_onload() {
     XMLHttpRequest_get("/getversion");
   }
 
-  // Récupère les premières valeurs de manière synchrone
+  // Récupère les valeurs historique
   // pour initialisation des graphiques.
-  // XMLHttpRequest_get_first_values(); => inclu dans get_history()
-  XMLHttpRequest_get_history();
+  attenteOK  = false;
+  if (location.protocol == 'file:') {
+    XMLHttpRequest_get(netDevURL + "/history");
+  } else {
+    XMLHttpRequest_get("/history");
+  }
+  while (!attenteOK) {
+    await sleep(100);
+  }
+  attenteOK = false;
 
+  
   // Ajuste les échelles Y
   ctnSuggestedMax = ctnMoyen + 1.5;
   ctnSuggestedMin = ctnMoyen - 0.25;
@@ -435,12 +444,6 @@ function index_onload() {
     maintainAspectRatio: false
   };
 
-  // Récupération des valeurs (vent, température et pression)
-  if (location.protocol == 'file:') {
-    setTimeout(function() { XMLHttpRequest_get(netDevURL + "/getvalues") }, 500);
-  } else {
-    setTimeout(function() { XMLHttpRequest_get("/getvalues") }, 500);
-  }
   // Création des graphiques
   Window.graphVent = new Chart(document.getElementById('graphVent'), {
     type: 'line',
@@ -466,6 +469,13 @@ function index_onload() {
   Window.graphTemp.update();
   // Affiche les courbes visibles en fonction des préférences
   visuCourbes();
+
+  // Récupération des valeurs temp réel (vent, température et pression)
+  if (location.protocol == 'file:') {
+    setTimeout(function() { XMLHttpRequest_get(netDevURL + "/getvalues") }, 500);
+  } else {
+    setTimeout(function() { XMLHttpRequest_get("/getvalues") }, 500);
+  }
 
   /* A compléter...
    * cf. https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API
@@ -530,123 +540,6 @@ function recalePression() {
   Window.graphTemp.update();
 }
 
-function XMLHttpRequest_get_history() {
-
-  const request = new XMLHttpRequest();
-  if (location.protocol == 'file:') {
-    request.open("GET", netDevURL + "/history", false); // `false` makes the request synchronous
-  } else {
-    request.open("GET", "/history", false); // `false` makes the request synchronous
-  }
-  request.send(null);
-
-  if (request.status === 200) {
-    var xml = request.responseXML;
-    // nombre de millisecondes écoulées depuis le premier janvier 1970
-    tX = Date.now();
-    // Il y a 5 minutes :
-    tX = tX - (5 * 60 * 1000) 
-    hist = xml.getElementsByTagName("hist");
-    for (const h of hist) {
-      pression   = Number(h.getElementsByTagName("press")[0].childNodes[0].nodeValue);
-      if (pression != 0) {
-        // Donnée d'historique définie uniquement si pression != 0
-        vent       = Number(h.getElementsByTagName("vent")[0].childNodes[0].nodeValue);
-        calculMoyenneVent();
-        tempctn    = Number(h.getElementsByTagName("tempctn")[0].childNodes[0].nodeValue);
-        tempBmp180 = Number(h.getElementsByTagName("tbmp180")[0].childNodes[0].nodeValue);
-        calculMoyenneTemperature();
-        // Envoie les données d'historique dans le graphique
-        histVentData.push  ({x: tX, y: vent});
-        histVentMoy.push   ({x: tX, y: ventMoyen});
-        histTempCtn.push   ({x: tX, y: tempctn});
-        histTCtnMoy.push   ({x: tX, y: ctnMoyen});
-        histBmp180Data.push({x: tX, y: tempBmp180});
-        histBmp180Moy.push ({x: tX, y: bmp180Moyen});
-        histPression.push  ({x: tX, y: pression});
-      }
-      tX += 500 // pas des mesures = 500 ms
-    }
-  }
-
-}
-
-function XMLHttpRequest_get_history_old() {
-
-  const request = new XMLHttpRequest();
-  if (location.protocol == 'file:') {
-    request.open("GET", netDevURL + "/history", false); // `false` makes the request synchronous
-  } else {
-    request.open("GET", "/history", false); // `false` makes the request synchronous
-  }
-  request.send(null);
-
-  if (request.status === 200) {
-    var xml = request.responseXML;
-    // nombre de millisecondes écoulées depuis le premier janvier 1970
-    tX = Date.now();
-    // Il y a 5 minutes :
-    tX = tX - (5 * 60 * 1000) 
-    hist = xml.getElementsByTagName("histvent");
-    for (const vent of hist) {
-      histVentData.push({x: tX, y: vent.childNodes[0].nodeValue});
-      tX += 500 // pas des mesures = 500 ms
-    }
-    vent = histVentData[histVentData.length -1];
-    ventMoyen   = vent;
-    // histtempctn
-    tX = tX - (5 * 60 * 1000) 
-    hist = xml.getElementsByTagName("histtempctn");
-    for (const temp of hist) {
-      histTempCtn.push({x: tX, y: temp.childNodes[0].nodeValue});
-      tX += 500 // pas des mesures = 500 ms
-    }
-    tempctn = histTempCtn[histTempCtn.length -1];
-    ctnMoyen    = tempctn;
-    // histbmp180
-    tX = tX - (5 * 60 * 1000) 
-    hist = xml.getElementsByTagName("histbmp180");
-    for (const bmp180 of hist) {
-      histBmp180Data.push({x: tX, y: bmp180.childNodes[0].nodeValue});
-      tX += 500 // pas des mesures = 500 ms
-    }
-    tempBmp180 = histBmp180Data[histBmp180Data.length -1];
-    bmp180Moyen = tempBmp180;
-    // histpression
-    tX = tX - (5 * 60 * 1000) 
-    hist = xml.getElementsByTagName("histpression");
-    for (const press of hist) {
-      histPression.push({x: tX, y: press.childNodes[0].nodeValue});
-      tX += 500 // pas des mesures = 500 ms
-    }
-    pression = histPression[histPression.length -1];
-  }
-
-}
-
-function XMLHttpRequest_get_first_values() {
-  // HTTP synchronous request
-  const request = new XMLHttpRequest();
-  if (location.protocol == 'file:') {
-    request.open("GET", netDevURL + "/getvalues", false); // `false` makes the request synchronous
-  } else {
-    request.open("GET", "/getvalues", false); // `false` makes the request synchronous
-  }
-  request.send(null);
-
-  if (request.status === 200) {
-    var xml = request.responseXML;
-    vent        = Number(xml.getElementsByTagName("vent")[0].childNodes[0].nodeValue);
-    ventMoyen   = vent;
-    tempctn     = Number(xml.getElementsByTagName("tempctn")[0].childNodes[0].nodeValue);
-    ctnMoyen    = tempctn;
-    tempBmp180  = Number(xml.getElementsByTagName("temperature")[0].childNodes[0].nodeValue);
-    bmp180Moyen = tempBmp180;
-    pression    = Number(xml.getElementsByTagName("pression")[0].childNodes[0].nodeValue);
-  }
-
-}
-
 function XMLHttpRequest_get(requette) {
   // Requette XML HTTP GET
   var heure = document.getElementById("heure");
@@ -677,6 +570,8 @@ function XMLHttpResult(requette, xml, text) {
       var doc_version = document.getElementById("version");
       doc_version.textContent = version_string;
 
+    } else if ((requette == "/history") || (requette == netDevURL + "/history")) {
+      graphHistoryintegration(xml);
     } else if ((requette == "/getvalues") || (requette == netDevURL + "/getvalues")) {
       vent        = Number(xml.getElementsByTagName("vent")[0].childNodes[0].nodeValue);
       calculMoyenneVent();
@@ -738,6 +633,38 @@ function XMLHttpResult(requette, xml, text) {
       // la requette vers le serveur web.
       autoRefresh();
   }
+
+}
+
+function graphHistoryintegration(xml) {
+  // Intègre dynamiquement les données d'historique au graphiques
+  // nombre de millisecondes écoulées depuis le premier janvier 1970
+  tX = Date.now();
+  // Il y a 5 minutes :
+  tX = tX - (5 * 60 * 1000) 
+  hist = xml.getElementsByTagName("hist");
+  for (const h of hist) {
+    pression   = Number(h.getElementsByTagName("press")[0].childNodes[0].nodeValue);
+    if (pression != 0) {
+      // Donnée d'historique définie uniquement si pression != 0
+      vent       = Number(h.getElementsByTagName("vent")[0].childNodes[0].nodeValue);
+      calculMoyenneVent();
+      tempctn    = Number(h.getElementsByTagName("tempctn")[0].childNodes[0].nodeValue);
+      tempBmp180 = Number(h.getElementsByTagName("tbmp180")[0].childNodes[0].nodeValue);
+      calculMoyenneTemperature();
+      // Envoie les données d'historique dans les graphiques
+      histVentData.push  ({x: tX, y: vent});
+      histVentMoy.push   ({x: tX, y: ventMoyen});
+      histTempCtn.push   ({x: tX, y: tempctn});
+      histTCtnMoy.push   ({x: tX, y: ctnMoyen});
+      histBmp180Data.push({x: tX, y: tempBmp180});
+      histBmp180Moy.push ({x: tX, y: bmp180Moyen});
+      histPression.push  ({x: tX, y: pression});
+    }
+    tX += 500 // pas des mesures = 500 ms
+  }
+  // Pour synchronisation XMLHttpRequest asynchrone
+  attenteOK  = true;
 }
 
 function autoRefresh() {

@@ -170,7 +170,7 @@ void loop() {
       Serial.print(tempCtn);
       Serial.print("°C, pression atmosphérique = ");
       Serial.print(pression);
-      Serial.print("mPa");
+      Serial.print("hPa ");
     #endif
   }
 

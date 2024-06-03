@@ -132,27 +132,27 @@ async function index_onload() {
   // Visibilité des courbes
   var visiPref = localStorage.getItem("showWind");
   if (visiPref !== null) {
-    showWind = visiPref;
+    showWind = visiPref === "true";
   }
   var visiPref = localStorage.getItem("showT1");
   if (visiPref !== null) {
-    showT1 = visiPref;
+    showT1 = visiPref === "true";
   }
   var visiPref = localStorage.getItem("showT2");
   if (visiPref !== null) {
-    showT2 = visiPref;
+    showT2 = visiPref === "true";
   }
   var visiPref = localStorage.getItem("showPressU");
   if (visiPref !== null) {
-    showPressU = visiPref;
+    showPressU = visiPref === "true";
   }
   var visiPref = localStorage.getItem("showPressL");
   if (visiPref !== null) {
-    showPressL = visiPref;
+    showPressL = visiPref === "true";
   }
   var visiPref = localStorage.getItem("showPressGrid");
   if (visiPref !== null) {
-    showPressGrid = visiPref;
+    showPressGrid = visiPref === "true";
   }
   document.getElementById("showWind").checked      = showWind;
   document.getElementById("showT1").checked        = showT1;
@@ -934,9 +934,8 @@ function visuCourbes() {
   newValue = document.getElementById("showT2").checked;
   if (newValue != showT2) {
     showT2 = newValue;
-    localStorage.setItem("showT2", showT2);
+    localStorage.setItem("showT2", showT2.toString());
   }
-  showT2 = document.getElementById("showT2").checked; 
   Window.graphTemp.setDatasetVisibility(2, showT2);
   Window.graphTemp.setDatasetVisibility(3, showT2);
 

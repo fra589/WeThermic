@@ -39,5 +39,6 @@
   void scrollScreen(void);
   void flushDisplay(void);
   void displayTemp(void);
+  void displayWifiStatus(void);
 
 #endif

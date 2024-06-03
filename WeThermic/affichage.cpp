@@ -79,34 +79,60 @@ void flushDisplay(void) {
 }
 
 void displayTemp(void) {
+
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+
+  display.setFont(&FreeMonoBold12pt7b);
+  display.setTextSize(1);
+  display.setCursor(15, 14);
+  display.print(vent, 1);
+  display.print(" m/s");
+
+  display.setFont(&FreeMonoBold18pt7b);
+  display.setTextSize(1);
+  display.setCursor(10, 40);
+  //display.print(tempBmp180, 1);
+  display.print(tempCtn, 1);
+  display.print("\xF7");
+  display.println("C");
+
+  display.setFont(&FreeMonoBold12pt7b);
+  display.setTextSize(1);
+  display.setCursor(7, 58);
+  display.print((int)round(pression));
+  display.print(" hPa");
+  /*display.setFont(NULL);
+  display.setTextSize(3);
+  display.setCursor(8, 38);
+  display.print(tempBmp180, 1);
+  display.print("\xF7");
+  display.println("C");
+  */
+  display.display();
+}
+
+void displayWifiStatus(void) {
     display.clearDisplay();
     display.setTextColor(WHITE);
 
-    display.setFont(&FreeMonoBold12pt7b);
+  if (WiFi.status() == WL_CONNECTED) {
+    display.setFont(NULL);
+    display.setTextSize(2);
+    display.setCursor(10, 10);
+    display.println("Connected");
     display.setTextSize(1);
-    display.setCursor(15, 14);
-    display.print(vent, 1);
-    display.print(" m/s");
+    display.setCursor(25, 40);
+    display.print(WiFi.localIP());
+  } else {
+    display.setFont(NULL);
+    display.setTextSize(2);
+    display.setCursor(47, 10);
+    display.println("Not");
+    display.setCursor(10, 20);
+    display.println("Connected");
+  }
 
-    display.setFont(&FreeMonoBold18pt7b);
-    display.setTextSize(1);
-    display.setCursor(10, 40);
-    //display.print(tempBmp180, 1);
-    display.print(tempCtn, 1);
-    display.print("\xF7");
-    display.println("C");
-
-    display.setFont(&FreeMonoBold12pt7b);
-    display.setTextSize(1);
-    display.setCursor(7, 58);
-    display.print((int)round(pression));
-    display.print(" hPa");
-    /*display.setFont(NULL);
-    display.setTextSize(3);
-    display.setCursor(8, 38);
-    display.print(tempBmp180, 1);
-    display.print("\xF7");
-    display.println("C");
-    */
-    display.display();
+  display.display();
+  
 }

@@ -121,6 +121,9 @@ void setup() {
   //Efface le logo par un scroll vers le haut
   scrollScreen();
 
+  displayWifiStatus();
+  delay(3000);
+
 }
 
 void loop() {

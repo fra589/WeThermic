@@ -113,8 +113,9 @@ void displayTemp(void) {
 }
 
 void displayWifiStatus(void) {
-    display.clearDisplay();
-    display.setTextColor(WHITE);
+  int dx = 0;
+  display.clearDisplay();
+  display.setTextColor(WHITE);
 
   if (WiFi.status() == WL_CONNECTED) {
     display.setFont(NULL);
@@ -122,7 +123,13 @@ void displayWifiStatus(void) {
     display.setCursor(10, 10);
     display.println("Connected");
     display.setTextSize(1);
-    display.setCursor(25, 40);
+    // Centre le SSID à l'écran
+    dx = ((21 - strlen(WiFi.SSID().c_str()))/2*6)+2;
+    display.setCursor(dx, 35);
+    display.print(WiFi.SSID());
+    // Centre l'IP à l'écran
+    dx = ((21 - strlen(IPtoString(WiFi.localIP()).c_str()))/2*6)+2;
+    display.setCursor(dx, 47);
     display.print(WiFi.localIP());
   } else {
     display.setFont(NULL);

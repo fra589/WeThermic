@@ -48,6 +48,7 @@ void webServerInit(void) {
   server.on("/wificonnect",      handleWifiConnect);
   server.on("/getapconfig",      handleGetAPconfig);
   server.on("/setapconfig",      handleSetAPconfig);
+  server.on("/reboot",           handleReboot);
   server.onNotFound(handleNotFound);
   server.begin(); // Start http web server
   
@@ -626,4 +627,14 @@ void handleSetAPconfig(void) {
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.send(200,"text/xml",XML);
 
+}
+
+void handleReboot(void) {
+  // Redirige vers la page d'entrée pour après reboot
+  server.sendHeader("Location", String("http://") + IPtoString(server.client().localIP()) + "/index.html", true);
+  server.send(302, "text/plain", "");   // Empty content inhibits Content-length header so we have to close the socket ourselves.
+  server.client().stop(); // Stop is needed because we sent no content length
+  delay(250);
+  // Reboot
+  ESP.restart();
 }

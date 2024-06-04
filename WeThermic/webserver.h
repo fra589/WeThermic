@@ -35,5 +35,6 @@
   void handleWifiConnect(void);
   void handleGetAPconfig(void);
   void handleSetAPconfig(void);
+  void handleReboot(void);
 
 #endif

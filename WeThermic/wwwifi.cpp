@@ -59,7 +59,7 @@ void wifiApInit(void) {
     SSID_MAC.toCharArray(ap_ssid, MAX_SSID_LEN);
   }
 
-  // Ouverture access point de la balance
+  // Ouverture access point
   #ifdef DEBUG
     Serial.print("\nConfiguring access point, SSID = <");
     Serial.print(ap_ssid);
@@ -114,7 +114,7 @@ void wifiClientInit(void) {
   if (cli_ssid[0] != '\0') {
     #ifdef DEBUG
       Serial.println("");
-      Serial.print("Connexion à "); Serial.print(cli_ssid);
+      Serial.print("Connexion à "); Serial.println(cli_ssid);
       Serial.flush();
     #endif
     debut = millis();

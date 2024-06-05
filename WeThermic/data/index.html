@@ -29,6 +29,7 @@
 
     <meta name="description" content="Anémomètre Thermomètre Barmoètre">
     <title>WeThermic</title>
+    <link rel="shortcut icon" type="image/png" href="images/favicon.svg" />
     <link id="cssMain" rel="stylesheet" type="text/css" href="style_principal.css"/>
     <script type="text/javascript" src="scripts.js"></script>
     <script src="chartjs/chart.umd.js"></script>
@@ -61,8 +62,9 @@
       <!-- Config dialog                                                                     -->
       <!--------------------------------------------------------------------------------------->
       <div id="settingsDialog" class="settingsDialog noshow">
+        <span class="fLeft"><image id="boutonReset" src="images/factory.svg" title="Reset preferences to default" onclick="resetSettings();" /></span>
+        <span class="fLeft"><image id="boutonReboot" src="images/reboot.svg" title="Reboot weather station" onclick="reboot();" /></span>
         <span class="fRight"><image id="boutonClose" src="images/close.svg" title="Close settings" onclick="closeSettings();" /></span>
-        <span class="fLeft"><image id="boutonReset" src="images/factory.svg" title="Reset to default" onclick="resetSettings();" /></span>
         <h1>Settings :</h1>
         <hr id="ligneHaut" />
         <p class="centerAlign">
@@ -146,7 +148,7 @@
             <input type="password" name="apPwd2" id="apPwd2" value="" maxlength="63" oninput="apConfigChange = true; inputConfigAP()" />
           </div>
           <div class="tblPwdCenter">
-            <span><image id="btnShowPasswd" src="images/oeuil.svg" title="Show password" onclick="toogleShowPasswd();" /></span>
+            <span><image id="btnShowPasswd" src="images/oeuil.svg" title="Show password" onclick="toogleShowPasswd('ap');" /></span>
             <span><image id="btnValideAP" src="images/valid-disable.svg" title="Update APconfig" onclick="updateAPconfig();" /></span>
           </div>
         </div>
@@ -178,7 +180,8 @@
                 <input type="text" name="ssid_input" id="ssid_input" value="" readonly />
                 <br />
                 <label for="pwd_input">Enter network password: </label>
-                <input type="password" name="pwd_input" id="pwd_input" value="" onkeyup="connect_keyup(event)" />
+                <input type="password" name="pwd_input" id="pwd_input" value="" onkeyup="connect_keyup(event)" /><br />
+                <span><image id="btnShowCliPasswd" src="images/oeuil.svg" title="Show password" onclick="toogleShowPasswd('cli');" /></span>
               </p>
             </div>
             <p class="alignement-droit" id="dlgConnectButtons">

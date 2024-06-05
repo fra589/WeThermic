@@ -1293,20 +1293,34 @@ function getAPconfig() {
   }
 }
 
-function toogleShowPasswd() {
-  const bouton = document.getElementById('btnShowPasswd');
-  var apPwd1 = document.getElementById('apPwd1');
-  var apPwd2 = document.getElementById('apPwd2');
-  if (apPwd1.type === "password") {
-    apPwd1.type = "text";
-    apPwd2.type = "text";
-    bouton.src="images/oeuil-barre.svg"
-    bouton.title="Hide password"
+function toogleShowPasswd(dest) {
+  if (dest == "ap") {
+    const bouton = document.getElementById('btnShowPasswd');
+    var apPwd1 = document.getElementById('apPwd1');
+    var apPwd2 = document.getElementById('apPwd2');
+    if (apPwd1.type === "password") {
+      apPwd1.type = "text";
+      apPwd2.type = "text";
+      bouton.src="images/oeuil-barre.svg"
+      bouton.title="Hide password"
+    } else {
+      apPwd1.type = "password";
+      apPwd2.type = "password";
+      bouton.src="images/oeuil.svg"
+      bouton.title="Show password"
+    }
   } else {
-    apPwd1.type = "password";
-    apPwd2.type = "password";
-    bouton.src="images/oeuil.svg"
-    bouton.title="Show password"
+    const bouton = document.getElementById('btnShowCliPasswd');
+    var pwd_input = document.getElementById('pwd_input');
+    if (pwd_input.type === "password") {
+      pwd_input.type = "text";
+      bouton.src="images/oeuil-barre.svg"
+      bouton.title="Hide password"
+    } else {
+      pwd_input.type = "password";
+      bouton.src="images/oeuil.svg"
+      bouton.title="Show password"
+    }
   }
 }
 
@@ -1359,8 +1373,15 @@ function resetSettings() {
   window.location.reload();
 }
 
-
-
+function reboot() {
+  if (confirm("Reboot the weather station?") == true) {
+    if (location.protocol == 'file:') {
+      XMLHttpRequest_get(netDevURL + "/reboot");
+    } else {
+      XMLHttpRequest_get("/reboot");
+    }
+  }
+}
 
 
 

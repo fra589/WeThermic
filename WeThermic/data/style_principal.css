@@ -60,6 +60,13 @@ html, body {
   margin-left: 20px;
   cursor: pointer;
 }
+#boutonReboot {
+  width: 64px;
+  height: 64px;
+  margin-top: 20px;
+  margin-left: 20px;
+  cursor: pointer;
+}
 #boutonClose {
   width: 64px;
   height: 64px;
@@ -164,6 +171,10 @@ html, body {
   -webkit-transition: all 0.5s ease-in-out;
   -o-transition: all 0.5s ease-in-out;
   -ms-transition: all 0.5s ease-in-out;
+}
+#dlgConnect {
+  width: 50em;
+  color: black;
 }
 #activeNetwork  {
   text-align: left;

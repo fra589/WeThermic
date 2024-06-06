@@ -181,20 +181,20 @@ void handleGetValues(void) {
 
   // Renvoi la réponse au client http
   XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
-  XML += F("<valeurs>\n");
-  XML += F("  <vent>");
+  XML += F("<vals>");
+  XML += F("<v>");
   XML += String(vent);
-  XML += F("</vent>\n");
-  XML += F("  <temperature>");
-  XML += String(tempBmp180);
-  XML += F("</temperature>\n");
-  XML += F("  <pression>");
-  XML += String(pression);
-  XML += F("</pression>\n");
-  XML += F("  <tempctn>");
+  XML += F("</v>");
+  XML += F("<c>");
   XML += String(tempCtn);
-  XML += F("</tempctn>\n");
-  XML += F("</valeurs>\n");
+  XML += F("</c>");
+  XML += F("<b>");
+  XML += String(tempBmp180);
+  XML += F("</b>");
+  XML += F("<p>");
+  XML += String(pression);
+  XML += F("</p>");
+  XML += F("</vals>\n");
 
   server.send(200,"text/xml",XML);
   
@@ -218,40 +218,37 @@ void handleGetHistory(void) {
   server.send(200, "text/xml", "");
   server.sendContent (F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n"));
   server.sendContent (F("<history>\n"));
-  server.sendContent (F("  <history_len>\n"));
-  server.sendContent (String(DUREE_HISTORIQUE));
-  server.sendContent (F("</history_len>\n"));
   for (i = idxHistorique; i < DUREE_HISTORIQUE; i++) {
-    server.sendContent (F("  <hist>"));
-    server.sendContent (F("    <vent>"));
-    server.sendContent (String(histVent[i]));
-    server.sendContent (F("</vent>"));
-    server.sendContent (F("  <tempctn>"));
-    server.sendContent (String(histTempCtn[i]));
-    server.sendContent (F("</tempctn>\n"));
-    server.sendContent (F("    <tbmp180>"));
-    server.sendContent (String(histBmp180[i]));
-    server.sendContent (F("</tbmp180>\n"));
-    server.sendContent (F("    <press>"));
+    server.sendContent (F("<h>"));
+    server.sendContent (F("<p>"));
     server.sendContent (String(histPression[i]));
-    server.sendContent (F("</press>\n"));
-    server.sendContent (F("  </hist>\n"));
+    server.sendContent (F("</p>"));
+    server.sendContent (F("<v>"));
+    server.sendContent (String(histVent[i]));
+    server.sendContent (F("</v>"));
+    server.sendContent (F("<c>"));
+    server.sendContent (String(histTempCtn[i]));
+    server.sendContent (F("</c>"));
+    server.sendContent (F("<b>"));
+    server.sendContent (String(histBmp180[i]));
+    server.sendContent (F("</b>"));
+    server.sendContent (F("</h>\n"));
   }
   for (i = 0; i < idxHistorique; i++) {
-    server.sendContent (F("  <hist>"));
-    server.sendContent (F("    <vent>"));
-    server.sendContent (String(histVent[i]));
-    server.sendContent (F("</vent>"));
-    server.sendContent (F("  <tempctn>"));
-    server.sendContent (String(histTempCtn[i]));
-    server.sendContent (F("</tempctn>\n"));
-    server.sendContent (F("    <tbmp180>"));
-    server.sendContent (String(histBmp180[i]));
-    server.sendContent (F("</tbmp180>\n"));
-    server.sendContent (F("    <press>"));
+    server.sendContent (F("<h>"));
+    server.sendContent (F("<p>"));
     server.sendContent (String(histPression[i]));
-    server.sendContent (F("</press>\n"));
-    server.sendContent (F("  </hist>\n"));
+    server.sendContent (F("</p>"));
+    server.sendContent (F("<v>"));
+    server.sendContent (String(histVent[i]));
+    server.sendContent (F("</v>"));
+    server.sendContent (F("<c>"));
+    server.sendContent (String(histTempCtn[i]));
+    server.sendContent (F("</c>"));
+    server.sendContent (F("<b>"));
+    server.sendContent (String(histBmp180[i]));
+    server.sendContent (F("</b>"));
+    server.sendContent (F("</h>\n"));
   }
   server.sendContent (F("</history>\n"));
   server.sendContent("");

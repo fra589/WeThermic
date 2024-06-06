@@ -621,15 +621,15 @@ function XMLHttpResult(requette, xml, text) {
     } else if ((requette == "/history") || (requette == netDevURL + "/history")) {
       graphHistoryintegration(xml);
     } else if ((requette == "/getvalues") || (requette == netDevURL + "/getvalues")) {
-      vent        = Number(xml.getElementsByTagName("vent")[0].childNodes[0].nodeValue);
+      vent        = Number(xml.getElementsByTagName("v")[0].childNodes[0].nodeValue);
       calculMoyenneVent();
 
       var doc_vent  = document.getElementById("valeurVent");
       doc_vent.innerHTML    ='<span class="couleurMoyVent">moy = ' + Number.parseFloat(ventMoyen).toFixed(1) + '</span>&nbsp;';
       doc_vent.innerHTML   += '<span class="couleurVent">inst = ' + Number.parseFloat(vent).toFixed(1).padStart(4, ' ') + ' m/s</span>';
 
-      tempctn     = Number(xml.getElementsByTagName("tempctn")[0].childNodes[0].nodeValue);
-      tempBmp180  = Number(xml.getElementsByTagName("temperature")[0].childNodes[0].nodeValue);
+      tempctn     = Number(xml.getElementsByTagName("c")[0].childNodes[0].nodeValue);
+      tempBmp180  = Number(xml.getElementsByTagName("b")[0].childNodes[0].nodeValue);
       calculMoyenneTemperature();
 
       var showT1 = document.getElementById("showT1").checked; 
@@ -645,7 +645,7 @@ function XMLHttpResult(requette, xml, text) {
         doc_temp.innerHTML   += '<span class="couleurTempCtn">inst = '    + Number.parseFloat(tempctn).toFixed(2) + '°C</span>'
       }
 
-      pression    = calculPressionDouce(Number(xml.getElementsByTagName("pression")[0].childNodes[0].nodeValue));
+      pression    = calculPressionDouce(Number(xml.getElementsByTagName("p")[0].childNodes[0].nodeValue));
       calculMoyennePres();
 
       var doc_press = document.getElementById("valeurPress");
@@ -691,16 +691,16 @@ function graphHistoryintegration(xml) {
   tX = Date.now();
   // Il y a 5 minutes :
   tX = tX - (5 * 60 * 1000) 
-  hist = xml.getElementsByTagName("hist");
+  hist = xml.getElementsByTagName("h");
   for (const h of hist) {
-    pression   = calculPressionDouce(Number(h.getElementsByTagName("press")[0].childNodes[0].nodeValue));
+    pression   = calculPressionDouce(Number(h.getElementsByTagName("p")[0].childNodes[0].nodeValue));
     if (pression != 0) {
       // Donnée d'historique définie uniquement si pression != 0
       calculMoyennePres();
-      vent       = Number(h.getElementsByTagName("vent")[0].childNodes[0].nodeValue);
+      vent       = Number(h.getElementsByTagName("v")[0].childNodes[0].nodeValue);
       calculMoyenneVent();
-      tempctn    = Number(h.getElementsByTagName("tempctn")[0].childNodes[0].nodeValue);
-      tempBmp180 = Number(h.getElementsByTagName("tbmp180")[0].childNodes[0].nodeValue);
+      tempctn    = Number(h.getElementsByTagName("c")[0].childNodes[0].nodeValue);
+      tempBmp180 = Number(h.getElementsByTagName("b")[0].childNodes[0].nodeValue);
       calculMoyenneTemperature();
       // Envoie les données d'historique dans les graphiques
       histVentData.push  ({x: tX, y: vent});

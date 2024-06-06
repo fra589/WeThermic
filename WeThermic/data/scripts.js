@@ -34,7 +34,7 @@ var showT1        = true;
 var showT2        = false;
 var showPressU    = true;
 var showPressL    = false;
-var showPressGrid = true
+var showPressGrid = false;
 //------------------------------------------------------------------------------------------
 
 
@@ -87,6 +87,12 @@ var tblPressIdx     = 0;
 var largeurPresFull = false;
 var presTotal       = 0.0;
 var presMoyen       = 0.0;
+
+var largDouxPres    = 8;
+tblPresDoux         = new Array(largDouxPres);
+var tblPresDouxIdx  = 0;
+var tblPresFull     = false;
+var presDouxTotal   = 0.0;
 
 tblTemp             = new Array(largeurMoyTemp);
 var tblTempIdx      = 0;
@@ -515,6 +521,10 @@ async function index_onload() {
     setTimeout(function() { XMLHttpRequest_get("/getvalues") }, 500);
   }
 
+  // Masque l'animation d'attente
+  var attente = document.getElementById("attente0")
+  attente.classList.add("noshow");
+
   /* A compléter...
    * cf. https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API
    * cf. https://mdn.github.io/dom-examples/screen-wake-lock-api/
@@ -615,7 +625,7 @@ function XMLHttpResult(requette, xml, text) {
       calculMoyenneVent();
 
       var doc_vent  = document.getElementById("valeurVent");
-      doc_vent.innerHTML    ='<span class="couleurMoyVent">moy = ' + Number.parseFloat(ventMoyen).toFixed(1) + '</span>,&nbsp;';
+      doc_vent.innerHTML    ='<span class="couleurMoyVent">moy = ' + Number.parseFloat(ventMoyen).toFixed(1) + '</span>&nbsp;';
       doc_vent.innerHTML   += '<span class="couleurVent">inst = ' + Number.parseFloat(vent).toFixed(1).padStart(4, ' ') + ' m/s</span>';
 
       tempctn     = Number(xml.getElementsByTagName("tempctn")[0].childNodes[0].nodeValue);
@@ -627,15 +637,15 @@ function XMLHttpResult(requette, xml, text) {
       var doc_temp = document.getElementById("valeurTemp");
       doc_temp.innerHTML    = ""
       if (showT2) {
-        doc_temp.innerHTML   += '<span class="couleurMoyBMP180">moy = '   + Number.parseFloat(bmp180Moyen).toFixed(1) + '</span>,&nbsp;';
+        doc_temp.innerHTML   += '<span class="couleurMoyBMP180">moy = '   + Number.parseFloat(bmp180Moyen).toFixed(1) + '</span>&nbsp;';
         doc_temp.innerHTML   += '<span class="couleurTempBmp180">inst = ' + Number.parseFloat(tempBmp180).toFixed(2) + '°C</span><br />';
       }
       if (showT1) {
-        doc_temp.innerHTML   += '<span class="couleurMoyCtn">moy = '      + Number.parseFloat(ctnMoyen).toFixed(1) + '</span>,&nbsp;';
+        doc_temp.innerHTML   += '<span class="couleurMoyCtn">moy = '      + Number.parseFloat(ctnMoyen).toFixed(1) + '</span>&nbsp;';
         doc_temp.innerHTML   += '<span class="couleurTempCtn">inst = '    + Number.parseFloat(tempctn).toFixed(2) + '°C</span>'
       }
 
-      pression    = Number(xml.getElementsByTagName("pression")[0].childNodes[0].nodeValue);
+      pression    = calculPressionDouce(Number(xml.getElementsByTagName("pression")[0].childNodes[0].nodeValue));
       calculMoyennePres();
 
       var doc_press = document.getElementById("valeurPress");
@@ -683,7 +693,7 @@ function graphHistoryintegration(xml) {
   tX = tX - (5 * 60 * 1000) 
   hist = xml.getElementsByTagName("hist");
   for (const h of hist) {
-    pression   = Number(h.getElementsByTagName("press")[0].childNodes[0].nodeValue);
+    pression   = calculPressionDouce(Number(h.getElementsByTagName("press")[0].childNodes[0].nodeValue));
     if (pression != 0) {
       // Donnée d'historique définie uniquement si pression != 0
       calculMoyennePres();
@@ -773,8 +783,37 @@ function calculMoyennePres() {
   
 }
 
-
-
+function calculPressionDouce(pBrute) {
+  // Calcul la moyenne glissante de la pression sur une faible largeur
+  // pour adoussir la courbe et limiter les fluctuations et le ruit
+  var presDouxMoyen   = 0.0;
+  // Le calcul n'est fait que pour les pressions non nulles
+  if (pBrute > 0) {
+    // Remplace l'élément pointé par l'indexe et recalcul le total
+    if (isNaN(tblPresDoux[tblPresDouxIdx])) {
+      // Initialise l'élément du tableau pour la première fois
+      tblPresDoux[tblPresDouxIdx] = 0
+    }
+    presDouxTotal = presDouxTotal - tblPresDoux[tblPresDouxIdx];
+    tblPresDoux[tblPresDouxIdx] = pBrute;
+    presDouxTotal = presDouxTotal + tblPresDoux[tblPresDouxIdx];
+    // Avance l'indexe du tableau
+    tblPresDouxIdx = tblPresDouxIdx + 1;
+    if (tblPresDouxIdx >= largDouxPres) {
+      tblPresDouxIdx = 0;
+      tblPresFull = true;
+    }
+    if (tblPresFull) {
+      // calcul la moyenne sur l'ensemble du tableau
+      presDouxMoyen = presDouxTotal / largDouxPres;
+    } else {
+      presDouxMoyen = presDouxTotal / tblPresDouxIdx;
+    }
+    return presDouxMoyen;
+  } else {
+    return 0.0;
+  }
+}
 
 
 function calculMoyenneTemperature() {
@@ -1198,6 +1237,7 @@ function toggleFullscreen() {
     isFullScreen = false;
     document.getElementById("fullScreenButton").innerText = "View in full screen";
   }
+  window.scrollTo(0, 0);
 }
 
 /* View in fullscreen */

@@ -57,8 +57,6 @@ var couleurTempBmp180   = 'rgb(0, 255, 0)';
 var couleurMoyBMP180    = 'rgb(0, 180, 0)';
 var couleurGrid         = 'rgb(31, 47, 63)';
 
-var attenteOK  = false;
-
 var histVentData    = new Array();
 var histVentMoy     = new Array();
 var vent            = 0.0;
@@ -103,9 +101,11 @@ tblCtn              = new Array(largeurMoyTemp);
 var ctnTotal        = 0.0;
 var ctnMoyen        = 0.0;
 
-var isFullScreen    = false;
 
+var isFullScreen    = false;
 var apConfigChange  = false;
+var attenteOK  = false;
+
 
 async function index_onload() {
 

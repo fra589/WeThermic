@@ -18,7 +18,6 @@
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*                                                                          */
 /****************************************************************************/
-
 :root {
   --couleurVent: rgb(0, 180, 255);
   --couleurFillVent: rgba(0, 180, 255, 0.3);

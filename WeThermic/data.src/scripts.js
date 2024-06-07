@@ -101,7 +101,6 @@ tblCtn              = new Array(largeurMoyTemp);
 var ctnTotal        = 0.0;
 var ctnMoyen        = 0.0;
 
-
 var isFullScreen    = false;
 var apConfigChange  = false;
 var attenteOK  = false;
@@ -1231,11 +1230,11 @@ function toggleFullscreen() {
   if (!isFullScreen) {
     openFullscreen();
     isFullScreen = true;
-    document.getElementById("fullScreenButton").innerText = "Close full screen";
+    document.getElementById("fullScreenButton").innerText = "<br />Close full screen<br />&nbsp;";
   } else {
     closeFullscreen();
     isFullScreen = false;
-    document.getElementById("fullScreenButton").innerText = "View in full screen";
+    document.getElementById("fullScreenButton").innerText = "<br />View in full screen<br />&nbsp;";
   }
   window.scrollTo(0, 0);
 }

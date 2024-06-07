@@ -1227,14 +1227,15 @@ function deconnect_clique() {
 }
 
 function toggleFullscreen() {
+  bouton = document.getElementById("fullScreenButton");
   if (!isFullScreen) {
     openFullscreen();
     isFullScreen = true;
-    document.getElementById("fullScreenButton").innerText = "<br />Close full screen<br />&nbsp;";
+    bouton.innerHTML = "<br />Close full screen<br />&nbsp;";
   } else {
     closeFullscreen();
     isFullScreen = false;
-    document.getElementById("fullScreenButton").innerText = "<br />View in full screen<br />&nbsp;";
+    bouton.innerHTML = "<br />View in full screen<br />&nbsp;";
   }
   window.scrollTo(0, 0);
 }

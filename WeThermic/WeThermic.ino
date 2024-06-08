@@ -60,6 +60,10 @@ DNSServer dnsServer;
 // Web server
 ESP8266WebServer server(80);
 
+// Pour mise en veille de l'affichage, on le mettra à 0...
+uint8_t affichage_on = 1;
+long debutCompteurVeille = 0;
+
 void IRAM_ATTR hall_ISR() {
   // Interruption du capteur à effet Hall
   if (digitalRead(HALL_PIN) == HIGH) {
@@ -75,6 +79,7 @@ void IRAM_ATTR hall_ISR() {
       ets_printf("hall_ISR() falling\n");
     #endif
     //digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+    ;
   }
 }
 
@@ -124,6 +129,8 @@ void setup() {
   displayWifiStatus();
   delay(3000);
 
+  debutCompteurVeille = millis();
+
 }
 
 void loop() {
@@ -140,18 +147,26 @@ void loop() {
 
   if (temps1 > temps0 + DUREE) {
 
+    // Réinitialise le compteur de temps
+    temps0 = temps1;
+
+    // Calcul du vent
+    noInterrupts(); // Pour éviter que pulse change pendant le calcul
+    vent = pulse * COEF_VENT; // TODO ecrire formule de calcul de la vitesse du vent = f(pulse)
+    pulse = 0;
+    interrupts(); // Réactive les interruptions
+
     // Moyenne thermistor CTN sur la durée de mesure
-    tempCtn = temperatureCumule / nombreTemperature;
+    if (nombreTemperature != 0) {
+      tempCtn = temperatureCumule / nombreTemperature;
+    } else {
+      tempCtn = readCtn();
+    }
     nombreTemperature = 0;
 
     // Lecture du capteur de température et pression
     read_bmp180();
 
-    // Calcul du vent
-    vent = pulse * COEF_VENT; // TODO ecrire formule de calcul de la vitesse du vent = f(pulse)
-    pulse = 0;
-    temps0 = temps1;
-    
     // Affichage sur écran
     displayTemp();
 
@@ -177,6 +192,15 @@ void loop() {
     #endif
   }
 
+  
+  if ((millis() > debutCompteurVeille + DELAY_VEILLE) && (affichage_on !=0)) {
+    // Mise en veille
+    #ifdef DEBUG
+      Serial.println("Demande de mise en veille");
+    #endif
+    affichage_on = 0;
+  }
+  
   // Process DNS
   dnsServer.processNextRequest();
   yield();

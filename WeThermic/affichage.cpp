@@ -23,6 +23,7 @@
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 uint8_t _affichage_OK = 0;
+uint8_t _isEnVeille = 0;
 
 // Initialisation affichage
 void affichage_init(void) {
@@ -43,6 +44,14 @@ void affichage_init(void) {
 
   _affichage_OK = 1;
 
+}
+
+void sleepDisplay(void) {
+  display.ssd1306_command(SSD1306_DISPLAYOFF);
+}
+
+void wakeupDisplay(void) {
+  display.ssd1306_command(SSD1306_DISPLAYON);
 }
 
 // Efface tout l'écran
@@ -73,43 +82,47 @@ void scrollScreen(void) {
   display.display();
 }
 
-// Déclenche l'affichage
-void flushDisplay(void) {
-  display.display();
-}
-
 void displayTemp(void) {
+  if ((affichage_on == 0) && (_isEnVeille == 0)){
+    // Mise en veille -- TODO: Sortie de veille... ssd1306_displayOn()
+    #ifdef DEBUG
+      Serial.println("Mise en veille");
+    #endif
+    _isEnVeille = 1;
+    sleepDisplay();
+  }
+  if (_isEnVeille == 0) {  
+    display.clearDisplay();
+    display.setTextColor(WHITE);
 
-  display.clearDisplay();
-  display.setTextColor(WHITE);
+    display.setFont(&FreeMonoBold12pt7b);
+    display.setTextSize(1);
+    display.setCursor(15, 14);
+    display.print(vent, 1);
+    display.print(" m/s");
 
-  display.setFont(&FreeMonoBold12pt7b);
-  display.setTextSize(1);
-  display.setCursor(15, 14);
-  display.print(vent, 1);
-  display.print(" m/s");
+    display.setFont(&FreeMonoBold18pt7b);
+    display.setTextSize(1);
+    display.setCursor(10, 40);
+    //display.print(tempBmp180, 1);
+    display.print(tempCtn, 1);
+    display.print("\xF7");
+    display.println("C");
 
-  display.setFont(&FreeMonoBold18pt7b);
-  display.setTextSize(1);
-  display.setCursor(10, 40);
-  //display.print(tempBmp180, 1);
-  display.print(tempCtn, 1);
-  display.print("\xF7");
-  display.println("C");
-
-  display.setFont(&FreeMonoBold12pt7b);
-  display.setTextSize(1);
-  display.setCursor(7, 58);
-  display.print((int)round(pression));
-  display.print(" hPa");
-  /*display.setFont(NULL);
-  display.setTextSize(3);
-  display.setCursor(8, 38);
-  display.print(tempBmp180, 1);
-  display.print("\xF7");
-  display.println("C");
-  */
-  display.display();
+    display.setFont(&FreeMonoBold12pt7b);
+    display.setTextSize(1);
+    display.setCursor(7, 58);
+    display.print((int)round(pression));
+    display.print(" hPa");
+    /*display.setFont(NULL);
+    display.setTextSize(3);
+    display.setCursor(8, 38);
+    display.print(tempBmp180, 1);
+    display.print("\xF7");
+    display.println("C");
+    */
+    display.display();
+  }
 }
 
 void displayWifiStatus(void) {

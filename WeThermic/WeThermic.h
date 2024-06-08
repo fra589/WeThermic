@@ -58,7 +58,8 @@
   // Paramètres mesure du vent
   #define HALL_PIN D5 // Entrée numérique esp8266
   #define DUREE 500   // Durée de comptage RPM (ms)
-  #define COEF_VENT 0.245
+  //#define COEF_VENT 0.245
+  #define COEF_VENT 0.3
   extern volatile uint32_t pulse;
   extern float vent;
   
@@ -103,7 +104,11 @@
 
   // Web server
   extern ESP8266WebServer server;
-  
+
+  // Pour mise en veille de l'affichage
+  extern uint8_t affichage_on;
+  #define DELAY_VEILLE 20000 // 20 secondes
+
   // DNS server
   extern DNSServer dnsServer;
   #define DNS_PORT 53

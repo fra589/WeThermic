@@ -34,10 +34,11 @@
   #define SSD1306_NO_SPLASH
 
   void affichage_init(void);
+  void sleepDisplay(void);
+  void wakeupDisplay(void);
   void clearDisplay(void);
   void afficheSplash(void);
   void scrollScreen(void);
-  void flushDisplay(void);
   void displayTemp(void);
   void displayWifiStatus(void);
 

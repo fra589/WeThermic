@@ -1,52 +1,206 @@
-<!doctype html><html lang=fr><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=.5,maximum-scale=3,minimum-scale=.5"><meta name=description content="Anémomètre Thermomètre Barmoètre"><title>!WeThermic</title><link rel="shortcut icon" type=image/png href=images/favicon.svg><link id=cssMain rel=stylesheet href=style_principal.css><script src=scripts.js></script>
-<script src=chartjs/chart.umd.js></script>
-<script src=chartjs/luxon.min.js></script>
-<script src=chartjs/chartjs-adapter-luxon.min.js></script>
-<script src=chartjs/chartjs-plugin-streaming.min.js></script><body onload=index_onload()><div id=lapage><div class=graph_container><div id=valeursV><span class=fLeft><h1 id=valeurVent>~~~~m/s</h1></span><span class=fRight><image id=boutonSettings src=images/settings.svg onclick=changeSettings();></span></div><canvas id=graphVent class=graphjs></canvas></div><div class=graph_container><div id=valeursTP><span class=fLeft><h1 id=valeurTemp>~~~~°C</h1></span><span class=fRight><h1 id=valeurPress>~~~~hPa</h1></span></div><canvas id=graphTemp class=graphjs></canvas></div><div id=fullScreenButton onclick=toggleFullscreen()><br>View in full screen<br>&nbsp;</div><hr><p>WeThermic <span id=version>v0.0.00000000</span> - Copyright © Gauthier Brière (<a href=https://github.com/fra589>fra589</a>) - 2024-2024</p><div id=settingsDialog class="settingsDialog noshow"><span class=fLeft><image id=boutonReset src=images/factory.svg title="Reset preferences to default" onclick=resetSettings();></span><span class=fLeft><image id=boutonReboot src=images/reboot.svg title="Reboot weather station" onclick=reboot();></span><span class=fRight><image id=boutonClose src=images/close.svg title="Close settings" onclick=closeSettings();></span><h1>Settings :</h1><hr id=ligneHaut><p class=centerAlign>Color theme:
-<span><input type=radio name=theme id=sombre value=sombre onchange='changeTheme("sombre")' checked>
-<label for=sombre>Dark</label>
-&nbsp;
-<input type=radio name=theme id=clair value=clair onchange='changeTheme("clair")'>
-<label for=clair>Clear</label></span><fieldset class=settingFieldset id=upperGraphFieldset><legend>Upper Graph</legend><p class=leftAlign><input type=checkbox id=showWind name=showWind onclick=visuCourbes() checked>
-<label for=showWind>Show wind speed</label>
-&nbsp;
-<input type=checkbox id=showPressU name=showPressU onclick=visuCourbes() checked>
-<label for=showPressU>Show atmospheric pressure</label>
-&nbsp;
-<input type=checkbox id=showPressGrid name=showPressGrid onclick=visuCourbes() checked>
-<label for=showPressGrid>Show pressure grid</label><p class=leftAlign><label class=nowarp>Average wind on&nbsp;<input type=range class=fullWidth id=lMoyVent name=lMoyVent min=1 max=10 value=2 step=1 onchange=changeLargeurVent() oninput=inputLargeurVent()>&nbsp;<span id=valMoyVent>1:30</span></label></fieldset><fieldset class=settingFieldset id=lowerGraphFieldset><legend>Lower Graph</legend><p class=leftAlign><input type=checkbox id=showT1 name=showT1 onclick=visuCourbes() checked>
-<label for=showT1>Show CTN temperature</label>
-&nbsp;
-<input type=checkbox id=showPressL name=showPressL onclick=visuCourbes()>
-<label for=showPressL>Show atmospheric pressure</label>
-&nbsp;
-<input type=checkbox id=showT2 name=showT2 onclick=visuCourbes()>
-<label for=showT2>Show BMP180 temperature</label><p class=leftAlign>Temperature scale:&nbsp;
-<input type=radio name=scaleTemp id=scale0 value=0 onclick=echelleTemperature(0)>
-<label for=scale0>0</label>
-&nbsp;
-<input type=radio name=scaleTemp id=scale1 value=1 onclick=echelleTemperature(1) checked>
-<label for=scale1>1</label>
-&nbsp;
-<input type=radio name=scaleTemp id=scale2 value=2 onclick=echelleTemperature(2)>
-<label for=scale2>2</label>
-&nbsp;
-<input type=radio name=scaleTemp id=scale3 value=3 onclick=echelleTemperature(3)>
-<label for=scale3>3</label>
-&nbsp;
-<label class=nowarp>Min.scale&nbsp;<input type=number class=numScale name=scaleMin id=scaleMin onchange=echelleTemperature(-1)></label>
-&nbsp;
-<label class=nowarp>Max.scale&nbsp;<input type=number class=numScale name=scaleMax id=scaleMax onchange=echelleTemperature(-1)></label><p class=leftAlign><label class=nowarp>Average temp.on&nbsp;<input type=range class=fullWidth id=lMoyTemp name=lMoyTemp min=1 max=10 value=2 step=1 onchange=changeLargeurTemp() oninput=inputLargeurTemp()>&nbsp;<span id=valMoyTemp>1:30</span></label></fieldset><h2>WiFi network configuration</h2><div id=apConfig><div class=tblPwd><label for=apSSID>Access Point SSID</label>
-<input name=apSSID id=apSSID maxlength=32 oninput="apConfigChange=!0,inputConfigAP()"></div><div class=tblPwd>&nbsp;</div><div class=tblPwd><label for=apPwd1>Access Point password</label>
-<input type=password name=apPwd1 id=apPwd1 maxlength=63 title="Enter AP password:
-min len=8, max len=63
-or leave it empty for no password." oninput="apConfigChange=!0,inputConfigAP()"><br><label for=apPwd2>Repeat AP password</label>
-<input type=password name=apPwd2 id=apPwd2 maxlength=63 oninput="apConfigChange=!0,inputConfigAP()"></div><div class=tblPwdCenter><span><image id=btnShowPasswd src=images/oeuil.svg title="Show password" onclick="toogleShowPasswd('ap');"></span><span><image id=btnValideAP src=images/valid-disable.svg title="Update APconfig" onclick=updateAPconfig();></span></div></div><hr><div id=activeNetwork><label for=ssidActuel>Actual network, SSID =</label>
-<input name=ssidActuel id=ssidActuel readonly><br><label for=ipActuel>Actual network, IP =</label>
-<input name=ipActuel id=ipActuel readonly><div id=btnDeconnect title="Disconnect from current network..." onclick=deconnect_clique()>Disconnect...</div></div><hr class=lignePartielle><div id=networkTable></div><span class=fRight onclick=get_networks()><image id=boutonRefresh src=images/refresh.svg></span><div id=dlgMask0 class="dlgMask noshow"><div id=dlgConnect class="dialog masquer"><div id=dlgContenu0 class=dlgPwdContenu><h2>Connect to a new WiFi</h2><p><label for=ssid_input>Connecting to network: SSID =</label>
-<input name=ssid_input id=ssid_input readonly><br><label for=pwd_input>Enter network password:</label>
-<input type=password name=pwd_input id=pwd_input onkeyup=connect_keyup(event)><br><span><image id=btnShowCliPasswd src=images/oeuil.svg title="Show password" onclick="toogleShowPasswd('cli');"></span></div><p class=alignement-droit id=dlgConnectButtons><button id=btnConnect title="Se connecter au réseau" onclick=connect_clique()>
-Connect</button>
-&nbsp;
-<button id=btnAnnuler title="Fermer cette boite de dialogue" onclick=connect_cancel()>
-Cancel</button></div></div></div><div id=cadre_attente><div id=attente0 class=attente></div></div></div>
+<!DOCTYPE html>
+<!--
+/****************************************************************************/
+/*                                                                          */
+/* Copyright (C) 2023-2024 Gauthier Brière (gauthier.briere "at" gmail.com) */
+/*                                                                          */
+/* This file: index.html is part of WeThermic                               */
+/*                                                                          */
+/* WeThermic is free software: you can redistribute it and/or modify it     */
+/* under the terms of the GNU General Public License as published by        */
+/* the Free Software Foundation, either version 3 of the License, or        */
+/* (at your option) any later version.                                      */
+/*                                                                          */
+/* WeThermic is distributed in the hope that it will be useful, but         */
+/* WITHOUT ANY WARRANTY; without even the implied warranty of               */
+/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            */
+/* GNU General Public License for more details.                             */
+/*                                                                          */
+/* You should have received a copy of the GNU General Public License        */
+/* along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
+/*                                                                          */
+/****************************************************************************/
+-->
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8">
+    <!--<meta name="viewport" content="width=device-width, interactive-widget=resizes-content">-->
+    <meta name="viewport" content="width=device-width, initial-scale=0.50, maximum-scale=3.0, minimum-scale=0.50" />
+    <meta name="description" content="Anémomètre Thermomètre Barmoètre">
+    <title>!WeThermic</title>
+    <link rel="shortcut icon" type="image/png" href="images/favicon.svg" />
+    <link id="cssMain" rel="stylesheet" type="text/css" href="style_principal.css"/>
+    <script type="text/javascript" src="scripts.js"></script>
+    <script src="chartjs/chart.umd.js"></script>
+    <script src="chartjs/luxon.min.js"></script>
+    <script src="chartjs/chartjs-adapter-luxon.min.js"></script>
+    <script src="chartjs/chartjs-plugin-streaming.min.js"></script>
+  </head>
+  <body onload="index_onload();">
+    <div id="lapage">
+      <div class="graph_container">
+        <div id="valeursV">
+          <span class="fLeft"><h1 id="valeurVent">~~~~m/s</h1></span>
+          <span class="fRight"><image id="boutonSettings" src="images/settings.svg" onclick="changeSettings();" /></span>
+        </div>
+        <canvas id="graphVent" class="graphjs"></canvas>
+      </div>
+      <div class="graph_container">
+        <div id="valeursTP">
+          <span class="fLeft"><h1 id="valeurTemp">~~~~°C</h1></span>
+          <span class="fRight"><h1 id="valeurPress">~~~~hPa</h1></span>
+        </div>
+        <canvas id="graphTemp" class="graphjs"></canvas>
+      </div>
+      <div id="fullScreenButton" onclick="toggleFullscreen()"><br />View in full screen<br />&nbsp;</div>
+      <hr />
+      <p>
+        WeThermic <span id="version">v0.0.00000000</span> - Copyright © Gauthier Brière (<a href="https://github.com/fra589">fra589</a>) - 2024-2024
+      </p>
+      <!--------------------------------------------------------------------------------------->
+      <!-- Config dialog                                                                     -->
+      <!--------------------------------------------------------------------------------------->
+      <div id="settingsDialog" class="settingsDialog noshow">
+        <span class="fLeft"><image id="boutonReset" src="images/factory.svg" title="Reset preferences to default" onclick="resetSettings();" /></span>
+        <span class="fLeft"><image id="boutonReboot" src="images/reboot.svg" title="Reboot weather station" onclick="reboot();" /></span>
+        <span class="fRight"><image id="boutonClose" src="images/close.svg" title="Close settings" onclick="closeSettings();" /></span>
+        <h1>Settings :</h1>
+        <hr id="ligneHaut" />
+        <p class="centerAlign">
+          Color theme:
+          <span>
+          <input type="radio" name="theme" id="sombre" value="sombre" onchange="changeTheme('sombre');" checked />
+          <label for="sombre">Dark</label>
+          &nbsp;
+          <input type="radio" name="theme" id="clair" value="clair" onchange="changeTheme('clair');" />
+          <label for="clair">Clear</label>
+          </span>
+        </p>
+        <fieldset class="settingFieldset" id="upperGraphFieldset">
+          <legend>Upper Graph</legend>
+          <p class="leftAlign">
+            <input type="checkbox" id="showWind" name="showWind" onclick="visuCourbes();" checked />
+            <label for="showWind">Show wind speed</label>
+            &nbsp;
+            <input type="checkbox" id="showPressU" name="showPressU" onclick="visuCourbes();" checked />
+            <label for="showPressU">Show atmospheric pressure</label>
+            &nbsp;
+            <input type="checkbox" id="showPressGrid" name="showPressGrid" onclick="visuCourbes();" checked />
+            <label for="showPressGrid">Show pressure grid</label>
+          </p>
+          <p class="leftAlign">
+            <label class="nowarp">Average wind on&nbsp;<input type="range" class="fullWidth" id="lMoyVent" name="lMoyVent" min="1" max="10" value="2" step="1" onchange="changeLargeurVent()" oninput="inputLargeurVent()" />&nbsp;<span id="valMoyVent" >1:30</span></label>
+          </p>
+        </fieldset>
+        <fieldset class="settingFieldset" id="lowerGraphFieldset">
+          <legend>Lower Graph</legend>
+          <p class="leftAlign">
+            <input type="checkbox" id="showT1" name="showT1" onclick="visuCourbes();" checked />
+            <label for="showT1">Show CTN temperature</label>
+            &nbsp;
+            <input type="checkbox" id="showPressL" name="showPressL" onclick="visuCourbes();" />
+            <label for="showPressL">Show atmospheric pressure</label>
+            &nbsp;
+            <input type="checkbox" id="showT2" name="showT2" onclick="visuCourbes();" />
+            <label for="showT2">Show BMP180 temperature</label>
+          </p>
+          <p class="leftAlign">
+            Temperature scale:&nbsp;
+            <input type="radio" name="scaleTemp" id="scale0" value="0" onclick="echelleTemperature(0);" />
+            <label for="scale0">0</label>
+            &nbsp;
+            <input type="radio" name="scaleTemp" id="scale1" value="1" onclick="echelleTemperature(1);" checked />
+            <label for="scale1">1</label>
+            &nbsp;
+            <input type="radio" name="scaleTemp" id="scale2" value="2" onclick="echelleTemperature(2);" />
+            <label for="scale2">2</label>
+            &nbsp;
+            <input type="radio" name="scaleTemp" id="scale3" value="3" onclick="echelleTemperature(3);" />
+            <label for="scale3">3</label>
+            &nbsp;
+            <label class="nowarp">Min.scale&nbsp;<input type="number" class="numScale" name="scaleMin" id="scaleMin" onchange="echelleTemperature(-1);" /></label>
+            &nbsp;
+            <label class="nowarp">Max.scale&nbsp;<input type="number" class="numScale" name="scaleMax" id="scaleMax" onchange="echelleTemperature(-1);" /></label>
+          </p>
+          <p class="leftAlign">
+            <label class="nowarp">Average temp.on&nbsp;<input type="range" class="fullWidth" id="lMoyTemp" name="lMoyTemp" min="1" max="10" value="2" step="1" onchange="changeLargeurTemp()" oninput="inputLargeurTemp()" />&nbsp;<span id="valMoyTemp" >1:30</span></label>
+            
+          </p>
+        </fieldset>
+        <!--------------------------------------------------------------------------------------->
+        <!-- Config réseau                                                                     -->
+        <!--------------------------------------------------------------------------------------->
+        <h2>WiFi network configuration</h2>
+        <div id="apConfig">
+          <div class="tblPwd">
+            <label for="apSSID">Access Point SSID</label>
+            <input type="text" name="apSSID" id="apSSID" value="" maxlength="32" oninput="apConfigChange = true; inputConfigAP()" />
+          </div>
+          <div class="tblPwd">
+            &nbsp;
+          </div>
+          <div class="tblPwd">
+            <label for="apPwd1">Access Point password</label>
+            <input type="password" name="apPwd1" id="apPwd1" value="" maxlength="63" title="Enter AP password:&#010;min len=8, max len=63&#010;or leave it empty for no password." oninput="apConfigChange = true; inputConfigAP()" />
+            <br />
+            <label for="apPwd2">Repeat AP password</label>
+            <input type="password" name="apPwd2" id="apPwd2" value="" maxlength="63" oninput="apConfigChange = true; inputConfigAP()" />
+          </div>
+          <div class="tblPwdCenter">
+            <span><image id="btnShowPasswd" src="images/oeuil.svg" title="Show password" onclick="toogleShowPasswd('ap');" /></span>
+            <span><image id="btnValideAP" src="images/valid-disable.svg" title="Update APconfig" onclick="updateAPconfig();" /></span>
+          </div>
+        </div>
+        <hr />
+        <!--------------------------------------------------------------------------------------->
+        <div id="activeNetwork">
+          <label for="ssidActuel">Actual network, SSID = </label>
+          <input type="text" name="ssidActuel" id="ssidActuel" value="" readonly />
+          <br />
+          <label for="ipActuel">Actual network, IP = </label>
+          <input type="text" name="ipActuel" id="ipActuel" value="" readonly />
+          <div id="btnDeconnect" title="Disconnect from current network..." onclick="deconnect_clique()">
+            Disconnect...
+          </div>
+        </div>
+        <hr class="lignePartielle" />
+        <div id="networkTable">
+          <!-- Rempli par script.js: setNetworkList() -->
+        </div>
+        <span class="fRight" onclick="get_networks();"><image id="boutonRefresh" src="images/refresh.svg"/></span>
+
+        <!-- Dialogue connection WiFi -->
+        <div id="dlgMask0" class="dlgMask noshow">
+          <div id="dlgConnect" class="dialog masquer">
+            <div id="dlgContenu0" class="dlgPwdContenu">
+              <h2>Connect to a new WiFi</h2>
+              <p>
+                <label for="ssid_input">Connecting to network: SSID = </label>
+                <input type="text" name="ssid_input" id="ssid_input" value="" readonly />
+                <br />
+                <label for="pwd_input">Enter network password: </label>
+                <input type="password" name="pwd_input" id="pwd_input" value="" onkeyup="connect_keyup(event)" /><br />
+                <span><image id="btnShowCliPasswd" src="images/oeuil.svg" title="Show password" onclick="toogleShowPasswd('cli');" /></span>
+              </p>
+            </div>
+            <p class="alignement-droit" id="dlgConnectButtons">
+              <button id="btnConnect" title="Se connecter au réseau" onclick="connect_clique()">
+                Connect
+              </button>
+              &nbsp;
+              <button id="btnAnnuler" title="Fermer cette boite de dialogue" onclick="connect_cancel()">
+                Cancel
+              </button>
+            </p>
+          </div> <!-- dlgConnect -->
+        </div> <!-- dlgMask0 -->
+      </div> <!-- settingsDialog -->
+      <!--------------------------------------------------------------------------------------->
+      <!-- "Sablier"                                                                     -->
+      <!--------------------------------------------------------------------------------------->
+      <div id="cadre_attente">
+        <div id="attente0" class="attente"></div>
+      </div>      
+    </div> <!-- lapage -->
+  </body>
+</html>

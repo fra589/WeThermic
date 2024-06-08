@@ -628,7 +628,12 @@ function XMLHttpResult(requette, xml, text) {
       doc_vent.innerHTML    ='<span class="couleurMoyVent">moy = ' + Number.parseFloat(ventMoyen).toFixed(1) + '</span>&nbsp;';
       doc_vent.innerHTML   += '<span class="couleurVent">inst = ' + Number.parseFloat(vent).toFixed(1).padStart(4, ' ') + ' m/s</span>';
 
-      tempctn     = Number(xml.getElementsByTagName("c")[0].childNodes[0].nodeValue);
+      var newCtn     = Number(xml.getElementsByTagName("c")[0].childNodes[0].nodeValue);
+      if (Math.abs(newCtn - tempctn) < 3) {
+        tempctn = newCtn;
+      } else {
+        tempctn = ctnMoyen;
+      }
       tempBmp180  = Number(xml.getElementsByTagName("b")[0].childNodes[0].nodeValue);
       calculMoyenneTemperature();
 

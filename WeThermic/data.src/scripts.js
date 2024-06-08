@@ -42,6 +42,7 @@ var showPressGrid = false;
 var netDevURL = 'http://192.168.1.107'; // domopassaduy
 //var netDevURL = 'http://192.168.1.68'; // BlancheNeige
 //var netDevURL = 'http://192.168.1.60'; // La Gouffrerie
+//var netDevURL = 'http://192.168.8.111'; // Cohabit
 
 // Couleurs par défaut du theme sombre
 var couleurVent         = 'rgb(0, 180, 255)';

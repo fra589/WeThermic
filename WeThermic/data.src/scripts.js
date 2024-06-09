@@ -24,7 +24,8 @@
 // Paramètres par défaut, peuvent être stockés dans le localStorage (preférences utilisateur)
 //------------------------------------------------------------------------------------------
 //style par défaut
-var cssFile = 'style_theme_sombre.css';
+//var cssFile = 'style_theme_sombre.css';
+var cssFile = 'style_theme_clair.css';
 // Durée de calcul des moyennes
 var largeurMoyVent  = 180; // Moyenne sur 1 minute 30s
 var largeurMoyTemp  = 180; // Moyenne sur 1 minute 30s
@@ -40,23 +41,39 @@ var showPressGrid = false;
 
 // pour debug du developpement, adresse IP de la Wemos connectée au wifi
 var netDevURL = 'http://192.168.1.107'; // domopassaduy
-//var netDevURL = 'http://192.168.1.68'; // BlancheNeige
-//var netDevURL = 'http://192.168.1.60'; // La Gouffrerie
+//var netDevURL = 'http://192.168.1.68';  // BlancheNeige
+//var netDevURL = 'http://192.168.1.60';  // La Gouffrerie
 //var netDevURL = 'http://192.168.8.111'; // Cohabit
 
-// Couleurs par défaut du theme sombre
-var couleurVent         = 'rgb(0, 180, 255)';
-var couleurFillVent     = 'rgba(0, 180, 255, 0.3)';
-var couleurMoyVent      = 'rgb(0, 125, 179)';
-var couleurPression     = 'rgb(0, 127, 127)';
-var couleurFillPression = 'rgba(0, 127, 127, 0.2)';
-var couleurMoyPres      = 'rgb(0, 80, 80)';
-var couleurTempCtn      = 'rgb(255, 63, 32)';
-var couleurFillCtn      = 'rgba(255, 63, 32, 0.2)';
-var couleurMoyCtn       = 'rgb(204, 27, 0)';
+// Couleurs du theme sombre
+/*
+var couleurVent         = 'rgb(0, 255, 255)';
+var couleurFillVent     = 'rgba(0, 255, 255, 0.3)';
+var couleurMoyVent      = 'rgb(0, 200, 200)';
+var couleurPression     = 'rgb(180, 240, 240)';
+var couleurFillPression = 'rgba(180, 240, 240, 0.2)';
+var couleurMoyPres      = 'rgb(160,200,200)';
 var couleurTempBmp180   = 'rgb(0, 255, 0)';
-var couleurMoyBMP180    = 'rgb(0, 180, 0)';
-var couleurGrid         = 'rgb(31, 47, 63)';
+var couleurMoyBmp180    = 'rgb(0, 160, 0)';
+var couleurTempCtn      = 'rgb(255, 200, 150)';
+var couleurFillCtn      = 'rgba(255, 200, 150, 0.2)';
+var couleurMoyCtn       = 'rgb(230, 170, 100)';
+var couleurGrid         = 'rgb(63, 63, 63)';
+*/
+// Couleurs du theme clair
+var couleurVent = 'rgb(0, 0, 160)';
+var couleurFillVent = 'rgba(0, 0, 160, 0.3)';
+var couleurMoyVent = 'rgb(0, 0, 200)';
+var couleurPression = 'rgb(0, 80, 120)';
+var couleurFillPression = 'rgba(0, 80, 120, 0.2)';
+var couleurMoyPres = 'rgb(0, 80, 80)';
+var couleurTempBmp180 = 'rgb(0, 150, 0)';
+var couleurMoyBmp180 = 'rgb(0, 127, 0)';
+var couleurTempCtn = 'rgb(230, 0, 0)';
+var couleurFillCtn = 'rgba(230, 0, 0, 0.2)';
+var couleurMoyCtn = 'rgb(200, 30, 30)';
+var couleurGrid = 'rgb(187, 229, 229)';
+
 
 var histVentData    = new Array();
 var histVentMoy     = new Array();
@@ -369,7 +386,7 @@ async function index_onload() {
         cubicInterpolationMode: 'default',
         data: histBmp180Moy,
         fill: false,
-        borderColor: couleurMoyBMP180,
+        borderColor: couleurMoyBmp180,
         borderWidth:3,
         order: 4,
         tension: 0.4,
@@ -514,6 +531,9 @@ async function index_onload() {
   // Affiche les courbes visibles en fonction des préférences
   visuCourbes();
 
+  // Applique le thème de couleurs
+  appliqueTheme();
+
   // Récupération des valeurs temp réel (vent, température et pression)
   if (location.protocol == 'file:') {
     setTimeout(function() { XMLHttpRequest_get(netDevURL + "/getvalues") }, 500);
@@ -642,7 +662,7 @@ function XMLHttpResult(requette, xml, text) {
       var doc_temp = document.getElementById("valeurTemp");
       doc_temp.innerHTML    = ""
       if (showT2) {
-        doc_temp.innerHTML   += '<span class="couleurMoyBMP180">moy = '   + Number.parseFloat(bmp180Moyen).toFixed(1) + '</span>&nbsp;';
+        doc_temp.innerHTML   += '<span class="couleurMoyBmp180">moy = '   + Number.parseFloat(bmp180Moyen).toFixed(1) + '</span>&nbsp;';
         doc_temp.innerHTML   += '<span class="couleurTempBmp180">inst = ' + Number.parseFloat(tempBmp180).toFixed(2) + '°C</span><br />';
       }
       if (showT1) {
@@ -704,7 +724,12 @@ function graphHistoryintegration(xml) {
       calculMoyennePres();
       vent       = Number(h.getElementsByTagName("v")[0].childNodes[0].nodeValue);
       calculMoyenneVent();
-      tempctn    = Number(h.getElementsByTagName("c")[0].childNodes[0].nodeValue);
+      var newCtn    = Number(h.getElementsByTagName("c")[0].childNodes[0].nodeValue);
+      if (Math.abs(newCtn - tempctn) < 3) {
+        tempctn = newCtn;
+      } else {
+        tempctn = ctnMoyen;
+      }
       tempBmp180 = Number(h.getElementsByTagName("b")[0].childNodes[0].nodeValue);
       calculMoyenneTemperature();
       // Envoie les données d'historique dans les graphiques
@@ -898,35 +923,55 @@ function changeTheme(theme) {
   }
   // Sauvegarde préférece
   localStorage.setItem("cssFile", cssFile);
+  
+  appliqueTheme();
 
+}
+
+function appliqueTheme() {
+  
   setTimeout(() => {
     // setTimeout() pour laisser le temps de recharger le CSS
-    // Reconfiguration des graphiques --couleurVent: rgb(0 0 160);
+    // Reconfiguration des graphiques
     var style = getComputedStyle(document.body);
     couleurVent         = style.getPropertyValue('--couleurVent');
     couleurFillVent     = style.getPropertyValue('--couleurFillVent');
+    couleurMoyVent      = style.getPropertyValue('--couleurMoyVent');
     couleurPression     = style.getPropertyValue('--couleurPression');
     couleurFillPression = style.getPropertyValue('--couleurFillPression');
+    couleurMoyPres      = style.getPropertyValue('--couleurMoyPres');
     couleurTempCtn      = style.getPropertyValue('--couleurTempCtn');
+    couleurFillCtn      = style.getPropertyValue('--couleurFillCtn');
     couleurMoyCtn       = style.getPropertyValue('--couleurMoyCtn');
+    couleurTempBmp180   = style.getPropertyValue('--couleurTempBmp180');
+    couleurMoyBmp180    = style.getPropertyValue('--couleurMoyBmp180');
     couleurGrid         = style.getPropertyValue('--couleurGrid');
 
+    Window.graphVent.options.scales['y'].ticks.color = couleurVent;
     Window.graphVent.data.datasets[0].borderColor = couleurVent;
     Window.graphVent.data.datasets[0].fill.above = couleurFillVent;
     Window.graphVent.data.datasets[0].fill.below = couleurFillVent;
-    Window.graphVent.options.scales['y'].ticks.color = couleurVent;
-    Window.graphVent.options.scales['x'].grid.color = couleurGrid;
-    Window.graphVent.options.scales['y'].grid.color = couleurGrid;
+    Window.graphVent.data.datasets[1].borderColor = couleurMoyVent;
+    Window.graphVent.options.scales['y1'].ticks.color = couleurPression;
     Window.graphVent.data.datasets[2].borderColor = couleurPression;
     Window.graphVent.data.datasets[2].fill.above = couleurFillPression;
     Window.graphVent.data.datasets[2].fill.below = couleurFillPression;
-    
+    Window.graphVent.data.datasets[3].borderColor = couleurMoyPres;
+    Window.graphVent.options.scales['x'].grid.color = couleurGrid;
+    Window.graphVent.options.scales['y'].grid.color = couleurGrid;
+    Window.graphVent.options.scales['y1'].grid.color = couleurGrid;
+
+    Window.graphTemp.options.scales['y'].ticks.color = couleurTempCtn;
     Window.graphTemp.data.datasets[0].borderColor = couleurTempCtn;
+    Window.graphTemp.data.datasets[0].fill.above = couleurFillCtn;
+    Window.graphTemp.data.datasets[0].fill.below = couleurFillCtn;
     Window.graphTemp.data.datasets[1].borderColor = couleurMoyCtn;
+    Window.graphTemp.data.datasets[2].borderColor = couleurTempBmp180;
+    Window.graphTemp.data.datasets[3].borderColor = couleurMoyBmp180;
+    Window.graphTemp.options.scales['y1'].ticks.color = couleurPression;
     Window.graphTemp.data.datasets[4].borderColor = couleurPression;
     Window.graphTemp.data.datasets[4].fill.above = couleurFillPression;
     Window.graphTemp.data.datasets[4].fill.below = couleurFillPression;
-    Window.graphTemp.options.scales['y1'].ticks.color = couleurPression;
     Window.graphTemp.options.scales['x'].grid.color = couleurGrid;
     Window.graphTemp.options.scales['y'].grid.color = couleurGrid;
     Window.graphTemp.options.scales['y1'].grid.color = couleurGrid;

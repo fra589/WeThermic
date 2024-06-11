@@ -53,7 +53,8 @@ $(BUILD_DIR)/WeThermic_app.bin:  $(OUT_JS) $(OUT_HTML) $(OUT_CSS) $(OUT_SVG)
 flash: littlefs
 	esptool --port $(PORT) write_flash -fm qio 0x200000 $(BUILD_DIR)/WeThermic_app.bin
 
-
+# voir https://github.com/earlephilhower/arduino-esp8266littlefs-plugin/blob/master/src/ESP8266LittleFS.java
+# https://github.com/esp8266/arduino-esp8266fs-plugin/issues/51
 
 
 

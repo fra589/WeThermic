@@ -36,5 +36,7 @@
   void handleGetAPconfig(void);
   void handleSetAPconfig(void);
   void handleReboot(void);
+  void handleFSInfo(void);
+  String getFileList(String path);
 
 #endif

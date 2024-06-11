@@ -712,6 +712,7 @@ function XMLHttpResult(requette, xml, text) {
 
 function graphHistoryintegration(xml) {
   // Intègre dynamiquement les données d'historique au graphiques
+  var flagDebut = false;
   // nombre de millisecondes écoulées depuis le premier janvier 1970
   tX = Date.now();
   // Il y a 5 minutes :
@@ -725,9 +726,15 @@ function graphHistoryintegration(xml) {
       vent       = Number(h.getElementsByTagName("v")[0].childNodes[0].nodeValue);
       calculMoyenneVent();
       var newCtn    = Number(h.getElementsByTagName("c")[0].childNodes[0].nodeValue);
-      if (Math.abs(newCtn - tempctn) < 3) {
+      if (!(flagDebut)) {
+        // C'est la première mesure de température
+        tempctn = newCtn;
+        flagDebut = true;
+      } else if (Math.abs(newCtn - tempctn) < 3) {
+        // Température valide
         tempctn = newCtn;
       } else {
+        // Elimination des points abérants, on les remplace par la valeur moyenne
         tempctn = ctnMoyen;
       }
       tempBmp180 = Number(h.getElementsByTagName("b")[0].childNodes[0].nodeValue);
@@ -1075,6 +1082,7 @@ function setNetworkList(xml) {
   var tmpChannel   = 0;
   var tmpRSSI      = "";
   var tmpCrypt     = "";
+  var tmpPasswd    = "";
   var tmpImgSignal = "";
   
   var divNetworkTable = document.getElementById("networkTable");
@@ -1105,10 +1113,11 @@ function setNetworkList(xml) {
   if (netListe.length > 0) {
     for (var i = 0; i< netListe.length; i++) {
       // Données du réseau
-      tmpSSID    = netListe[i].getElementsByTagName("SSID")[0].childNodes[0].nodeValue;
-      tmpChannel = netListe[i].getElementsByTagName("channel")[0].childNodes[0].nodeValue;
-      tmpRSSI    = netListe[i].getElementsByTagName("RSSI")[0].childNodes[0].nodeValue;
-      tmpCrypt   = netListe[i].getElementsByTagName("encryption")[0].childNodes[0].nodeValue;
+      tmpSSID    = netListe[i].getElementsByTagName("SSID")[0].textContent;
+      tmpChannel = netListe[i].getElementsByTagName("channel")[0].textContent;
+      tmpRSSI    = netListe[i].getElementsByTagName("RSSI")[0].textContent;
+      tmpCrypt   = netListe[i].getElementsByTagName("encryption")[0].textContent;
+      tmpPasswd  = netListe[i].getElementsByTagName("knownPassword")[0].textContent;
       // Choix du pictogramme en fonction de la qualité du signal
       // RSSI (dBm) Interprétation
       // -30 dBm    Extraordinaire (êtes vous assis sur la borne? ^^)
@@ -1127,7 +1136,7 @@ function setNetworkList(xml) {
       } else if (tmpRSSI > -67) {
         tmpImgSignal = "images/signal4.svg";
       }
-      htmlNetworkTable += "      <tr class=\"trlink\" onclick=\"wifi_connect('" + tmpSSID + "' , '" + tmpChannel + "')\">\n";
+      htmlNetworkTable += "      <tr class=\"trlink\" onclick=\"wifi_connect('" + tmpSSID + "', '" + tmpChannel + "', '" + tmpPasswd.replace("'", "\\'") + "')\">\n";
       htmlNetworkTable += "        <td class=\"centreVertical\"><img src=\"" + tmpImgSignal + "\" title=\"RSSI = " + tmpRSSI + "\" /></td>\n";
       htmlNetworkTable += "        <td>" + tmpSSID + "</td>\n";
       htmlNetworkTable += "        <td>" + tmpChannel + "</td>\n";
@@ -1149,10 +1158,8 @@ function setNetworkList(xml) {
 
 }
 
-async function wifi_connect(SSID, channel) {
-  // TODO saisie du mot de passe et confirmation 
-  // TODO voir pourquoi on ne reçois pas de réponse XML
-  // ? le serveur perd les infos du client lors de la déconnexion ?
+async function wifi_connect(SSID, channel, passwd) {
+
   var pwd = "";
 
   var ssid_input = document.getElementById("ssid_input");
@@ -1161,13 +1168,26 @@ async function wifi_connect(SSID, channel) {
   var btnConnect = document.getElementById("btnConnect");
   var btnAnnuler = document.getElementById("btnAnnuler");
 
+  // Force le mode input masquée si une connexion précédente l'a modifié
+  const bouton = document.getElementById('btnShowCliPasswd');
+  var pwd_input = document.getElementById('pwd_input');
+  if (pwd_input.type !== "password") {
+    pwd_input.type = "password";
+    bouton.src="images/oeuil.svg"
+    bouton.title="Show password"
+  }
+
   ssid_input.value = SSID + " (ch." + channel + ")";
-  
+  pwd_input.value  = passwd.replace("\\'", "'");
   connectOK = true;
   suiteOK = false;
 
   // Affiche la boite de dialogue de saisie du mot de passe réseau
   afficheDialog('dlgConnect');
+  // Active les boutons de la boite de dialogue
+  // (ils ont peut être été désactivé par une connexion précédente)
+  btnConnect.disabled = false;
+  btnAnnuler.disabled = false;
   // Donne le focus au champ de saisie du mot de passe
   pwd_input.focus();
 
@@ -1184,7 +1204,7 @@ async function wifi_connect(SSID, channel) {
     btnAnnuler.disabled = true;
     // Affiche l'annimation d'attente
     divWait.classList.remove("noshow");
-    // Lance la connexion de la balance
+    // Lance la connexion de la station
     //alert("XMLHttpRequest_post_wificonnect(" + SSID + ", " + pwd + ", " + channel + ");");
     XMLHttpRequest_post_wificonnect(SSID, pwd, channel);
     // On fermera la boite de dialogue et on masquera
@@ -1192,7 +1212,7 @@ async function wifi_connect(SSID, channel) {
     setTimeout(function() { divWait.classList.add("noshow"); }, 10000);
     setTimeout(function() { closeDialog('dlgConnect'); }, 10000);
   } else {
-    alert("Canceled connection.");
+    //alert("Canceled connection.");
     closeDialog('dlgConnect');
     btnConnect.disabled = false;
     btnAnnuler.disabled = false;

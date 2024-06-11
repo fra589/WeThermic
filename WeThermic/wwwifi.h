@@ -30,6 +30,8 @@
   String IPtoString(IPAddress ip);
   String getWifiNetworks(void);
   String getWiFiStatus(wl_status_t wifiStatus);
+  String getKnownPassword(String ssid);
+  void updateKnownPassword(String ssid, String password);
 
   #ifdef DEBUG
     void onStationConnected(const WiFiEventSoftAPModeStationConnected& evt);

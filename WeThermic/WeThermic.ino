@@ -19,6 +19,20 @@
 /*                                                                          */
 /****************************************************************************/
 
+/****************************************************************************/
+/*                                                                          */
+/* Commande pour compiler et uploader :                                     */
+/*                                                                          */
+/* /home/gauthier/Logiciels/arduino-1.8.19/arduino \                        */
+/* --upload                                                                 */
+/* --verbose                                                                */
+/* --preserve-temp-files                                                    */
+/* --board esp8266:esp8266:d1_mini_clone                                    */
+/* --port /dev/ttyUSB0                                                      */
+/* /home/gauthier/src/WeThermic/WeThermic/WeThermic.ino                     */
+/*                                                                          */
+/****************************************************************************/
+
 #include "WeThermic.h"
 
 

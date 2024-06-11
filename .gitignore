@@ -8,3 +8,4 @@ build
 builds
 doc
 WeThermic/data.src/chartjs
+WeThermic/data/knownWiFi.xml

@@ -49,6 +49,7 @@ void webServerInit(void) {
   server.on("/getapconfig",      handleGetAPconfig);
   server.on("/setapconfig",      handleSetAPconfig);
   server.on("/reboot",           handleReboot);
+  server.on("/fsinfo",           handleFSInfo);
   server.onNotFound(handleNotFound);
   server.begin(); // Start http web server
   
@@ -500,6 +501,8 @@ void handleWifiConnect(void) {
       EEPROM_writeStr(ADDR_CLI_SSID, cli_ssid, MAX_SSID_LEN);
       EEPROM_writeStr(ADDR_CLI_PWD, cli_pwd, MAX_PWD_LEN);
       EEPROM.commit();
+      // Mémorise le mot de passe
+      updateKnownPassword(cli_ssid, cli_pwd);
     }
 
     // Réponse au client
@@ -604,6 +607,7 @@ void handleSetAPconfig(void) {
       EEPROM_writeStr(ADDR_AP_SSID, ap_ssid, MAX_SSID_LEN);
       EEPROM_writeStr(ADDR_AP_PWD, ap_pwd, MAX_PWD_LEN);
       EEPROM.commit();
+
     }
 
     // Réponse au client
@@ -634,4 +638,77 @@ void handleReboot(void) {
   delay(250);
   // Reboot
   ESP.restart();
+}
+
+void handleFSInfo(void) {
+  String XML;
+  FSInfo fs_info;
+  
+  #ifdef DEBUG_WEB
+    Serial.printf("Entrée dans handleGetAPconfig()\n");
+  #endif
+
+  LittleFS.info(fs_info);
+
+  // Renvoi la réponse au client http
+  XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
+  XML += F("<FSInfo>\n");
+  XML += F("  <totalBytes>");
+  XML += String(fs_info.totalBytes);
+  XML += F("</totalBytes>\n");
+  XML += F("  <usedBytes>");
+  XML += String(fs_info.usedBytes);
+  XML += F("</usedBytes>\n");
+  XML += F("  <blockSize>");
+  XML += String(fs_info.blockSize);
+  XML += F("</blockSize>\n");
+  XML += F("  <pageSize>");
+  XML += String(fs_info.pageSize);
+  XML += F("</pageSize>\n");
+  XML += F("  <maxOpenFiles>");
+  XML += String(fs_info.maxOpenFiles);
+  XML += F("</maxOpenFiles>\n");
+  XML += F("  <maxPathLength>");
+  XML += String(fs_info.maxPathLength);
+  XML += F("</maxPathLength>\n");
+  // Liste les fichiers
+  XML += F("  <Files>\n");
+  XML += getFileList("/");
+  XML += F("  </Files>\n");
+  XML += F("</FSInfo>\n");
+
+  server.send(200,"text/xml",XML);
+
+}
+
+String getFileList(String path) {
+  // Fonction recursive listage des fichiers
+  String liste = "";
+  Dir dir;
+  File f;
+
+  #ifdef DEBUG_WEB
+    Serial.print("getFileList(\"");
+    Serial.print(path);
+    Serial.println("\")");
+  #endif
+  
+  dir = LittleFS.openDir(path);
+  while(dir.next()){
+    #ifdef DEBUG_WEB
+      Serial.println(dir.fileName());
+    #endif
+    liste += F("    <File><name>");
+    liste += String(path + dir.fileName());
+    liste += F("</name><size>");
+    liste += String(dir.fileSize());
+    liste += F("</size></File>\n");
+    if (dir.isDirectory() == true) {
+      liste += getFileList(path + dir.fileName() + "/");
+    }
+    yield();
+  }
+
+  return liste;
+  
 }

@@ -119,5 +119,12 @@
 
   // Fichiers web
   #define ROOT_FILE "/index.html"
+  #define PWD_FILE "/knownWiFi.xml"
+  #define TMP_FILE "/tmp.xml"
+  /* Structure du fichier knownWiFi.xml :
+   * <knownWiFi>
+   * <s>SSID</s><p>PASSWORD</p>
+   * </knownWiFi>
+  */
 
 #endif

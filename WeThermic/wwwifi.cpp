@@ -271,6 +271,9 @@ String getWifiNetworks() {
         XML += "Inconnue";
     }
     XML += "</encryption>\n";
+    XML += "    <knownPassword>";
+    XML += getKnownPassword(WiFi.SSID(i));
+    XML += "</knownPassword>\n";
     XML += "  </network>\n";
   }
   WiFi.scanDelete();
@@ -311,4 +314,144 @@ String getWiFiStatus(wl_status_t wifiStatus) {
       break;
   }
   return(String(wifiStatus));
+}
+
+String getKnownPassword(String ssid) {
+  // Retrouve le mot de passe d'un SSID s'il est déja connu
+  /* Structure du fichier knownWiFi.xml :
+   * <knownWiFi>\n
+   * <s>SSID</s><p>PASSWORD</p>\n
+   * </knownWiFi>\n
+  */
+  File pwdFile;
+  String ligne, s, p;
+  int idx[4];
+
+  #ifdef DEBUG_WEB
+    Serial.printf("Entrée dans getKnownPassword(%s)\n", ssid.c_str());
+  #endif
+
+  if (LittleFS.exists(PWD_FILE)) {
+    pwdFile = LittleFS.open(PWD_FILE, "r");
+    ligne = pwdFile.readStringUntil('\n');
+    if (ligne != "<knownWiFi>") {
+      #ifdef DEBUG_WEB
+        Serial.printf("Wrong file format!\n");
+      #endif
+      pwdFile.close();
+      return "";
+    }
+    for (;;) {
+      ligne = pwdFile.readStringUntil('\n');
+      if (ligne == "</knownWiFi >") {
+        // Fin de l'XML, on a pas trouvé de correspondance
+        pwdFile.close();
+        return "";
+      }
+      // Vérification de la ligne
+      idx[0] = ligne.indexOf("<s>");
+      idx[1] = ligne.lastIndexOf("</s>");
+      idx[2] = ligne.indexOf("<p>");
+      idx[3] = ligne.lastIndexOf("</p>");
+      if ((idx[0] == -1) || (idx[1] == -1) || (idx[2] == -1) || (idx[3] == -1)) {
+        // Mauvais format de ligne ou dernière ligne, on a pas trouvé de correspondance
+        pwdFile.close();
+        return "";
+      }
+      s = ligne.substring(idx[0] + 3, idx[1]);
+      if (s == ssid) {
+        p = ligne.substring(idx[2] + 3, idx[3]);
+        Serial.printf("Password pour [%s] = [%s]\n", s.c_str(), p.c_str());
+        pwdFile.close();
+        return p;
+      }
+    }
+  } else {
+    #ifdef DEBUG_WEB
+      Serial.print("[");
+      Serial.print(PWD_FILE);
+      Serial.println("] not found.");
+    #endif
+    return "";
+  }
+}
+
+void updateKnownPassword(String ssid, String password) {
+  // Sauvegarde le mot de passe d'un SSID avec ceux déja connu
+  /* Structure du fichier knownWiFi.xml :
+   * <knownWiFi>\n
+   * <s>SSID</s><p>PASSWORD</p>\n
+   * </knownWiFi>\n
+  */
+  File pwdFile, tmpFile;
+  String ligne, s, p;
+  int idx[4];
+  bool ssidTrouve = false;
+
+  #ifdef DEBUG_WEB
+    Serial.printf("Entrée dans updateKnownPassword(%s)\n", ssid.c_str());
+  #endif
+
+  pwdFile = LittleFS.open(PWD_FILE, "r");
+  ligne = pwdFile.readStringUntil('\n');
+  if (ligne != "<knownWiFi>") {
+    // Wrong file format
+    pwdFile.close();
+    return;
+  }
+
+  tmpFile = LittleFS.open(TMP_FILE, "w");
+  // Recopie la première ligne dans le fichier temporaire
+  tmpFile.printf("%s\n", ligne.c_str());
+  
+  for (;;) {
+    ligne = pwdFile.readStringUntil('\n');
+    if (ligne == NULL) {
+      // Fin de fichier
+      break;
+    }
+    // Vérification de la ligne
+    idx[0] = ligne.indexOf("<s>");
+    idx[1] = ligne.lastIndexOf("</s>");
+    idx[2] = ligne.indexOf("<p>");
+    idx[3] = ligne.lastIndexOf("</p>");
+    s = ligne.substring(idx[0] + 3, idx[1]);
+    if (s == ssid) {
+      ssidTrouve = true;
+      #ifdef DEBUG_WEB
+        Serial.printf("Remplacement du mot de passe de %s par %s\n", ssid.c_str(), password.c_str());
+      #endif
+      tmpFile.printf("<s>%s</s><p>%s</p>\n", ssid.c_str(), password.c_str());
+    } else if (ligne == "</knownWiFi>") {
+      if (!ssidTrouve) {
+        #ifdef DEBUG_WEB
+          Serial.printf("Ajout du mot de passe de %s = %s\n", ssid, password);
+        #endif
+        tmpFile.printf("<s>%s</s><p>%s</p>\n", ssid.c_str(), password.c_str());
+      }
+      tmpFile.printf("%s\n", ligne.c_str());
+    } else {
+      if ((idx[0] == -1) || (idx[1] == -1) || (idx[2] == -1) || (idx[3] == -1)) {
+        #ifdef DEBUG_WEB
+          Serial.println("Mauvais format de ligne ! => Cloture du fichier de mot de passe");
+        #endif
+        tmpFile.printf("</knownWiFi>");
+        break;
+      }
+      tmpFile.printf("%s\n", ligne.c_str());
+    }
+  }
+
+  #ifdef DEBUG_WEB
+    Serial.println("Fin du fichier de mot de passe");
+  #endif
+
+  pwdFile.close();
+  tmpFile.close();
+
+  // Remplace le fichier de mot de passe
+  LittleFS.remove(PWD_FILE);
+  LittleFS.rename(TMP_FILE, PWD_FILE);
+  LittleFS.remove(TMP_FILE);
+ 
 }

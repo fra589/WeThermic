@@ -27,6 +27,7 @@
     <meta charset="UTF-8">
     <!--<meta name="viewport" content="width=device-width, interactive-widget=resizes-content">-->
     <meta name="viewport" content="width=device-width, initial-scale=0.50, maximum-scale=3.0, minimum-scale=0.50" />
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1" />-->
     <meta name="description" content="Anémomètre Thermomètre Barmoètre">
     <title>!WeThermic</title>
     <link rel="shortcut icon" type="image/png" href="images/favicon.svg" />
@@ -43,6 +44,7 @@
         <div id="valeursV">
           <span class="fLeft"><h1 id="valeurVent">~~~~m/s</h1></span>
           <span class="fRight"><image id="boutonSettings" src="images/settings.svg" onclick="changeSettings();" /></span>
+          <span class="fRight"><image id="boutonSettings" src="images/chrono.svg" onclick="toggleChrono();" /></span>
         </div>
         <canvas id="graphVent" class="graphjs"></canvas>
       </div>
@@ -201,6 +203,12 @@
       <!--------------------------------------------------------------------------------------->
       <div id="cadre_attente">
         <div id="attente0" class="attente"></div>
+      </div>      
+      <!--------------------------------------------------------------------------------------->
+      <!-- "Chrono"                                                                     -->
+      <!--------------------------------------------------------------------------------------->
+      <div id="cadre_chrono" class="noshow">
+        <span id="chrono0">07:00</span>&nbsp;<span><image id="btnChrono" src="images/start-chrono.svg" title="Reset chrono" onclick="startStopChrono();" /></span>
       </div>      
     </div> <!-- lapage -->
   </body>

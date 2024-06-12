@@ -120,7 +120,18 @@ var ctnMoyen        = 0.0;
 
 var isFullScreen    = false;
 var apConfigChange  = false;
-var attenteOK  = false;
+var attenteOK       = false;
+var chronoVisible   = false;
+var chronoRunning   = false;
+var chronoMaxTime   = 420; // 7 minutes = 7x60 secondes
+var chronoDebut     = 0;
+var chronoSepar     = ':';
+
+//             Do       Ré       Mi       Fa       Sol      La       Si
+const notes = [261.625, 293.664, 329.627, 349.228, 391.995, 440.000, 493.883];
+// Pour la fonction beep()
+// if you have another AudioContext class use that one, as some browsers have a limit
+var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
 
 
 async function index_onload() {
@@ -1492,6 +1503,109 @@ function reboot() {
     }
   }
 }
+
+function toggleChrono() {
+  // Change la visibilité du chrono
+  var cadre = document.getElementById('cadre_chrono');
+  if (chronoVisible) {
+    cadre.classList.add("noshow");
+    chronoVisible = false;
+  } else {
+    cadre.classList.remove("noshow");
+    chronoVisible = true;
+  }
+}
+
+function startStopChrono() {
+  // Démarre le chrono
+  var chrono = document.getElementById('chrono0');
+  const bouton = document.getElementById('btnChrono');
+  if (!chronoRunning) {
+    chronoRunning   = true;
+    // nombre de millisecondes écoulées depuis le premier janvier 1970
+    chronoDebut = Date.now();
+    bouton.src="images/stop-chrono.svg"
+    refreshChrono();
+    clignottementChrono();
+    beep(500, notes[7]);
+  } else {
+    chronoRunning = false;
+    var chrono = document.getElementById('chrono0');
+    minutes = Math.trunc(chronoMaxTime / 60);
+    seconds = chronoMaxTime % 60;
+    newText = minutes.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + ":" + seconds.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+    chrono.innerText = newText;
+    bouton.src="images/start-chrono.svg"
+  }
+}
+
+function refreshChrono() {
+  // Mise à jour de l'affichage du chrono
+  var chrono = document.getElementById('chrono0');
+  
+  if (chronoRunning) {
+    var secondesRestante = (chronoMaxTime * 1000) - (Date.now() - chronoDebut);
+    if (secondesRestante > 0) {
+      minutes = Math.trunc(secondesRestante / 60000);
+      seconds = Math.floor((secondesRestante % 60000) / 1000);
+      newText = minutes.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + chronoSepar + seconds.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+      chrono.innerText = newText;
+      if (seconds == 0) {
+        if (minutes == 0) {
+          duree = 1000;
+        } else {
+          duree = 500;
+        }
+        beep(duree, notes[minutes]);
+      }
+    } else {
+      chrono.innerText = "00:00";
+      chronoRunning = false;
+      const bouton = document.getElementById('btnChrono');
+      bouton.src="images/start-chrono.svg"
+    }
+    setTimeout(function() { refreshChrono() }, 500);
+  } else {
+    chrono.innerText = "07:00";
+  }
+}
+
+function clignottementChrono() {
+  if (chronoSepar == ':') {
+    chronoSepar = ' ';
+  } else {
+    chronoSepar = ':';
+  }
+  if (chronoRunning) {
+    setTimeout(function() { clignottementChrono() }, 500);
+  } else {
+    chronoSepar = ':';
+  }
+}
+
+//All arguments are optional:
+//duration of the tone in milliseconds. Default is 500
+//frequency of the tone in hertz. default is 440
+//volume of the tone. Default is 1, off is 0.
+//type of tone. Possible values are sine, square, sawtooth, triangle, and custom. Default is sine.
+//callback to use on end of tone
+function beep(duration, frequency, volume, type, callback) {
+    var oscillator = audioCtx.createOscillator();
+    var gainNode = audioCtx.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    if (volume){gainNode.gain.value = volume;}
+    if (frequency){oscillator.frequency.value = frequency;}
+    if (type){oscillator.type = type;}
+    if (callback){oscillator.onended = callback;}
+    
+    oscillator.start(audioCtx.currentTime);
+    oscillator.stop(audioCtx.currentTime + ((duration || 500) / 1000));
+};
+
+
 
 
 

@@ -107,7 +107,7 @@ html, body {
   color: white;
 }
 .settingsDialog p {
-  font-size: 25px;
+  /*font-size: 25px;*/
   margin-top: 10px;
   margin-bottom: 5px;
   margin-left: 20px;
@@ -115,7 +115,7 @@ html, body {
   /*text-align: left;*/
 }
 .settingsDialog button {
-  font-size: 25px;
+  font-size: 15px;
 }
 .leftAlign {
   text-align: left;
@@ -163,18 +163,15 @@ html, body {
   background-color: rgba(224,224,224,1);
   box-shadow: 8px 8px 12px #3f3f3f;
   left: 10%;
-  right: 10%;
   top: 15%;
-  height: 30%;
   text-align: center;
   transition: all 0.5s ease-in-out;
-  /*-moz-transition: all 0.5s ease-in-out;*/
   -webkit-transition: all 0.5s ease-in-out;
   -o-transition: all 0.5s ease-in-out;
   -ms-transition: all 0.5s ease-in-out;
 }
 #dlgConnect {
-  width: 50em;
+  /*width: 50em;*/
   color: black;
 }
 #activeNetwork  {
@@ -216,20 +213,20 @@ border-top: 1px solid white;
   margin: 15px;
   height: 70%;
   /*background-color: lightgreen;*/
-  font-size: 12px;
+  /*font-size: 12px;*/
 }
 .dlgPwdContenu label {
   display: inline-block;
   width: 17em;
   text-align: left;
   margin-top: 15px;
-  margin-bottom: 10px;
+  /*margin-bottom: 10px;*/
 }
 .dlgPwdContenu input {
   width: 15em;
 }
 #ssid_input {
-  margin-top: 20px;
+  /*margin-top: 20px;*/
   text-align: center;
 }
 .alignement-droit {
@@ -241,6 +238,21 @@ border-top: 1px solid white;
   top: 40%;
   left: 50%;
   transform: translate(-50%,-50%);
+}
+#cadre_chrono {
+  font-size: 80px;
+  font-family: monospace, sans-serif;
+  font-weight: bold;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+#cadre_chrono span {
+  vertical-align: middle;
+}
+#btnChrono {
+  cursor: pointer;
 }
 .attente {
   border: 7px solid #f3f3f3;

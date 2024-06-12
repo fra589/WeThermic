@@ -58,3 +58,6 @@ html, body {
 .couleurMoyPres {
   color: var(--couleurMoyPres);
 }
+#cadre_chrono {
+  color: lightgreen;
+}

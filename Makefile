@@ -54,6 +54,9 @@ VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_DATE)
 # from https://github.com/tdewolff/minify (or apt install minify in Debian)
 MINIFY=/usr/bin/minify
 # Mklittlefs tool from https://github.com/earlephilhower/mklittlefs
+# Attention ! Les dernières versions de mklittlefs utilisent LFS_NAME_MAX=128
+# cette configuration n'est pas compatible avec les cartes Wemos D1 mini.
+# il faut une version compilée avec LFS_NAME_MAX=32.
 MKLITTLEFS=/usr/local/bin/mklittlefs
 
 # Compiation Arduino

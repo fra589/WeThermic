@@ -38,13 +38,14 @@
     <script src="chartjs/chartjs-adapter-luxon.min.js"></script>
     <script src="chartjs/chartjs-plugin-streaming.min.js"></script>
   </head>
-  <body onload="index_onload();">
+  <body onload="index_onload();" onresize="index_resize()">
     <div id="lapage">
       <div class="graph_container">
         <div id="valeursV">
           <span class="fLeft"><h1 id="valeurVent">~~~~m/s</h1></span>
           <span class="fRight"><image id="boutonSettings" src="images/settings.svg" onclick="changeSettings();" /></span>
-          <span class="fRight"><image id="boutonSettings" src="images/chrono.svg" onclick="toggleChrono();" /></span>
+          <span class="fRight"><image id="boutonChrono" src="images/chrono.svg" onclick="toggleChrono();" /></span>
+          <span class="fRight"><image id="boutonSon" class="noshow" src="images/sound-on.svg" onclick="toggleSon();" /></span>
         </div>
         <canvas id="graphVent" class="graphjs"></canvas>
       </div>

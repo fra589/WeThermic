@@ -47,7 +47,7 @@ html, body {
   margin: 0;
   padding-right: 5px;
 }
-#boutonSettings {
+#boutonSettings, #boutonChrono, #boutonSon {
   width: 64px;
   height: 64px;
   margin-top: 20px;

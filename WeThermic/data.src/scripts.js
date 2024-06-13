@@ -35,6 +35,9 @@ var showT2        = false;
 var showPressU    = true;
 var showPressL    = false;
 var showPressGrid = false;
+// Autre
+var soundOn       = true;
+
 //------------------------------------------------------------------------------------------
 
 
@@ -126,13 +129,22 @@ var chronoRunning   = false;
 var chronoMaxTime   = 420; // 7 minutes = 7x60 secondes
 var chronoDebut     = 0;
 var chronoSepar     = ':';
+var flagBeep = false;
 
-//             Do       Ré       Mi       Fa       Sol      La       Si
-const notes = [261.625, 293.664, 329.627, 349.228, 391.995, 440.000, 493.883];
+//             Do       Ré       Mi       Fa       Sol      La       Si       Do
+const notes = [261.625, 293.664, 329.627, 349.228, 391.995, 440.000, 493.883, 523.251];
 // Pour la fonction beep()
 // if you have another AudioContext class use that one, as some browsers have a limit
 var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
 
+function index_resize() {
+  // Redimentionnement des graphiques en fonction de la page
+  height = window.innerHeight;
+  width  = window.innerWidth;
+  //alert(width + "\n" + height);
+  document.getElementById("lapage").style.height = height + "px";
+  document.getElementById("lapage").style.width = width + "px";
+}
 
 async function index_onload() {
 
@@ -162,7 +174,7 @@ async function index_onload() {
   document.getElementById("lMoyTemp").value = largeurMoyTemp / 60;
   inputLargeurTemp();
 
-  // Visibilité des courbes
+  // Préférences visibilité des courbes
   var visiPref = localStorage.getItem("showWind");
   if (visiPref !== null) {
     showWind = visiPref === "true";
@@ -193,6 +205,18 @@ async function index_onload() {
   document.getElementById("showPressU").checked    = showPressU;
   document.getElementById("showPressL").checked    = showPressL;
   document.getElementById("showPressGrid").checked = showPressGrid;
+
+  var soundPref = localStorage.getItem("sound");
+  if (soundPref !== null) {
+    soundOn = soundPref === "true";
+    // charge la bonne image du bouton
+    const bouton = document.getElementById('boutonSon');
+    if (soundOn) {
+      bouton.src="images/sound-on.svg"
+    } else {
+      bouton.src="images/sound-off.svg"
+    }
+  }
 
   // Redimentionnement des graphiques en fonction de la page
   height = window.innerHeight;
@@ -1507,11 +1531,15 @@ function reboot() {
 function toggleChrono() {
   // Change la visibilité du chrono
   var cadre = document.getElementById('cadre_chrono');
+  var btnSon = document.getElementById('boutonSon');
+
   if (chronoVisible) {
     cadre.classList.add("noshow");
+    btnSon.classList.add("noshow");
     chronoVisible = false;
   } else {
     cadre.classList.remove("noshow");
+    btnSon.classList.remove("noshow");
     chronoVisible = true;
   }
 }
@@ -1527,7 +1555,9 @@ function startStopChrono() {
     bouton.src="images/stop-chrono.svg"
     refreshChrono();
     clignottementChrono();
-    beep(500, notes[7]);
+    if (soundOn) {
+      beep(500, notes[0], 2, "sine", function(){flagBeep = false;});
+    }
   } else {
     chronoRunning = false;
     var chrono = document.getElementById('chrono0');
@@ -1550,13 +1580,16 @@ function refreshChrono() {
       seconds = Math.floor((secondesRestante % 60000) / 1000);
       newText = minutes.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + chronoSepar + seconds.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
       chrono.innerText = newText;
-      if (seconds == 0) {
-        if (minutes == 0) {
-          duree = 1000;
-        } else {
-          duree = 500;
+      if ((seconds == 0) && (soundOn)) {
+        if (!flagBeep) { // Pour éviter les doubles beeps
+          flagBeep = true;
+          if (minutes == 0) {
+            duree = 1000;
+          } else {
+            duree = 500;
+          }
+          beep(duree, notes[7 - minutes], 2, "sine", function(){flagBeep = false;});
         }
-        beep(duree, notes[minutes]);
       }
     } else {
       chrono.innerText = "00:00";
@@ -1600,10 +1633,24 @@ function beep(duration, frequency, volume, type, callback) {
     if (frequency){oscillator.frequency.value = frequency;}
     if (type){oscillator.type = type;}
     if (callback){oscillator.onended = callback;}
-    
+    if (duration){duree = duration/1000;} else {duree = 0.5;}
+
     oscillator.start(audioCtx.currentTime);
-    oscillator.stop(audioCtx.currentTime + ((duration || 500) / 1000));
+    oscillator.stop(audioCtx.currentTime + duree);
 };
+
+function toggleSon() {
+  const bouton = document.getElementById('boutonSon');
+  if (soundOn) {
+    bouton.src="images/sound-off.svg"
+    soundOn =false;
+    localStorage.setItem("sound", soundOn);
+  } else {
+    bouton.src="images/sound-on.svg"
+    soundOn = true
+    localStorage.setItem("sound", soundOn);
+  }
+}
 
 
 

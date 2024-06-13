@@ -99,7 +99,7 @@ void IRAM_ATTR hall_ISR() {
 
 void setup() {
   // Try pushing frequency to 160MHz.
-  bool update_cpu_freq = system_update_cpu_freq(160);
+  bool update_cpu_freq = system_update_cpu_freq(80);
 
   #if defined(DEBUG) || defined(DEBUG_INTERRUPT) || defined(DEBUG2) || defined(DEBUG3) || defined(DEBUG_PROBE) || defined(DEBUG_WEB)
     Serial.begin(115200);
@@ -108,7 +108,7 @@ void setup() {
     Serial.println();
     Serial.flush();
     int cpuFreq = system_get_cpu_freq();
-    Serial.printf("\nStarting %s on ESP8266@%dMHz (system_update_cpu_freq(160) = %s)...\n\n", APP_NAME_VERSION, cpuFreq, update_cpu_freq?"true":"false");
+    Serial.printf("\nStarting %s on ESP8266@%dMHz (system_update_cpu_freq() = %s)...\n\n", APP_NAME_VERSION, cpuFreq, update_cpu_freq?"true":"false");
     Serial.flush();
   #endif
 

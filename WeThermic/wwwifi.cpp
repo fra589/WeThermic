@@ -106,6 +106,7 @@ void wifiApInit(void) {
 void wifiClientInit(void) {
 
   uint32_t debut;
+  WiFiPhyMode_t mode;
   
   // Empeche le wifi client de se connecter avec d'anciens paramètres résiduels en EEPROM.
   WiFi.setAutoConnect(false);
@@ -121,19 +122,33 @@ void wifiClientInit(void) {
     WiFi.begin(cli_ssid, cli_pwd);
     while (WiFi.status() != WL_CONNECTED) {
       delay(250);
+      /*
       #ifdef DEBUG
         Serial.print(".");
         Serial.flush();
       #endif
-      if (millis() - debut > 10000) {
-        break; // Timeout = 10 secondes
+      */
+      if (millis() - debut > 15000) {
+        break; // Timeout = 15 secondes
       }
     }
     if(WiFi.status() == WL_CONNECTED) {
       #ifdef DEBUG
-          Serial.println("OK");
+          Serial.println("Connexion OK");
           Serial.print("IP = ");
           Serial.println(WiFi.localIP());
+          Serial.print("Mode = ");
+          switch (WiFi.getPhyMode()) {
+            case WIFI_PHY_MODE_11B:
+              Serial.println("802.11B");
+            break;
+            case WIFI_PHY_MODE_11G:
+              Serial.println("802.11G");
+            break;
+            case WIFI_PHY_MODE_11N:
+              Serial.println("802.11N");
+            break;
+          }
       #endif
       WiFi.setAutoReconnect(true);
       //Start mDNS with APP_NAME
@@ -171,7 +186,23 @@ void wifiClientInit(void) {
           break;
         }
       #endif
-    } 
+    }
+    #ifdef DEBUG
+      switch (WiFi.getMode()) {
+        case WIFI_OFF:
+          Serial.println("WiFi is off.");
+          break;
+        case WIFI_STA:
+          Serial.println("WiFi is in station mode.");
+          break;
+        case WIFI_AP:
+          Serial.println("WiFi is in AP mode.");
+          break;
+        case WIFI_AP_STA:
+          Serial.println("WiFi is both in station and AP mode.");
+          break;
+      }
+    #endif
   }
 
 }

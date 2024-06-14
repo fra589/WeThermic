@@ -1547,10 +1547,10 @@ function toggleChrono() {
 }
 
 function startStopChrono() {
-  // Démarre le chrono
   var chrono = document.getElementById('chrono0');
   const bouton = document.getElementById('btnChrono');
   if (!chronoRunning) {
+    // Démarre le chrono
     chronoRunning   = true;
     // nombre de millisecondes écoulées depuis le premier janvier 1970
     chronoDebut = Date.now();
@@ -1561,13 +1561,15 @@ function startStopChrono() {
       beep(500, notes[0], 2, "sine", function(){flagBeep = false;});
     }
   } else {
-    chronoRunning = false;
-    var chrono = document.getElementById('chrono0');
-    minutes = Math.trunc(chronoMaxTime / 60);
-    seconds = chronoMaxTime % 60;
-    newText = minutes.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + ":" + seconds.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
-    chrono.innerText = newText;
-    bouton.src="images/start-chrono.svg"
+    if (confirm("Stopping time countdown?") == true) {
+      chronoRunning = false;
+      var chrono = document.getElementById('chrono0');
+      minutes = Math.trunc(chronoMaxTime / 60);
+      seconds = chronoMaxTime % 60;
+      newText = minutes.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + ":" + seconds.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+      chrono.innerText = newText;
+      bouton.src="images/start-chrono.svg"
+    }
   }
 }
 

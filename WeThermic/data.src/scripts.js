@@ -1332,15 +1332,15 @@ function deconnect_clique() {
 }
 
 function toggleFullscreen() {
-  bouton = document.getElementById("fullScreenButton");
+  //bouton = document.getElementById("fullScreenButton");
   if (!isFullScreen) {
     openFullscreen();
-    isFullScreen = true;
-    bouton.innerHTML = "<br />Close full screen<br />&nbsp;";
+    //isFullScreen = true;
+    //bouton.innerHTML = "<br />Close full screen<br />&nbsp;";
   } else {
     closeFullscreen();
-    isFullScreen = false;
-    bouton.innerHTML = "<br />View in full screen<br />&nbsp;";
+    //isFullScreen = false;
+    //bouton.innerHTML = "<br />View in full screen<br />&nbsp;";
   }
   window.scrollTo(0, 0);
 }
@@ -1369,12 +1369,22 @@ function closeFullscreen() {
 }
 
 function fullscreenchanged(event) {
+  bouton = document.getElementById("fullScreenButton");
   // Redimentionnement des graphiques en fonction de la page
   height = window.innerHeight;
   width  = window.innerWidth;
   //alert(width + "\n" + height);
   document.getElementById("lapage").style.height = height + "px";
   document.getElementById("lapage").style.width = width + "px";
+  if (document.fullscreenElement) {
+    // Entrée en mode fullscreen
+    isFullScreen = true;
+    bouton.innerHTML = "<br />Close full screen<br />&nbsp;";
+  } else {
+    // Sortie fullscreen
+    isFullScreen = false;
+    bouton.innerHTML = "<br />View in full screen<br />&nbsp;";
+  }
 }
 document.addEventListener("fullscreenchange", fullscreenchanged);
 

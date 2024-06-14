@@ -1567,7 +1567,7 @@ function startStopChrono() {
       minutes = Math.trunc(chronoMaxTime / 60);
       seconds = chronoMaxTime % 60;
       newText = minutes.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + ":" + seconds.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
-      chrono.innerText = newText;
+      chrono.innerHTML = newText;
       bouton.src="images/start-chrono.svg"
     }
   }
@@ -1583,7 +1583,7 @@ function refreshChrono() {
       minutes = Math.trunc(secondesRestante / 60000);
       seconds = Math.floor((secondesRestante % 60000) / 1000);
       newText = minutes.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + chronoSepar + seconds.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
-      chrono.innerText = newText;
+      chrono.innerHTML = newText;
       if ((seconds == 0) && (soundOn)) {
         if (!flagBeep) { // Pour éviter les doubles beeps
           flagBeep = true;
@@ -1596,20 +1596,20 @@ function refreshChrono() {
         }
       }
     } else {
-      chrono.innerText = "00:00";
+      chrono.innerHTML = "00:00";
       chronoRunning = false;
       const bouton = document.getElementById('btnChrono');
       bouton.src="images/start-chrono.svg"
     }
     setTimeout(function() { refreshChrono() }, 500);
   } else {
-    chrono.innerText = "07:00";
+    chrono.innerHTML = "07:00";
   }
 }
 
 function clignottementChrono() {
   if (chronoSepar == ':') {
-    chronoSepar = ' ';
+    chronoSepar = '&nbsp;';
   } else {
     chronoSepar = ':';
   }

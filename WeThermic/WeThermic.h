@@ -107,8 +107,8 @@
 
   // Pour mise en veille de l'affichage
   extern uint8_t affichage_on;
-  #define DELAY_VEILLE 20000 // 20 secondes
-
+  extern long debutCompteurVeille;
+  #define DELAY_VEILLE 300000 // 300 secondes (5 minutes)
   // DNS server
   extern DNSServer dnsServer;
   #define DNS_PORT 53

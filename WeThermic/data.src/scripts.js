@@ -1514,8 +1514,10 @@ function updateAPconfig() {
 }
 
 function resetSettings() {
-  localStorage.clear();
-  window.location.reload();
+  if (confirm("Reset preferences to default?") == true) {
+    localStorage.clear();
+    window.location.reload();
+  }
 }
 
 function reboot() {
@@ -1652,6 +1654,13 @@ function toggleSon() {
   }
 }
 
+function wakeup() {
+  if (location.protocol == 'file:') {
+    XMLHttpRequest_get(netDevURL + "/wakeup");
+  } else {
+    XMLHttpRequest_get("/wakeup");
+  }
+}
 
 
 

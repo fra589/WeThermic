@@ -43,9 +43,9 @@
       <div class="graph_container">
         <div id="valeursV">
           <span class="fLeft"><h1 id="valeurVent">~~~~m/s</h1></span>
-          <span class="fRight"><image id="boutonSettings" src="images/settings.svg" onclick="changeSettings();" /></span>
-          <span class="fRight"><image id="boutonChrono" src="images/chrono.svg" onclick="toggleChrono();" /></span>
-          <span class="fRight"><image id="boutonSon" class="noshow" src="images/sound-on.svg" onclick="toggleSon();" /></span>
+          <span class="fRight"><image id="boutonSettings" class="btn" src="images/settings.svg" onclick="changeSettings();" /></span>
+          <span class="fRight"><image id="boutonChrono" class="btn" src="images/chrono.svg" onclick="toggleChrono();" /></span>
+          <span class="fRight"><image id="boutonSon" class="btn noshow" src="images/sound-on.svg" onclick="toggleSon();" /></span>
         </div>
         <canvas id="graphVent" class="graphjs"></canvas>
       </div>
@@ -65,9 +65,10 @@
       <!-- Config dialog                                                                     -->
       <!--------------------------------------------------------------------------------------->
       <div id="settingsDialog" class="settingsDialog noshow">
-        <span class="fLeft"><image id="boutonReset" src="images/factory.svg" title="Reset preferences to default" onclick="resetSettings();" /></span>
-        <span class="fLeft"><image id="boutonReboot" src="images/reboot.svg" title="Reboot weather station" onclick="reboot();" /></span>
-        <span class="fRight"><image id="boutonClose" src="images/close.svg" title="Close settings" onclick="closeSettings();" /></span>
+        <span class="fLeft"><image id="boutonReboot" class="btn" src="images/reboot.svg" title="Reboot weather station" onclick="reboot();" /></span>
+        <span class="fLeft"><image id="boutonReset" class="btn" src="images/factory.svg" title="Reset preferences to default" onclick="resetSettings();" /></span>
+        <span class="fLeft"><image id="boutoWakeup" class="btn" src="images/wakeup.svg" title="Wake up station screen" onclick="wakeup();" /></span>
+        <span class="fRight"><image id="boutonClose" class="btn" src="images/close.svg" title="Close settings" onclick="closeSettings();" /></span>
         <h1>Settings :</h1>
         <hr id="ligneHaut" />
         <p class="centerAlign">
@@ -171,7 +172,7 @@
         <div id="networkTable">
           <!-- Rempli par script.js: setNetworkList() -->
         </div>
-        <span class="fRight" onclick="get_networks();"><image id="boutonRefresh" src="images/refresh.svg"/></span>
+        <span class="fRight" onclick="get_networks();"><image id="boutonRefresh" class="btn" src="images/refresh.svg"/></span>
 
         <!-- Dialogue connection WiFi -->
         <div id="dlgMask0" class="dlgMask noshow">

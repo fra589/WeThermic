@@ -50,6 +50,8 @@ void webServerInit(void) {
   server.on("/setapconfig",      handleSetAPconfig);
   server.on("/reboot",           handleReboot);
   server.on("/fsinfo",           handleFSInfo);
+  server.on("/wakeup",           handleWakeup);
+  
   server.onNotFound(handleNotFound);
   server.begin(); // Start http web server
   
@@ -712,3 +714,13 @@ String getFileList(String path) {
   return liste;
   
 }
+
+void handleWakeup(void) {
+  // Réactive l'affichage
+  affichage_on = 1;
+  wakeupDisplay();
+  // Réinitialise le compteur de durée pour la prochaine veille
+  debutCompteurVeille = millis();
+}
+
+

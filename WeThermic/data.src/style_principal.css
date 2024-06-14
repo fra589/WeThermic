@@ -47,33 +47,15 @@ html, body {
   margin: 0;
   padding-right: 5px;
 }
-#boutonSettings, #boutonChrono, #boutonSon {
+.btn {
   width: 64px;
   height: 64px;
   margin-top: 20px;
   margin-right: 20px;
-  cursor: pointer;
-}
-#boutonReset {
-  width: 64px;
-  height: 64px;
-  margin-top: 20px;
-  margin-left: 20px;
   cursor: pointer;
 }
 #boutonReboot {
-  width: 64px;
-  height: 64px;
-  margin-top: 20px;
   margin-left: 20px;
-  cursor: pointer;
-}
-#boutonClose {
-  width: 64px;
-  height: 64px;
-  margin-top: 20px;
-  margin-right: 20px;
-  cursor: pointer;
 }
 .graph_container {
   height: 50%;
@@ -122,13 +104,6 @@ html, body {
 }
 .centerAlign {
   text-align: center;
-}
-#boutonRefresh {
-  width: 45px;
-  height: 45px;
-  margin-top: 20px;
-  margin-right: 20px;
-  cursor: pointer;
 }
 .noshow {
   display: none;

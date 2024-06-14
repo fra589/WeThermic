@@ -50,12 +50,14 @@ void affichage_init(void) {
 void sleepDisplay(void) {
   if (_affichage_OK) {
     display.ssd1306_command(SSD1306_DISPLAYOFF);
+    _isEnVeille = 1;
   }
 }
 
 void wakeupDisplay(void) {
   if (_affichage_OK) {
     display.ssd1306_command(SSD1306_DISPLAYON);
+    _isEnVeille = 0;
   }
 }
 
@@ -96,7 +98,6 @@ void displayTemp(void) {
       #ifdef DEBUG
         Serial.println("Mise en veille");
       #endif
-      _isEnVeille = 1;
       sleepDisplay();
     }
     if (_isEnVeille == 0) {  

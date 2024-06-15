@@ -716,11 +716,25 @@ String getFileList(String path) {
 }
 
 void handleWakeup(void) {
+  
+  String XML;
+  
   // Réactive l'affichage
   affichage_on = 1;
   wakeupDisplay();
   // Réinitialise le compteur de durée pour la prochaine veille
   debutCompteurVeille = millis();
+  
+  // Réponse au client
+  XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
+  XML += F("<wakeup>\n");
+  XML += F("  <result>OK</result>\n");
+  XML += F("</wakeup>\n");
+
+  // Renvoi la réponse au client http
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.send(200,"text/xml",XML);
+
 }
 
 

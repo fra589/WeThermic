@@ -4,7 +4,9 @@ no_git
 *.o
 *.bin
 *.FCStd1
+*.FCBak
 WeThermic/build/*
+!vide.txt
 doc
 WeThermic/data.src/chartjs
 WeThermic/data/knownWiFi.xml

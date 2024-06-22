@@ -2,7 +2,7 @@
 #*                                                                          */
 #* Copyright (C) 2023-2024 Gauthier Brière (gauthier.briere "at" gmail.com) */
 #*                                                                          */
-#* This file: affichage.h is part of WeThermic                              */
+#* This file: Makefile is part of WeThermic                                 */
 #*                                                                          */
 #* WeThermic is free software: you can redistribute it and/or modify it     */
 #* under the terms of the GNU General Public License as published by        */

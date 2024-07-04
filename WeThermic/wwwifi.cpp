@@ -267,8 +267,19 @@ String getWifiNetworks() {
     XML += IPtoString(WiFi.localIP());
     XML += "</localip>\n";
     XML += "  </activeNetwork>\n";
+  } else if (cli_ssid[0] != '\0') {
+    // Non connecté mais SSID définit
+    XML += "  <activeNetwork>\n";
+    XML += "    <SSID>";
+    XML += String(cli_ssid);
+    XML += "    <PSK>";
+    XML += String(cli_pwd);
+    XML += "</PSK>\n";
+    XML += "    <RSSI/>\n";
+    XML += "    <channel/>\n";
+    XML += "    <localip>0.0.0.0</localip>\n";
+    XML += "  </activeNetwork>\n";
   }
-
   nReseaux = WiFi.scanNetworks();
   for (i = 0; i < nReseaux; i++) {
     XML += "  <network>\n";

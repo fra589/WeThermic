@@ -191,9 +191,11 @@ void handleGetValues(void) {
   XML += F("<c>");
   XML += String(tempCtn);
   XML += F("</c>");
+  /*
   XML += F("<b>");
   XML += String(tempBmp180);
   XML += F("</b>");
+  */
   XML += F("<p>");
   XML += String(pression);
   XML += F("</p>");
@@ -232,9 +234,11 @@ void handleGetHistory(void) {
     server.sendContent (F("<c>"));
     server.sendContent (String(histTempCtn[i]));
     server.sendContent (F("</c>"));
+    /*
     server.sendContent (F("<b>"));
     server.sendContent (String(histBmp180[i]));
     server.sendContent (F("</b>"));
+    */
     server.sendContent (F("</h>\n"));
   }
   for (i = 0; i < idxHistorique; i++) {
@@ -248,9 +252,11 @@ void handleGetHistory(void) {
     server.sendContent (F("<c>"));
     server.sendContent (String(histTempCtn[i]));
     server.sendContent (F("</c>"));
+    /*
     server.sendContent (F("<b>"));
     server.sendContent (String(histBmp180[i]));
     server.sendContent (F("</b>"));
+    */
     server.sendContent (F("</h>\n"));
   }
   server.sendContent (F("</history>\n"));

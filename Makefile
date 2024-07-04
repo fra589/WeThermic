@@ -118,14 +118,16 @@ release: firmware littlefs
 	cp $(FIRMWARE) $(RELEASES)/WeThermic.firmware.$(VERSION).bin
 	cp $(LITTLEFS) $(RELEASES)/WeThermic.application.$(VERSION).bin
 
+# flash_firmware : flash le programme et efface les credentials wifi (erase_region 0x3FC000 0x4000)
 flash_firmware: firmware
+	$(ESPTOOL) --chip $(CHIP) --port $(PORT) --baud $(BAUD) erase_region 0x3FC000 0x4000
 	$(ESPTOOL) --chip $(CHIP) --port $(PORT) --baud $(BAUD) write_flash --flash_size detect 0x0 $(FIRMWARE)
-	
+
 flash_littlefs: littlefs
 	$(ESPTOOL) --chip $(CHIP) --port $(PORT) --baud $(BAUD) write_flash --flash_size detect 0x200000 $(LITTLEFS)
 
 flash: firmware littlefs
-	$(ESPTOOL) --chip $(CHIP) --port $(PORT) --baud $(BAUD) write_flash --flash_size detect 0x0 $(FIRMWARE) 0x200000 $(LITTLEFS)
+	$(ESPTOOL) --chip $(CHIP) --port $(PORT) --baud $(BAUD) write_flash --flash_size detect --erase-all 0x0 $(FIRMWARE) 0x200000 $(LITTLEFS)
 
 clean:
 	rm -rf WeThermic/build/*

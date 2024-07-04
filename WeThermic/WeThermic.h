@@ -51,7 +51,7 @@
   #define APP_NAME              "WeThermic"
   #define APP_VERSION_MAJOR     "0"
   #define APP_VERSION_MINOR     "9"
-  #define APP_VERSION_DATE      "20240605"
+  #define APP_VERSION_DATE      "20240704"
   #define APP_VERSION_STRING    "v" APP_VERSION_MAJOR "." APP_VERSION_MINOR "." APP_VERSION_DATE
   #define APP_NAME_VERSION      APP_NAME " - " APP_VERSION_STRING "\0"
 

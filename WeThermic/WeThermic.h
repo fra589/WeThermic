@@ -57,7 +57,7 @@
 
   // Paramètres mesure du vent
   #define HALL_PIN D5 // Entrée numérique esp8266
-  #define DUREE 500   // Durée de comptage RPM (ms)
+  #define DEFAULT_DUREE 500   // Durée de comptage RPM (ms) par defaut
   //#define COEF_VENT 0.245
   #define COEF_VENT 0.3
   extern volatile uint32_t pulse;
@@ -70,7 +70,8 @@
   #define CTN_PIN A0
   extern float tempCtn;
 
-  // Stockage 5 minutes de mesures :
+  // Stockage 5 minutes de mesures à 500ms ou 10 minutes à 1 seconde d'interval :
+  extern uint32_t duree;
   // Taille du tableau pour stocker toute les mesure pendant 
   // 5 minutes avec un interval de "DUREE" millisecondes.
   #define DUREE_HISTORIQUE 600 // ( 5 * 60 / ( DUREE / 1000 ) )
@@ -100,7 +101,8 @@
   #define ADDR_AP_SSID         0 //   0 + 32 =  32
   #define ADDR_AP_PWD         32 //  32 + 63 =  95
   #define ADDR_CLI_SSID       95 //  95 + 32 = 127
-  #define ADDR_CLI_PWD       127 //  32 + 63 = 190
+  #define ADDR_CLI_PWD       127 // 126 + 63 = 190
+  #define ADDR_DUREE         190 // 190 +  4 = 194
 
   // Web server
   extern ESP8266WebServer server;

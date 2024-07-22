@@ -53,11 +53,12 @@ float pression = 0;
 float tempCtn = 0;
 float temperatureCumule;
 long   nombreTemperature = 0;
-// Stockage 5 minutes de mesures :
-float histVent[DUREE_HISTORIQUE]       = {0};
-float histBmp180[DUREE_HISTORIQUE] = {0};
-float histPression[DUREE_HISTORIQUE]   = {0};
-float histTempCtn[DUREE_HISTORIQUE]    = {0};
+// Stockage 5 minutes de mesures à 500ms ou 10 minutes à 1 seconde d'interval :
+uint32_t duree = DEFAULT_DUREE;
+float histVent[DUREE_HISTORIQUE]     = {0};
+float histBmp180[DUREE_HISTORIQUE]   = {0};
+float histPression[DUREE_HISTORIQUE] = {0};
+float histTempCtn[DUREE_HISTORIQUE]  = {0};
 uint32_t idxHistorique = 0;
 // WiFi
 char cli_ssid[MAX_SSID_LEN] = DEFAULT_CLI_SSID;
@@ -159,7 +160,7 @@ void loop() {
   }
   nombreTemperature++;
 
-  if (temps1 > temps0 + DUREE) {
+  if (temps1 > temps0 + duree) {
 
     // Réinitialise le compteur de temps
     temps0 = temps1;

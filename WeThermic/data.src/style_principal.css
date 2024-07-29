@@ -41,11 +41,18 @@ html, body {
 .fLeft {
   float: left;
   margin: 0;
+  padding-left:38px
 }
 .fRight {
   float: right;
-  margin: 0;
   padding-right: 5px;
+}
+.valeur {
+  font-size: 50px;
+  font-weight: bold;
+}
+.valeur p {
+  margin: 0;
 }
 .btn {
   width: 64px;

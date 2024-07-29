@@ -42,7 +42,7 @@
     <div id="lapage">
       <div class="graph_container">
         <div id="valeursV">
-          <span class="fLeft"><h1 id="valeurVent">~~~~m/s</h1></span>
+          <div class="fLeft valeur"><p id="valeurVent">~~~~m/s</p></div>
           <span class="fRight"><image id="boutonSettings" class="btn" src="images/settings.svg" onclick="changeSettings();" /></span>
           <span class="fRight"><image id="boutonChrono" class="btn" src="images/chrono.svg" onclick="toggleChrono();" /></span>
           <span class="fRight"><image id="boutonSon" class="btn noshow" src="images/sound-on.svg" onclick="toggleSon();" /></span>
@@ -51,8 +51,8 @@
       </div>
       <div class="graph_container">
         <div id="valeursTP">
-          <span class="fLeft"><h1 id="valeurTemp">~~~~°C</h1></span>
-          <span class="fRight"><h1 id="valeurPress">~~~~hPa</h1></span>
+          <div class="fLeft valeur"><p id="valeurTemp">~~~~°C</p></div>
+          <div class="fRight valeur"><p id="valeurPress">~~~~hPa</p></div>
         </div>
         <canvas id="graphTemp" class="graphjs"></canvas>
       </div>

@@ -21,7 +21,7 @@
 
 :root {
   --couleurVent: rgb(0, 0, 160);
-  --couleurFillVent: rgba(0, 0, 160, 0.3);
+  --couleurFillVent: rgba(0, 0, 160, 0.1);
   --couleurMoyVent: rgb(0, 0, 200);
   --couleurPression: rgb(0, 140, 32);
   --couleurFillPression: rgba(0, 140, 32, 0.2);
@@ -34,7 +34,7 @@
   --couleurGrid: rgb(187, 229, 229);
 }
 html, body {
-  background-color: #e0ffff;
+  background-color: #ffffff;
   color: black;
 }
 .couleurVent {

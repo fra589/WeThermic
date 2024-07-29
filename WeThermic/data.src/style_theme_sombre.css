@@ -21,7 +21,7 @@
 
 :root {
   --couleurVent: rgb(0, 255, 255);
-  --couleurFillVent: rgba(0, 255, 255, 0.3);
+  --couleurFillVent: rgba(0, 255, 255, 0.1);
   --couleurMoyVent: rgb(0, 200, 200);
   --couleurPression: rgb(180, 240, 240);
   --couleurFillPression: rgba(180, 240, 240, 0.2);

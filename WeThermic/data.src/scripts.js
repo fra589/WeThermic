@@ -42,7 +42,8 @@ var soundOn       = true;
 
 
 // pour debug du developpement, adresse IP de la Wemos connectée au wifi
-var netDevURL = 'http://192.168.1.107'; // domopassaduy GB1
+var netDevURL = 'http://10.10.10.10'; // connected to WeThermic
+//var netDevURL = 'http://192.168.1.107'; // domopassaduy GB1
 //var netDevURL = 'http://192.168.1.80'; // domopassaduy GB2
 //var netDevURL = 'http://192.168.1.68';  // BlancheNeige
 //var netDevURL = 'http://192.168.1.60';  // La Gouffrerie
@@ -51,7 +52,7 @@ var netDevURL = 'http://192.168.1.107'; // domopassaduy GB1
 // Couleurs du theme sombre
 /*
 var couleurVent         = 'rgb(0, 255, 255)';
-var couleurFillVent     = 'rgba(0, 255, 255, 0.3)';
+var couleurFillVent     = 'rgba(0, 255, 255, 0.1)';
 var couleurMoyVent      = 'rgb(0, 200, 200)';
 var couleurPression     = 'rgb(180, 240, 240)';
 var couleurFillPression = 'rgba(180, 240, 240, 0.2)';
@@ -65,7 +66,7 @@ var couleurGrid         = 'rgb(63, 63, 63)';
 */
 // Couleurs du theme clair
 var couleurVent = 'rgb(0, 0, 160)';
-var couleurFillVent = 'rgba(0, 0, 160, 0.3)';
+var couleurFillVent = 'rgba(0, 0, 160, 0.1)';
 var couleurMoyVent = 'rgb(0, 0, 200)';
 var couleurPression = 'rgb(0, 140, 32)';
 var couleurFillPression = 'rgba(0, 140, 32, 0.2)';
@@ -373,8 +374,8 @@ async function index_onload() {
         beginAtZero: false,
         display: true,
         position:'right',
-        suggestedMax: pSuggestedMax,
-        suggestedMin: pSuggestedMin,
+        ////suggestedMax: pSuggestedMax,
+        ////suggestedMin: pSuggestedMin,
         ticks: {
           color: couleurPression
         },
@@ -704,8 +705,8 @@ function XMLHttpResult(requette, xml, text) {
       calculMoyenneVent();
 
       var doc_vent  = document.getElementById("valeurVent");
-      doc_vent.innerHTML    ='<span class="couleurMoyVent">moy = ' + Number.parseFloat(ventMoyen).toFixed(1) + '</span>&nbsp;';
-      doc_vent.innerHTML   += '<span class="couleurVent">inst = ' + Number.parseFloat(vent).toFixed(1).padStart(4, ' ') + ' m/s</span>';
+      doc_vent.innerHTML    = '<span class="couleurVent">I = ' + Number.parseFloat(vent).toFixed(1).padStart(4, ' ') + 'm/s</span><br />';
+      doc_vent.innerHTML   += '<span class="couleurMoyVent">M = ' + Number.parseFloat(ventMoyen).toFixed(1) + ' m/s</span>';
 
       var newCtn     = Number(xml.getElementsByTagName("c")[0].childNodes[0].nodeValue);
       if (Math.abs(newCtn - tempctn) < 3) {
@@ -727,15 +728,16 @@ function XMLHttpResult(requette, xml, text) {
       }
       */
       if (showT1) {
-        doc_temp.innerHTML   += '<span class="couleurMoyCtn">moy = '      + Number.parseFloat(ctnMoyen).toFixed(1) + '</span>&nbsp;';
-        doc_temp.innerHTML   += '<span class="couleurTempCtn">inst = '    + Number.parseFloat(tempctn).toFixed(2) + '°C</span>'
+        doc_temp.innerHTML   += '<span class="couleurTempCtn">I = '    + Number.parseFloat(tempctn).toFixed(1) + '°C</span><br />';
+        doc_temp.innerHTML   += '<span class="couleurMoyCtn">M = '      + Number.parseFloat(ctnMoyen).toFixed(1) + '°C</span>'
       }
 
       pression    = calculPressionDouce(Number(xml.getElementsByTagName("p")[0].childNodes[0].nodeValue));
       calculMoyennePres();
 
       var doc_press = document.getElementById("valeurPress");
-      doc_press.innerHTML = '<span class="couleurPression">' + Number.parseFloat(pression).toFixed(1) + "hPa</span>";
+      doc_press.innerHTML  = '<span class="couleurPression">I = ' + Number.parseFloat(pression).toFixed(2) + "hPa</span><br :>";
+      doc_press.innerHTML += '<span class="couleurMoyPres">M = ' + Number.parseFloat(presMoyen).toFixed(2) + "hPa</span>";
 
     } else if ((requette == "/getnetworks") || (requette == netDevURL + "/getnetworks")) {
       // Rempli la liste des réseaux disponibles

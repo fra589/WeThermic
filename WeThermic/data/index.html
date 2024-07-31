@@ -8,7 +8,15 @@
 <label for=sombre>Dark</label>
 &nbsp;
 <input type=radio name=theme id=clair value=clair onchange='changeTheme("clair")'>
-<label for=clair>Clear</label></span><fieldset class=settingFieldset id=graphFieldset><legend>Average calculations</legend><p class=leftAlign><label class=nowarp>Average wind on&nbsp;<input type=range class=fullWidth id=lMoyVent name=lMoyVent min=1 max=10 value=2 step=1 onchange=changeLargeurVent() oninput=inputLargeurVent()>&nbsp;<span id=valMoyVent>1:30</span></label><p class=leftAlign><label class=nowarp>Average press on&nbsp;<input type=range class=fullWidth id=lMoyPres name=lMoyPres min=1 max=10 value=2 step=1 onchange=changeLargeurPres() oninput=inputLargeurPres()>&nbsp;<span id=valMoyPres>1:30</span></label><p class=leftAlign><label class=nowarp>Average temp on&nbsp;<input type=range class=fullWidth id=lMoyTemp name=lMoyTemp min=1 max=10 value=2 step=1 onchange=changeLargeurTemp() oninput=inputLargeurTemp()>&nbsp;<span id=valMoyTemp>1:30</span></label></fieldset><h2>WiFi network configuration</h2><div id=apConfig><div class=tblPwd><label for=apSSID>Access Point SSID</label>
+<label for=clair>Clear</label></span><p><fieldset class=settingFieldset id=dureeFieldset><legend>Graph time length / refresh</legend>
+<span class=nowarp><input type=radio name=rDuree id=d500 value=500 onchange=changeDuree(500) checked>
+<label for=d500>5 mn / 0.5 s</label>
+&nbsp;
+<input type=radio name=rDuree id=d1000 value=1000 onchange=changeDuree(1e3)>
+<label for=d1000>10 mn / 1 s</label>
+&nbsp;
+<input type=radio name=rDuree id=d2000 value=2000 onchange=changeDuree(2e3)>
+<label for=d2000>20 mn / 2 s</label></span></fieldset><fieldset class=settingFieldset id=graphFieldset><legend>Average calculations</legend><p class=leftAlign><label class=nowarp>Average wind on&nbsp;<input type=range class=fullWidth id=lMoyVent name=lMoyVent min=1 max=10 value=2 step=1 onchange=changeLargeurVent() oninput=inputLargeurVent()>&nbsp;<span id=valMoyVent>1:30</span></label><p class=leftAlign><label class=nowarp>Average pres on&nbsp;<input type=range class=fullWidth id=lMoyPres name=lMoyPres min=1 max=10 value=2 step=1 onchange=changeLargeurPres() oninput=inputLargeurPres()>&nbsp;<span id=valMoyPres>1:30</span></label><p class=leftAlign><label class=nowarp>Average temp on&nbsp;<input type=range class=fullWidth id=lMoyTemp name=lMoyTemp min=1 max=10 value=2 step=1 onchange=changeLargeurTemp() oninput=inputLargeurTemp()>&nbsp;<span id=valMoyTemp>1:30</span></label></fieldset><hr><h2>WiFi network configuration</h2><div id=apConfig><div class=tblPwd><label for=apSSID>Access Point SSID</label>
 <input name=apSSID id=apSSID maxlength=32 oninput="apConfigChange=!0,inputConfigAP()"></div><div class=tblPwd>&nbsp;</div><div class=tblPwd><label for=apPwd1>Access Point password</label>
 <input type=password name=apPwd1 id=apPwd1 maxlength=63 title="Enter AP password:
 min len=8, max len=63

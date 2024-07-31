@@ -28,6 +28,8 @@ var cssFile = 'style_theme_clair.css';
 var largeurMoyVent  = 180; // Moyenne sur 1 minute 30s
 var largeurMoyPres  = 180; // Moyenne sur 1 minute 30s
 var largeurMoyTemp  = 180; // Moyenne sur 1 minute 30s
+// Interval & duree de esure
+var interval = 500;        // 5 minutes tous les 500 ms
 // Autre
 var soundOn       = true;
 
@@ -236,8 +238,8 @@ async function index_onload() {
       x: {
         type: 'realtime',
         realtime: {
-          duration: 300000,
-          refresh: 500,
+          duration: interval * 600,
+          refresh: interval,
           delay: 250,
           frameRate: 20,
           onRefresh: chart => {
@@ -324,8 +326,8 @@ async function index_onload() {
       x: {
         type: 'realtime',
         realtime: {
-          duration: 300000,
-          refresh: 500,
+          duration: interval * 600,
+          refresh: interval,
           delay: 250,
           frameRate: 20,
           onRefresh: chart => {
@@ -412,8 +414,8 @@ async function index_onload() {
       x: {
         type: 'realtime',
         realtime: {
-          duration: 300000,
-          refresh: 500,
+          duration: interval * 600,
+          refresh: interval,
           delay: 250,
           frameRate: 50,
           onRefresh: chart => {
@@ -471,6 +473,9 @@ async function index_onload() {
     options: tempOptions
     //configTemp
   });
+
+  console.log("Refresh interval = " + Window.graphVent.options.scales['x'].realtime.refresh);
+  console.log("Duration =         " + Window.graphVent.options.scales['x'].realtime.duration);
 
   // Applique le thème de couleurs
   appliqueTheme();
@@ -600,6 +605,14 @@ function XMLHttpResult(requette, xml, text) {
       bottomSSID.textContent = ssid;
       apConfigChange = false;
       inputConfigAP();
+    } else if ((requette.split('?')[0] == "/setduree") || (requette.split('?')[0] == netDevURL + "/setduree")) {
+      result = xml.getElementsByTagName("result")[0].childNodes[0].nodeValue;
+      if (result == "OK") {
+        refreshPage();
+        closeSettings();
+      } else {
+        alert(result);
+      }
     }
   }
 
@@ -618,10 +631,19 @@ function graphHistoryintegration(xml) {
   historiqueEnCours = true;
   // Intègre dynamiquement les données d'historique au graphiques
   var flagDebut = false;
+  // Récupère la durée (500, 1000 ou 2000)
+  interval = Number(xml.getElementsByTagName("d")[0].childNodes[0].nodeValue);
+  if (interval == 500) {
+    document.getElementById("d500").checked = true;
+  } else if (interval == 1000) {
+    document.getElementById("d1000").checked = true;
+  } else if (interval == 2000) {
+    document.getElementById("d2000").checked = true;
+  }
   // nombre de millisecondes écoulées depuis le premier janvier 1970
   tX = Date.now();
-  // Il y a 5 minutes :
-  tX = tX - (5 * 60 * 1000) 
+  // Il y a 5, 10 ou 20 minutes :
+  tX = tX - ((interval / 100) * 60 * 1000) 
   hist = xml.getElementsByTagName("h");
   for (const h of hist) {
     pression   = calculPressionDouce(Number(h.getElementsByTagName("p")[0].childNodes[0].nodeValue));
@@ -652,7 +674,7 @@ function graphHistoryintegration(xml) {
       histPression.push  ({x: tX, y: pression});
       histPresMoy.push   ({x: tX, y: presMoyen});
     }
-    tX += 500 // pas des mesures = 500 ms
+    tX += interval // pas des mesures = interval : 500, 1000 ou 2000 ms
   }
   // Pour synchronisation XMLHttpRequest asynchrone
   attenteOK  = true;
@@ -782,7 +804,7 @@ function calculMoyenneTemperature() {
   } else {
     // calcul la moyenne jusqu'à l'index (le tableau n'est pas complet).
     ctnMoyen    = Math.round(ctnTotal / tblTempIdx * 100)/100;
-    console.log("tblTempIdx=" + tblTempIdx + "   ctnTotal=" + Math.round(ctnTotal * 100)/100 + "   ctnMoyen=" + ctnMoyen)
+    //console.log("tblTempIdx=" + tblTempIdx + "   ctnTotal=" + Math.round(ctnTotal * 100)/100 + "   ctnMoyen=" + ctnMoyen)
   }
   
 }
@@ -1537,6 +1559,12 @@ function wakeup() {
   }
 }
 
-
+function changeDuree(duree) {
+  if (location.protocol == 'file:') {
+    XMLHttpRequest_get(netDevURL + "/setduree?duree=" + duree);
+  } else {
+    XMLHttpRequest_get("/setduree?duree=" + duree);
+  }
+}
 
 

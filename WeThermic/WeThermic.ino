@@ -87,19 +87,19 @@ void IRAM_ATTR hall_ISR() {
       ets_printf("hall_ISR() rising\n");
     #endif
     pulse++;
-    //digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
   } else {
     // Interruption front descendant
     #ifdef DEBUG_INTERRUPT
       ets_printf("hall_ISR() falling\n");
     #endif
-    //digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
     ;
   }
 }
 
 void setup() {
   // Try pushing frequency to 160MHz.
+  //bool update_cpu_freq = system_update_cpu_freq(160);
+  // Set CPU frequency to 80MHz.
   bool update_cpu_freq = system_update_cpu_freq(80);
 
   #if defined(DEBUG) || defined(DEBUG_INTERRUPT) || defined(DEBUG2) || defined(DEBUG3) || defined(DEBUG_PROBE) || defined(DEBUG_WEB)
@@ -164,13 +164,23 @@ void loop() {
 
     // Réinitialise le compteur de temps
     temps0 = temps1;
-
+    
+    #ifdef DEBUG2
+      Serial.print("pulse = ");
+      Serial.print(pulse);
+      Serial.print(", duree = ");
+      Serial.print(duree);
+    #endif
+    
     // Calcul du vent
     noInterrupts(); // Pour éviter que pulse change pendant le calcul
     vent = pulse * COEF_VENT; // TODO ecrire formule de calcul de la vitesse du vent = f(pulse)
     pulse = 0;
     interrupts(); // Réactive les interruptions
 
+    // Correction en fonction de la duree
+    vent = vent * DEFAULT_DUREE / duree;
+    
     // Moyenne thermistor CTN sur la durée de mesure
     if (nombreTemperature != 0) {
       tempCtn = temperatureCumule / nombreTemperature;
@@ -179,7 +189,7 @@ void loop() {
     }
     nombreTemperature = 0;
 
-    // Lecture du capteur de température et pression
+    // Lecture du capteur de pression
     read_bmp180();
 
     // Affichage sur écran
@@ -195,7 +205,7 @@ void loop() {
     }
 
     #ifdef DEBUG2
-      Serial.print("vent = ");
+      Serial.print(", vent = ");
       Serial.print(vent);
       Serial.print(", temperature BMP180 = ");
       Serial.print(tempBmp180);
@@ -203,7 +213,7 @@ void loop() {
       Serial.print(tempCtn);
       Serial.print("°C, pression atmosphérique = ");
       Serial.print(pression);
-      Serial.print("hPa ");
+      Serial.print("hPa\n");
     #endif
   }
 

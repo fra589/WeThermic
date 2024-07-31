@@ -25,6 +25,7 @@ void getEepromStartupData(void) {
   // Récupération des paramètres dans l'EEPROM ou de leur valeur par défaut
 
   char charTmp;
+  uint32_t dTmp;
 
   EEPROM.begin(EEPROM_LENGTH);
   
@@ -60,11 +61,19 @@ void getEepromStartupData(void) {
     }
   }
 
+  EEPROM.get(ADDR_DUREE, dTmp);
+  if ((dTmp == 500) || (dTmp == 1000) || (dTmp == 2000))  {
+    duree = dTmp;
+  } else {
+    duree = DEFAULT_DUREE;
+  }
+
   #ifdef DEBUG
     Serial.printf("ap_ssid................ = %s\n", ap_ssid);
     Serial.printf("ap_pwd................. = %s\n", ap_pwd);
     Serial.printf("cli_ssid............... = %s\n", cli_ssid);
     Serial.printf("cli_pwd................ = %s\n", cli_pwd);
+    Serial.printf("duree.................. = %d\n", duree);
   #endif
 
 }
@@ -73,6 +82,8 @@ void resetFactory(void) {
   // Reset de tous les paramètres à leur valeur par défaut
   // et reinitialisation EEPROM
 
+  uint32_t defaultDuree = DEFAULT_DUREE;
+  
   #ifdef DEBUG
     Serial.printf("Entrée dans resetFactory()\n");
   #endif
@@ -89,6 +100,7 @@ void resetFactory(void) {
   EEPROM_writeStr(ADDR_AP_PWD,   ap_pwd,   MAX_PWD_LEN);
   EEPROM_writeStr(ADDR_CLI_SSID, cli_ssid, MAX_SSID_LEN);
   EEPROM_writeStr(ADDR_CLI_PWD,  cli_pwd,  MAX_PWD_LEN);
+  EEPROM.put(ADDR_DUREE, defaultDuree);
 
   #ifdef DEBUG
     Serial.printf("  EEPROM.commit()\n");

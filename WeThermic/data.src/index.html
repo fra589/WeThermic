@@ -86,12 +86,27 @@
         <p class="centerAlign">
           Color theme:
           <span>
-          <input type="radio" name="theme" id="sombre" value="sombre" onchange="changeTheme('sombre');" checked />
-          <label for="sombre">Dark</label>
-          &nbsp;
-          <input type="radio" name="theme" id="clair" value="clair" onchange="changeTheme('clair');" />
-          <label for="clair">Clear</label>
+            <input type="radio" name="theme" id="sombre" value="sombre" onchange="changeTheme('sombre');" checked />
+            <label for="sombre">Dark</label>
+            &nbsp;
+            <input type="radio" name="theme" id="clair" value="clair" onchange="changeTheme('clair');" />
+            <label for="clair">Clear</label>
           </span>
+        </p>
+        <p>
+          <fieldset class="settingFieldset" id="dureeFieldset">
+            <legend>Graph time length / refresh</legend>
+            <span class="nowarp">
+              <input type="radio" name="rDuree" id="d500" value="500" onchange="changeDuree(500);" checked />
+              <label for="d500">5 mn / 0.5 s</label>
+              &nbsp;
+              <input type="radio" name="rDuree" id="d1000" value="1000" onchange="changeDuree(1000);" />
+              <label for="d1000">10 mn / 1 s</label>
+              &nbsp;
+              <input type="radio" name="rDuree" id="d2000" value="2000" onchange="changeDuree(2000);" />
+              <label for="d2000">20 mn / 2 s</label>
+            </span>
+          </fieldset>
         </p>
         <fieldset class="settingFieldset" id="graphFieldset">
           <legend>Average calculations</legend>
@@ -99,13 +114,14 @@
             <label class="nowarp">Average wind on&nbsp;<input type="range" class="fullWidth" id="lMoyVent" name="lMoyVent" min="1" max="10" value="2" step="1" onchange="changeLargeurVent()" oninput="inputLargeurVent()" />&nbsp;<span id="valMoyVent" >1:30</span></label>
           </p>
           <p class="leftAlign">
-            <label class="nowarp">Average press on&nbsp;<input type="range" class="fullWidth" id="lMoyPres" name="lMoyPres" min="1" max="10" value="2" step="1" onchange="changeLargeurPres()" oninput="inputLargeurPres()" />&nbsp;<span id="valMoyPres" >1:30</span></label>
+            <label class="nowarp">Average pres on&nbsp;<input type="range" class="fullWidth" id="lMoyPres" name="lMoyPres" min="1" max="10" value="2" step="1" onchange="changeLargeurPres()" oninput="inputLargeurPres()" />&nbsp;<span id="valMoyPres" >1:30</span></label>
           </p>
           <p class="leftAlign">
             <label class="nowarp">Average temp on&nbsp;<input type="range" class="fullWidth" id="lMoyTemp" name="lMoyTemp" min="1" max="10" value="2" step="1" onchange="changeLargeurTemp()" oninput="inputLargeurTemp()" />&nbsp;<span id="valMoyTemp" >1:30</span></label>
             
           </p>
         </fieldset>
+        <hr />
         <!--------------------------------------------------------------------------------------->
         <!-- Config réseau                                                                     -->
         <!--------------------------------------------------------------------------------------->

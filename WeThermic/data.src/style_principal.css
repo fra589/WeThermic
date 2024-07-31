@@ -272,6 +272,17 @@ border-top: 1px solid white;
 .numScale {
   width: 5em;
 }
+.settingFieldset {
+  width: 90%;
+  margin: 0 auto;
+  padding: 5px 0px 5px 0px;
+}
+/*
+.settingFieldset label {
+  display: inline-block;
+  width: 100%;
+}
+*/
 .nowarp{
   white-space : nowrap;
 }

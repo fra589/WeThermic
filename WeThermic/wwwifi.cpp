@@ -39,6 +39,7 @@
     Serial.println(macToString(evt.mac));
   }
 #endif
+
 #ifdef DEBUG_PROBE
   void onProbeRequestPrint(const WiFiEventSoftAPModeProbeRequestReceived& evt) {
     Serial.print("Probe request from: ");
@@ -88,6 +89,7 @@ void wifiApInit(void) {
     // Call "onStationDisconnected" each time a station disconnects
     stationDisconnectedHandler = WiFi.onSoftAPModeStationDisconnected(&onStationDisconnected);
   #endif
+  
   #ifdef DEBUG_PROBE
     // Call "onProbeRequestPrint" and "onProbeRequestBlink" each time
     // a probe request is received.
@@ -122,12 +124,6 @@ void wifiClientInit(void) {
     WiFi.begin(cli_ssid, cli_pwd);
     while (WiFi.status() != WL_CONNECTED) {
       delay(250);
-      /*
-      #ifdef DEBUG
-        Serial.print(".");
-        Serial.flush();
-      #endif
-      */
       if (millis() - debut > 15000) {
         break; // Timeout = 15 secondes
       }
@@ -236,6 +232,9 @@ String IPtoString(IPAddress ip) {
 
 // renvoie en format XML la liste des SSID scannés 
 String getWifiNetworks() {
+  // Voir https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/scan-examples.html#scan
+  // https://randomnerdtutorials.com/esp8266-nodemcu-wi-fi-manager-asyncwebserver/
+
   String XML = "";
   int nReseaux;
   int i;
@@ -243,11 +242,6 @@ String getWifiNetworks() {
   #ifdef DEBUG_WEB
     Serial.printf("Entrée dans getWifiNetworks()\n");
   #endif
-
-// Voir https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/scan-examples.html#scan
-//WiFi.mode(WIFI_STA);
-//WiFi.disconnect();
-// https://randomnerdtutorials.com/esp8266-nodemcu-wi-fi-manager-asyncwebserver/
 
   if(WiFi.isConnected()) {
     XML += "  <activeNetwork>\n";
@@ -420,7 +414,8 @@ String getKnownPassword(String ssid) {
 
 void updateKnownPassword(String ssid, String password) {
   // Sauvegarde le mot de passe d'un SSID avec ceux déja connu
-  /* Structure du fichier knownWiFi.xml :
+  /* 
+   * Structure du fichier knownWiFi.xml :
    * <knownWiFi>\n
    * <s>SSID</s><p>PASSWORD</p>\n
    * </knownWiFi>\n
@@ -491,7 +486,7 @@ void updateKnownPassword(String ssid, String password) {
   pwdFile.close();
   tmpFile.close();
 
-  // Remplace le fichier de mot de passe
+  // Remplace le fichier de mot de passe par le fichier temporaire
   LittleFS.remove(PWD_FILE);
   LittleFS.rename(TMP_FILE, PWD_FILE);
   LittleFS.remove(TMP_FILE);

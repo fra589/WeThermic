@@ -51,6 +51,8 @@ void webServerInit(void) {
   server.on("/reboot",           handleReboot);
   server.on("/fsinfo",           handleFSInfo);
   server.on("/wakeup",           handleWakeup);
+  server.on("/factory",          handleFactory);
+  server.on("/setduree",         handleSetDuree);
   
   server.onNotFound(handleNotFound);
   server.begin(); // Start http web server
@@ -191,11 +193,6 @@ void handleGetValues(void) {
   XML += F("<c>");
   XML += String(tempCtn);
   XML += F("</c>");
-  /*
-  XML += F("<b>");
-  XML += String(tempBmp180);
-  XML += F("</b>");
-  */
   XML += F("<p>");
   XML += String(pression);
   XML += F("</p>");
@@ -223,6 +220,9 @@ void handleGetHistory(void) {
   server.send(200, "text/xml", "");
   server.sendContent (F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n"));
   server.sendContent (F("<history>\n"));
+  server.sendContent (F("<d>"));
+  server.sendContent (String(duree));
+  server.sendContent (F("</d>\n"));
   for (i = idxHistorique; i < DUREE_HISTORIQUE; i++) {
     server.sendContent (F("<h>"));
     server.sendContent (F("<p>"));
@@ -234,11 +234,6 @@ void handleGetHistory(void) {
     server.sendContent (F("<c>"));
     server.sendContent (String(histTempCtn[i]));
     server.sendContent (F("</c>"));
-    /*
-    server.sendContent (F("<b>"));
-    server.sendContent (String(histBmp180[i]));
-    server.sendContent (F("</b>"));
-    */
     server.sendContent (F("</h>\n"));
   }
   for (i = 0; i < idxHistorique; i++) {
@@ -252,11 +247,6 @@ void handleGetHistory(void) {
     server.sendContent (F("<c>"));
     server.sendContent (String(histTempCtn[i]));
     server.sendContent (F("</c>"));
-    /*
-    server.sendContent (F("<b>"));
-    server.sendContent (String(histBmp180[i]));
-    server.sendContent (F("</b>"));
-    */
     server.sendContent (F("</h>\n"));
   }
   server.sendContent (F("</history>\n"));
@@ -743,4 +733,87 @@ void handleWakeup(void) {
 
 }
 
+void handleFactory(void) {
+
+  String XML;
+
+  resetFactory();
+  
+  // Réponse au client
+  XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
+  XML += F("<factory>\n");
+  XML += F("  <result>OK</result>\n");
+  XML += F("</factory>\n");
+
+  // Renvoi la réponse au client http
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.send(200,"text/xml",XML);
+
+}
+
+void handleSetDuree(void) {
+
+  String XML;
+  uint32_t dTmp;
+  bool settingChange = false;
+  
+  #ifdef DEBUG_WEB
+    Serial.printf("Entrée dans handleSetDuree() --- %d\n", millis()/1000);
+  #endif
+
+  if (server.args() > 0) {
+    //Traitement des données POST
+    for (int i = 0; i < server.args(); i++) {
+      #ifdef DEBUG_WEB
+        Serial.printf("  handleSetDuree() - Arg n°%d –> %s = [%s]\n", i, server.argName(i), server.arg(i).c_str());
+      #endif
+      if (strncasecmp(server.argName(i).c_str(), "duree", (size_t)4) == 0) {
+        dTmp = server.arg(i).toInt();
+        #ifdef DEBUG_WEB
+          Serial.printf("  handleSetDuree() - durée = %d\n", dTmp);
+        #endif
+        if ((dTmp == 500) || (dTmp == 1000) || (dTmp == 2000))  {
+          if (duree != dTmp) {
+            duree = dTmp;
+            settingChange = true;
+            // Réponse OK au client
+            XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
+            XML += F("<setduree>\n");
+            XML += F("  <result>OK</result>\n");
+            XML += F("</setduree>\n");
+          }
+        } else {
+    // Réponse erreur au client
+    XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
+    XML += F("<setduree>\n");
+    XML += F("  <result>setduree: error, duree must be 500, 1000 or 2000</result>\n");
+    XML += F("</setduree>\n");
+        }
+        break;
+      }
+    }
+
+    if (settingChange) {
+      #ifdef DEBUG_WEB
+        Serial.printf(" Sauvegarde paramètre duree en EEPROM : duree = %d\n", duree);
+      #endif
+      // Sauvegarde les nouveaux paramètres dans l'EEPROM
+      EEPROM.put(ADDR_DUREE, duree);
+      EEPROM.commit();
+    }
+
+
+  } else { // if (server.args() > 0)
+    // Réponse au client
+    XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
+    XML += F("<setduree>\n");
+    XML += F("  <result>setduree: missing parameter!</result>\n");
+    XML += F("</setduree>\n");
+  }
+  
+  // Renvoi la réponse au client http
+  //server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.send(200,"text/xml",XML);
+
+}
 

@@ -39,5 +39,7 @@
   void handleFSInfo(void);
   void handleWakeup(void);
   String getFileList(String path);
-
+  void handleFactory(void);
+  void handleSetDuree(void);
+  
 #endif

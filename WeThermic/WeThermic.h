@@ -57,7 +57,6 @@
 
   // Paramètres mesure du vent
   #define HALL_PIN D5 // Entrée numérique esp8266
-  #define DEFAULT_DUREE 500   // Durée de comptage RPM (ms) par defaut
   //#define COEF_VENT 0.245
   #define COEF_VENT 0.3
   extern volatile uint32_t pulse;
@@ -70,8 +69,12 @@
   #define CTN_PIN A0
   extern float tempCtn;
 
-  // Stockage 5 minutes de mesures à 500ms ou 10 minutes à 1 seconde d'interval :
+  // Stockage 5 minutes de mesures à 500ms d'interval => duree = 500,
+  // 10 minutes à 1 seconde d'interval => duree = 1000,
+  // 20 minutes à 2 seconde d'interval => duree = 2000.
   extern uint32_t duree;
+  #define DEFAULT_DUREE 500   // Durée de comptage RPM (ms) par defaut
+
   // Taille du tableau pour stocker toute les mesure pendant 
   // 5 minutes avec un interval de "DUREE" millisecondes.
   #define DUREE_HISTORIQUE 600 // ( 5 * 60 / ( DUREE / 1000 ) )
@@ -121,12 +124,7 @@
 
   // Fichiers web
   #define ROOT_FILE "/index.html"
-  #define PWD_FILE "/knownWiFi.xml"
-  #define TMP_FILE "/tmp.xml"
-  /* Structure du fichier knownWiFi.xml :
-   * <knownWiFi>
-   * <s>SSID</s><p>PASSWORD</p>
-   * </knownWiFi>
-  */
+  #define PWD_FILE  "/knownWiFi.xml"
+  #define TMP_FILE  "/tmp.xml"
 
 #endif

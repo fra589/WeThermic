@@ -94,7 +94,7 @@ void scrollScreen(void) {
 void displayTemp(void) {
   if (_affichage_OK) {
     if ((affichage_on == 0) && (_isEnVeille == 0)){
-      // Mise en veille -- TODO: Sortie de veille... ssd1306_displayOn()
+      // Mise en veille
       #ifdef DEBUG
         Serial.println("Mise en veille");
       #endif
@@ -123,13 +123,7 @@ void displayTemp(void) {
       display.setCursor(7, 58);
       display.print((int)round(pression));
       display.print(" hPa");
-      /*display.setFont(NULL);
-      display.setTextSize(3);
-      display.setCursor(8, 38);
-      display.print(tempBmp180, 1);
-      display.print("\xF7");
-      display.println("C");
-      */
+
       display.display();
     }
   }
@@ -137,32 +131,34 @@ void displayTemp(void) {
 
 void displayWifiStatus(void) {
   int dx = 0;
-  display.clearDisplay();
-  display.setTextColor(WHITE);
   if (_affichage_OK) {
-    if (WiFi.status() == WL_CONNECTED) {
-      display.setFont(NULL);
-      display.setTextSize(2);
-      display.setCursor(10, 10);
-      display.println("Connected");
-      display.setTextSize(1);
-      // Centre le SSID à l'écran
-      dx = ((21 - strlen(WiFi.SSID().c_str()))/2*6)+2;
-      display.setCursor(dx, 35);
-      display.print(WiFi.SSID());
-      // Centre l'IP à l'écran
-      dx = ((21 - strlen(IPtoString(WiFi.localIP()).c_str()))/2*6)+2;
-      display.setCursor(dx, 47);
-      display.print(WiFi.localIP());
-    } else {
-      display.setFont(NULL);
-      display.setTextSize(2);
-      display.setCursor(47, 10);
-      display.println("Not");
-      display.setCursor(10, 20);
-      display.println("Connected");
-    }
+    display.clearDisplay();
+    display.setTextColor(WHITE);
+    if (_affichage_OK) {
+      if (WiFi.status() == WL_CONNECTED) {
+        display.setFont(NULL);
+        display.setTextSize(2);
+        display.setCursor(10, 10);
+        display.println("Connected");
+        display.setTextSize(1);
+        // Centre le SSID à l'écran
+        dx = ((21 - strlen(WiFi.SSID().c_str()))/2*6)+2;
+        display.setCursor(dx, 35);
+        display.print(WiFi.SSID());
+        // Centre l'IP à l'écran
+        dx = ((21 - strlen(IPtoString(WiFi.localIP()).c_str()))/2*6)+2;
+        display.setCursor(dx, 47);
+        display.print(WiFi.localIP());
+      } else {
+        display.setFont(NULL);
+        display.setTextSize(2);
+        display.setCursor(47, 10);
+        display.println("Not");
+        display.setCursor(10, 20);
+        display.println("Connected");
+      }
 
-    display.display();
+      display.display();
+    }
   }
 }

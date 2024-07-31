@@ -19,28 +19,34 @@
 #*                                                                          */
 #****************************************************************************/
 
-#-----------------------------------------------------------------------------
-# Root dir of WeThermic project = $HOME/src/WeThermic
-# make should be executed from this dir:
-# cd $HOME/src/WeThermic && make <object>
-#
-# With <object> as:
-#
-# make firmware: 
-# 	Compile the firmware to $HOME/src/WeThermic/WeThermic/build/WeThermic.ino.bin
-# make littlefs: 
-# 	Create the application filesystem to $HOME/src/WeThermic/WeThermic/build/WeThermic.littlefs.bin
-# make flash_firmware:
-# 	Flash the firmware to the Wemos D1 mini card
-# make flash_littlefs:
-# 	Flash the application filesystem to the Wemos D1 mini card
-# make flash:
-# 	Flash both firmware and application filesystem to the Wemos D1 mini card
-# make release:
-# 	copy both firmware and filesystem to the release dir with a name which include version
-# make clean:
-# 	Erase the $HOME/src/WeThermic/WeThermic/build directory
-#-----------------------------------------------------------------------------
+help:
+	@cat <<SHELL=/bin/sh
+	#-----------------------------------------------------------------------------
+	# Root dir of WeThermic project = $$HOME/src/WeThermic
+	# make should be executed from this dir:
+	# cd $$HOME/src/WeThermic && make <object>
+	#
+	# With <object> as:
+	#
+	# make firmware 
+	#   Compile the firmware to:
+	#   $$HOME/src/WeThermic/WeThermic/build/WeThermic.ino.bin
+	# make littlefs 
+	#   Create the application filesystem to
+	#   $$HOME/src/WeThermic/WeThermic/build/WeThermic.littlefs.bin
+	# make flash_firmware
+	#   Flash the firmware to the Wemos D1 mini card
+	# make flash_littlefs
+	#   Flash the application filesystem to the Wemos D1 mini card
+	# make flash
+	#   Flash both firmware and application filesystem to the Wemos D1
+	#   mini card
+	# make release
+	#   copy both firmware and filesystem to the release dir with a name
+	#   which include version
+	# make clean
+	#   Erase the $HOME/src/WeThermic/WeThermic/build directory
+	#-----------------------------------------------------------------------------
 
 SHELL=/bin/sh
 

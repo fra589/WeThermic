@@ -23,51 +23,28 @@
 // Paramètres par défaut, peuvent être stockés dans le localStorage (preférences utilisateur)
 //------------------------------------------------------------------------------------------
 //style par défaut
-//var cssFile = 'style_theme_sombre.css';
 var cssFile = 'style_theme_clair.css';
 // Durée de calcul des moyennes
 var largeurMoyVent  = 180; // Moyenne sur 1 minute 30s
+var largeurMoyPres  = 180; // Moyenne sur 1 minute 30s
 var largeurMoyTemp  = 180; // Moyenne sur 1 minute 30s
-// Visibilité des courbes
-var showWind      = true;
-var showT1        = true;
-/*var showT2        = false;*/
-var showPressU    = true;
-/*var showPressL    = false;*/
-var showPressGrid = false;
 // Autre
 var soundOn       = true;
 
 //------------------------------------------------------------------------------------------
 
-
 // pour debug du developpement, adresse IP de la Wemos connectée au wifi
-var netDevURL = 'http://10.10.10.10'; // connected to WeThermic
+//var netDevURL = 'http://10.10.10.10'; // connected to WeThermic
 //var netDevURL = 'http://192.168.1.107'; // domopassaduy GB1
-//var netDevURL = 'http://192.168.1.80'; // domopassaduy GB2
+var netDevURL = 'http://192.168.1.80'; // domopassaduy GB2
 //var netDevURL = 'http://192.168.1.68';  // BlancheNeige
 //var netDevURL = 'http://192.168.1.60';  // La Gouffrerie
 //var netDevURL = 'http://192.168.8.111'; // Cohabit
 
-// Couleurs du theme sombre
-/*
-var couleurVent         = 'rgb(0, 255, 255)';
-var couleurFillVent     = 'rgba(0, 255, 255, 0.1)';
-var couleurMoyVent      = 'rgb(0, 200, 200)';
-var couleurPression     = 'rgb(180, 240, 240)';
-var couleurFillPression = 'rgba(180, 240, 240, 0.2)';
-var couleurMoyPres      = 'rgb(160,200,200)';
-var couleurTempBmp180   = 'rgb(0, 255, 0)';
-var couleurMoyBmp180    = 'rgb(0, 160, 0)';
-var couleurTempCtn      = 'rgb(255, 200, 150)';
-var couleurFillCtn      = 'rgba(255, 200, 150, 0.2)';
-var couleurMoyCtn       = 'rgb(230, 170, 100)';
-var couleurGrid         = 'rgb(63, 63, 63)';
-*/
 // Couleurs du theme clair
-var couleurVent = 'rgb(0, 0, 160)';
-var couleurFillVent = 'rgba(0, 0, 160, 0.1)';
-var couleurMoyVent = 'rgb(0, 0, 200)';
+var couleurVent = 'rgb(0, 0, 200)';
+var couleurFillVent = 'rgba(0, 0, 200, 0.1)';
+var couleurMoyVent = 'rgb(0, 0, 160)';
 var couleurPression = 'rgb(0, 140, 32)';
 var couleurFillPression = 'rgba(0, 140, 32, 0.2)';
 var couleurMoyPres = 'rgb(0, 80, 32)';
@@ -82,21 +59,13 @@ var couleurGrid = 'rgb(187, 229, 229)';
 var histVentData    = new Array();
 var histVentMoy     = new Array();
 var vent            = 0.0;
-var histTempCtn     = new Array();
-var histTCtnMoy     = new Array();
-var tempctn         = 0.0;
-var ctnSuggestedMax = 0.0;
-var ctnSuggestedMin = 0.0;
-/*
-var histBmp180Data  = new Array();
-histBmp180Moy       = new Array();
-var tempBmp180      = 0.0;
-*/
 var histPression    = new Array();
 var histPresMoy     = new Array();
 var pression        = 0.0;
-var pSuggestedMax = 0.0;
-var pSuggestedMin = 0.0;
+var histTempCtn     = new Array();
+var histTCtnMoy     = new Array();
+var tempctn         = 0.0;
+
 
 tblVents            = new Array(largeurMoyVent);
 var tblVentsIdx     = 0;
@@ -104,8 +73,8 @@ var largeurVentFull = false;
 var ventTotal       = 0.0;
 var ventMoyen       = 0.0;
 
-tblPress            = new Array(largeurMoyVent);
-var tblPressIdx     = 0;
+tblPres            = new Array(largeurMoyPres);
+var tblPresIdx     = 0;
 var largeurPresFull = false;
 var presTotal       = 0.0;
 var presMoyen       = 0.0;
@@ -116,11 +85,8 @@ var tblPresDouxIdx  = 0;
 var tblPresFull     = false;
 var presDouxTotal   = 0.0;
 
-tblTemp             = new Array(largeurMoyTemp);
 var tblTempIdx      = 0;
 var largeurTempFull = false;
-var bmp180Total     = 0.0;
-var bmp180Moyen     = 0.0;
 tblCtn              = new Array(largeurMoyTemp);
 var ctnTotal        = 0.0;
 var ctnMoyen        = 0.0;
@@ -134,6 +100,7 @@ var chronoMaxTime   = 420; // 7 minutes = 7x60 secondes
 var chronoDebut     = 0;
 var chronoSepar     = ':';
 var flagBeep = false;
+var historiqueEnCours = false;
 
 //             Do       Ré       Mi       Fa       Sol      La       Si       Do
 const notes = [261.625, 293.664, 329.627, 349.228, 391.995, 440.000, 493.883, 523.251];
@@ -145,7 +112,6 @@ function index_resize() {
   // Redimentionnement des graphiques en fonction de la page
   height = window.innerHeight;
   width  = window.innerWidth;
-  //alert(width + "\n" + height);
   document.getElementById("lapage").style.height = height + "px";
   document.getElementById("lapage").style.width = width + "px";
 }
@@ -164,10 +130,14 @@ async function index_onload() {
   }
   loadStyle();
 
-  // Durée de calcul des moyennes par défaut ou celui défini dans le localStorage
+  // Durée de calcul des moyennes par défaut ou celui défini dans le localStorage 
   var moyPref = localStorage.getItem("largeurMoyVent");
   if (moyPref !== null) {
     largeurMoyVent = Number(moyPref);
+  }
+  var moyPref = localStorage.getItem("largeurMoyPres");
+  if (moyPref !== null) {
+    largeurMoyPres = Number(moyPref);
   }
   moyPref = localStorage.getItem("largeurMoyTemp");
   if (moyPref !== null) {
@@ -175,44 +145,10 @@ async function index_onload() {
   }
   document.getElementById("lMoyVent").value = largeurMoyVent / 60;
   inputLargeurVent();
+  document.getElementById("lMoyPres").value = largeurMoyPres / 60;
+  inputLargeurPres();
   document.getElementById("lMoyTemp").value = largeurMoyTemp / 60;
   inputLargeurTemp();
-
-  // Préférences visibilité des courbes
-  var visiPref = localStorage.getItem("showWind");
-  if (visiPref !== null) {
-    showWind = visiPref === "true";
-  }
-  var visiPref = localStorage.getItem("showT1");
-  if (visiPref !== null) {
-    showT1 = visiPref === "true";
-  }
-  /*
-  var visiPref = localStorage.getItem("showT2");
-  if (visiPref !== null) {
-    showT2 = visiPref === "true";
-  }
-  */
-  var visiPref = localStorage.getItem("showPressU");
-  if (visiPref !== null) {
-    showPressU = visiPref === "true";
-  }
-  /*
-  var visiPref = localStorage.getItem("showPressL");
-  if (visiPref !== null) {
-    showPressL = visiPref === "true";
-  }
-  */
-  var visiPref = localStorage.getItem("showPressGrid");
-  if (visiPref !== null) {
-    showPressGrid = visiPref === "true";
-  }
-  document.getElementById("showWind").checked      = showWind;
-  document.getElementById("showT1").checked        = showT1;
-  /*document.getElementById("showT2").checked        = showT2;*/
-  document.getElementById("showPressU").checked    = showPressU;
-  /*document.getElementById("showPressL").checked    = showPressL;*/
-  document.getElementById("showPressGrid").checked = showPressGrid;
 
   var soundPref = localStorage.getItem("sound");
   if (soundPref !== null) {
@@ -226,13 +162,16 @@ async function index_onload() {
     }
   }
 
-  // Redimentionnement des graphiques en fonction de la page
-  height = window.innerHeight;
-  width  = window.innerWidth;
-  //alert(width + "\n" + height);
-  document.getElementById("lapage").style.height = height + "px";
-  document.getElementById("lapage").style.width = width + "px";
+  // Redimentionnement des graphiques en fonction de la dimension page
+  index_resize();
 
+  // Force le scrool en début de page
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: "smooth",
+  });
+  
   // Mise à jour des infos de version
   if (location.protocol == 'file:') {
     XMLHttpRequest_get(netDevURL + "/getversion");
@@ -253,20 +192,13 @@ async function index_onload() {
   }
   attenteOK = false;
 
+  yScaleWidth = 60;
   
-  // Ajuste les échelles Y
-  ctnSuggestedMax = ctnMoyen + 1.5;
-  ctnSuggestedMin = ctnMoyen - 0.25;
-  pSuggestedMax   = pression + 0.5;
-  pSuggestedMin   = pression - 0.05;
-
   // vent
   var ventData = {
     datasets: [
       {
-        ////cubicInterpolationMode: 'monotone',
         cubicInterpolationMode: 'default',
-        //data: [],
         data: histVentData,
         fill: {
           target: 'origin',
@@ -286,32 +218,8 @@ async function index_onload() {
         borderWidth:2,
         order: 1,
         tension: 0.4
-      },
-      {
-        cubicInterpolationMode: 'default',
-        data: histPression,
-        fill: {
-          target: 'origin',
-          above: couleurFillPression,
-          below: couleurFillPression
-        },
-        borderColor: couleurPression,
-        borderWidth:1,
-        order: 5,
-        tension: 0.4,
-        yAxisID: 'y1'
-      },
-      {
-        cubicInterpolationMode: 'default',
-        data: histPresMoy,
-        fill: false,
-        borderColor: couleurMoyPres,
-        borderWidth:2,
-        order: 4,
-        tension: 0.4,
-        yAxisID: 'y1'
       }
-    ]
+   ]
   };
   var ventOptions = {
     plugins: {
@@ -341,18 +249,10 @@ async function index_onload() {
               x: Date.now(),
               y: ventMoyen
             });
-            chart.data.datasets[2].data.push({
-              x: Date.now(),
-              y: pression
-            });              
-            chart.data.datasets[3].data.push({
-              x: Date.now(),
-              y: presMoyen
-            });              
           }
         },
         ticks: {
-          display: true
+          display: false,
         },
         grid: {
           color: couleurGrid
@@ -361,33 +261,114 @@ async function index_onload() {
       y: {
         type: 'linear',
         beginAtZero: true,
-        suggestedMax: 5,
+        suggestedMax: 3,
         ticks: {
           color: couleurVent
         },
         grid: {
           color: couleurGrid
-        }
-      },
-      y1: {
-        type: 'linear',
-        beginAtZero: false,
-        display: true,
-        position:'right',
-        ////suggestedMax: pSuggestedMax,
-        ////suggestedMin: pSuggestedMin,
-        ticks: {
-          color: couleurPression
         },
-        grid: {
-          color: couleurGrid
-        }
+        afterFit(scale) {
+          scale.width = yScaleWidth;
+        },
       }
     },
     responsive: true,
     maintainAspectRatio: false
   };
-  // Temperature & Pression
+
+
+
+
+  // Pression
+  var presData = {
+    datasets: [
+      {
+        cubicInterpolationMode: 'default',
+        data: histPression,
+        fill: {
+          target: 'origin',
+          above: couleurFillPression,
+          below: couleurFillPression
+        },
+        borderColor: couleurPression,
+        borderWidth:2,
+        order: 5,
+        tension: 0.4,
+        yAxisID: 'y'
+      },
+      {
+        cubicInterpolationMode: 'default',
+        data: histPresMoy,
+        fill: false,
+        borderColor: couleurMoyPres,
+        borderWidth:3,
+        order: 4,
+        tension: 0.4,
+        yAxisID: 'y'
+      }
+    ]
+  };
+  var presOptions = {
+    plugins: {
+      legend: {
+        display: false
+      }
+    },
+    elements: {
+      point:{
+        radius: 0
+      }
+    },
+    scales: {
+      x: {
+        type: 'realtime',
+        realtime: {
+          duration: 300000,
+          refresh: 500,
+          delay: 250,
+          frameRate: 20,
+          onRefresh: chart => {
+            chart.data.datasets[0].data.push({
+              x: Date.now(),
+              y: pression
+            });              
+            chart.data.datasets[1].data.push({
+              x: Date.now(),
+              y: presMoyen
+            });              
+          }
+        },
+        ticks: {
+          display: false
+        },
+        grid: {
+          color: couleurGrid
+        }
+      },
+      y: {
+        type: 'linear',
+        beginAtZero: false,
+        display: true,
+        ticks: {
+          color: couleurPression
+        },
+        grid: {
+          color: couleurGrid
+        },
+        afterFit(scale) {
+          scale.width = yScaleWidth;
+        },
+      }
+    },
+    responsive: true,
+    maintainAspectRatio: false
+  };
+
+
+
+
+  // Temperature
   var tempData = {
     datasets: [
       {
@@ -414,52 +395,6 @@ async function index_onload() {
         tension: 0.4,
         yAxisID: 'y'
       },
-      /*
-      {
-        cubicInterpolationMode: 'default',
-        data: histBmp180Data,
-        fill: false,
-        borderColor: couleurTempBmp180,
-        borderWidth:2,
-        order: 3,
-        tension: 0.4,
-        yAxisID: 'y'
-      },
-      {
-        cubicInterpolationMode: 'default',
-        data: histBmp180Moy,
-        fill: false,
-        borderColor: couleurMoyBmp180,
-        borderWidth:3,
-        order: 4,
-        tension: 0.4,
-        yAxisID: 'y'
-      },
-      {
-        cubicInterpolationMode: 'default',
-        data: histPression,
-        fill: {
-          target: 'origin',
-          above: couleurFillPression,
-          below: couleurFillPression
-        },
-        borderColor: couleurPression,
-        borderWidth:1,
-        order: 5,
-        tension: 0.4,
-        yAxisID: 'y1'
-      },
-      {
-        cubicInterpolationMode: 'default',
-        data: histPresMoy,
-        fill: false,
-        borderColor: couleurMoyPres,
-        borderWidth:2,
-        order: 4,
-        tension: 0.4,
-        yAxisID: 'y1'
-      }
-      */
     ]
   };
   var tempOptions = {
@@ -490,24 +425,6 @@ async function index_onload() {
               x: Date.now(),
               y: ctnMoyen
             });
-            /*
-            chart.data.datasets[2].data.push({
-              x: Date.now(),
-              y: tempBmp180
-            });
-            chart.data.datasets[3].data.push({
-              x: Date.now(),
-              y: bmp180Moyen
-            });
-            chart.data.datasets[4].data.push({
-              x: Date.now(),
-              y: pression
-            });              
-            chart.data.datasets[5].data.push({
-              x: Date.now(),
-              y: presMoyen
-            });
-            */             
           }
         },
         ticks: {
@@ -522,31 +439,16 @@ async function index_onload() {
         beginAtZero: false,
         display: true,
         position:'left',
-        suggestedMax: ctnSuggestedMax,
-        suggestedMin: ctnSuggestedMin,
         ticks: {
           color: couleurTempCtn
         },
         grid: {
           color: couleurGrid
-        }
-      },
-      /*
-      y1: {
-        type: 'linear',
-        beginAtZero: false,
-        display: true,
-        position:'right',
-        suggestedMax: pSuggestedMax,
-        suggestedMin: pSuggestedMin,
-        ticks: {
-          color: couleurPression
         },
-        grid: {
-          color: couleurGrid
-        }
-      }
-      */
+        afterFit(scale) {
+          scale.width = yScaleWidth;
+        },
+      },
     },
     responsive: true,
     maintainAspectRatio: false
@@ -558,28 +460,17 @@ async function index_onload() {
     data: ventData,
     options: ventOptions
   });
+  Window.graphPres = new Chart(document.getElementById('graphPres'), {
+    type: 'line',
+    data: presData,
+    options: presOptions
+  });
   Window.graphTemp = new Chart(document.getElementById('graphTemp'), {
     type: 'line',
     data: tempData,
     options: tempOptions
     //configTemp
   });
-  // Masque toutes les courbes
-  // (pour éviter le flash des courbes non visibles)
-  Window.graphVent.setDatasetVisibility(0, false);
-  Window.graphVent.setDatasetVisibility(1, false);
-  Window.graphVent.setDatasetVisibility(2, false);
-  Window.graphTemp.setDatasetVisibility(0, false);
-  Window.graphTemp.setDatasetVisibility(1, false);
-  /*
-  Window.graphTemp.setDatasetVisibility(2, false);
-  Window.graphTemp.setDatasetVisibility(3, false);
-  Window.graphTemp.setDatasetVisibility(4, false);
-  Window.graphTemp.setDatasetVisibility(5, false);
-  */
-  Window.graphTemp.update();
-  // Affiche les courbes visibles en fonction des préférences
-  visuCourbes();
 
   // Applique le thème de couleurs
   appliqueTheme();
@@ -623,51 +514,6 @@ function loadStyle() {
 
 }
 
-function echelleTemperature(scaleTemp) {
-  // Ajustement de l'échelle des températures
-
-  var scaleMin = document.getElementById("scaleMin");
-  var scaleMax = document.getElementById("scaleMax");
-
-  if (scaleTemp == 0) {
-    suggestedMax = ctnMoyen + 3;
-    suggestedMin = ctnMoyen - 0.5;
-  } else if (scaleTemp == 1) {
-    suggestedMax = ctnMoyen + 2;
-    suggestedMin = ctnMoyen - 0.25;
-  } else if (scaleTemp == 2) {
-    suggestedMax = ctnMoyen + 1;
-    suggestedMin = ctnMoyen - 0.125;
-  } else if (scaleTemp == 3) {
-    suggestedMax = ctnMoyen;
-    suggestedMin = ctnMoyen;
-  } else if (scaleTemp == -1) {
-    suggestedMax = scaleMax.value;
-    suggestedMin = scaleMin.value;
-  }
-  
-  scaleMin.value = suggestedMin;
-  scaleMax.value = suggestedMax;
-  Window.graphTemp.options.scales['y'].suggestedMax = suggestedMax;
-  Window.graphTemp.options.scales['y'].suggestedMin = suggestedMin;
-
-}
-
-function recalePression() {
-  // On recalle le graph de pression
-  Window.graphVent.options.scales['y1'].suggestedMax = pression + 0.5;
-  Window.graphVent.options.scales['y1'].suggestedMin = pression;
-  /*
-  Window.graphTemp.options.scales['y1'].suggestedMax = pression + 0.5;
-  Window.graphTemp.options.scales['y1'].suggestedMin = pression;
-  */
-  // Mise à jour du graphe
-  Window.graphVent.update();
-  /*
-  Window.graphTemp.update();
-  */
-}
-
 function XMLHttpRequest_get(requette) {
   // Requette XML HTTP GET
   var heure = document.getElementById("heure");
@@ -700,44 +546,36 @@ function XMLHttpResult(requette, xml, text) {
 
     } else if ((requette == "/history") || (requette == netDevURL + "/history")) {
       graphHistoryintegration(xml);
+
     } else if ((requette == "/getvalues") || (requette == netDevURL + "/getvalues")) {
-      vent        = Number(xml.getElementsByTagName("v")[0].childNodes[0].nodeValue);
-      calculMoyenneVent();
+      if (!historiqueEnCours) {
+        vent        = Number(xml.getElementsByTagName("v")[0].childNodes[0].nodeValue);
+        calculMoyenneVent();
 
-      var doc_vent  = document.getElementById("valeurVent");
-      doc_vent.innerHTML    = '<span class="couleurVent">I = ' + Number.parseFloat(vent).toFixed(1).padStart(4, ' ') + 'm/s</span><br />';
-      doc_vent.innerHTML   += '<span class="couleurMoyVent">M = ' + Number.parseFloat(ventMoyen).toFixed(1) + ' m/s</span>';
+        var doc_vent  = document.getElementById("valeurVent");
+        doc_vent.innerHTML    = '<span class="couleurVent">I = ' + Number.parseFloat(vent).toFixed(1).padStart(4, ' ') + 'm/s</span><br />';
+        doc_vent.innerHTML   += '<span class="couleurMoyVent">M = ' + Number.parseFloat(ventMoyen).toFixed(1) + ' m/s</span>';
 
-      var newCtn     = Number(xml.getElementsByTagName("c")[0].childNodes[0].nodeValue);
-      if (Math.abs(newCtn - tempctn) < 3) {
-        tempctn = newCtn;
-      } else {
-        tempctn = ctnMoyen;
-      }
-      /*tempBmp180  = Number(xml.getElementsByTagName("b")[0].childNodes[0].nodeValue);*/
-      calculMoyenneTemperature();
+        var newCtn     = Number(xml.getElementsByTagName("c")[0].childNodes[0].nodeValue);
+        if (Math.abs(newCtn - tempctn) < 3) {
+          tempctn = newCtn;
+        } else {
+          tempctn = ctnMoyen;
+        }
+        calculMoyenneTemperature();
 
-      var showT1 = document.getElementById("showT1").checked; 
-
-      var doc_temp = document.getElementById("valeurTemp");
-      doc_temp.innerHTML    = ""
-      /*
-      if (showT2) {
-        doc_temp.innerHTML   += '<span class="couleurMoyBmp180">moy = '   + Number.parseFloat(bmp180Moyen).toFixed(1) + '</span>&nbsp;';
-        doc_temp.innerHTML   += '<span class="couleurTempBmp180">inst = ' + Number.parseFloat(tempBmp180).toFixed(2) + '°C</span><br />';
-      }
-      */
-      if (showT1) {
+        var doc_temp = document.getElementById("valeurTemp");
+        doc_temp.innerHTML    = ""
         doc_temp.innerHTML   += '<span class="couleurTempCtn">I = '    + Number.parseFloat(tempctn).toFixed(1) + '°C</span><br />';
         doc_temp.innerHTML   += '<span class="couleurMoyCtn">M = '      + Number.parseFloat(ctnMoyen).toFixed(1) + '°C</span>'
+
+        pression    = calculPressionDouce(Number(xml.getElementsByTagName("p")[0].childNodes[0].nodeValue));
+        calculMoyennePres();
+
+        var doc_press = document.getElementById("valeurPress");
+        doc_press.innerHTML  = '<span class="couleurPression">I = ' + Number.parseFloat(pression).toFixed(2) + "hPa</span><br :>";
+        doc_press.innerHTML += '<span class="couleurMoyPres">M = ' + Number.parseFloat(presMoyen).toFixed(2) + "hPa</span>";
       }
-
-      pression    = calculPressionDouce(Number(xml.getElementsByTagName("p")[0].childNodes[0].nodeValue));
-      calculMoyennePres();
-
-      var doc_press = document.getElementById("valeurPress");
-      doc_press.innerHTML  = '<span class="couleurPression">I = ' + Number.parseFloat(pression).toFixed(2) + "hPa</span><br :>";
-      doc_press.innerHTML += '<span class="couleurMoyPres">M = ' + Number.parseFloat(presMoyen).toFixed(2) + "hPa</span>";
 
     } else if ((requette == "/getnetworks") || (requette == netDevURL + "/getnetworks")) {
       // Rempli la liste des réseaux disponibles
@@ -763,19 +601,21 @@ function XMLHttpResult(requette, xml, text) {
       apConfigChange = false;
       inputConfigAP();
     }
-    
   }
 
   if ((requette == "/getvalues") || (requette == netDevURL + "/getvalues")) {
+    if (!historiqueEnCours) {
       // Appel recursif pour boucler au lieu d'utiliser  setInterval()
       // Cela assure que te traitement à été terminé avant de relancer
       // la requette vers le serveur web.
       autoRefresh();
+    }
   }
-
 }
 
 function graphHistoryintegration(xml) {
+  // flag pour éviter l'arrivée de valeurs en cours d'intégration en cas de refresh
+  historiqueEnCours = true;
   // Intègre dynamiquement les données d'historique au graphiques
   var flagDebut = false;
   // nombre de millisecondes écoulées depuis le premier janvier 1970
@@ -809,10 +649,6 @@ function graphHistoryintegration(xml) {
       histVentMoy.push   ({x: tX, y: ventMoyen});
       histTempCtn.push   ({x: tX, y: tempctn});
       histTCtnMoy.push   ({x: tX, y: ctnMoyen});
-      /*
-      histBmp180Data.push({x: tX, y: tempBmp180});
-      histBmp180Moy.push ({x: tX, y: bmp180Moyen});
-      */
       histPression.push  ({x: tX, y: pression});
       histPresMoy.push   ({x: tX, y: presMoyen});
     }
@@ -820,6 +656,8 @@ function graphHistoryintegration(xml) {
   }
   // Pour synchronisation XMLHttpRequest asynchrone
   attenteOK  = true;
+  // On a fini, désactive le flag
+  historiqueEnCours = false;
 }
 
 function autoRefresh() {
@@ -863,18 +701,18 @@ function calculMoyenneVent() {
 function calculMoyennePres() {
 
   // Remplace l'élément pointé par l'indexe et recalcul le total
-  if (isNaN(tblPress[tblPressIdx])) {
+  if (isNaN(tblPres[tblPresIdx])) {
     // Initialise l'élément du tableau pour la première fois
-    tblPress[tblPressIdx] = 0
+    tblPres[tblPresIdx] = 0
   }
-  presTotal = presTotal - tblPress[tblPressIdx];
-  tblPress[tblPressIdx] = pression;
-  presTotal = presTotal + tblPress[tblPressIdx];
+  presTotal = presTotal - tblPres[tblPresIdx];
+  tblPres[tblPresIdx] = pression;
+  presTotal = presTotal + tblPres[tblPresIdx];
 
   // Avance l'indexe du tableau
-  tblPressIdx = tblPressIdx + 1;
-  if (tblPressIdx >= largeurMoyVent) {
-    tblPressIdx = 0;
+  tblPresIdx = tblPresIdx + 1;
+  if (tblPresIdx >= largeurMoyVent) {
+    tblPresIdx = 0;
     largeurPresFull = true;
   }
 
@@ -882,7 +720,7 @@ function calculMoyennePres() {
     // calcul la moyenne sur l'ensemble du tableau
     presMoyen = Math.round(presTotal / largeurMoyVent * 100)/100;
   } else {
-    presMoyen = Math.round(presTotal / tblPressIdx * 100)/100;
+    presMoyen = Math.round(presTotal / tblPresIdx * 100)/100;
   }
   
 }
@@ -925,15 +763,10 @@ function calculMoyenneTemperature() {
   // Remplace l'élément pointé par l'indexe et recalcul le total
   if (isNaN(tblCtn[tblTempIdx])) {
     // Initialise l'élément du tableau pour la première fois
-    /*tblTemp[tblTempIdx] = 0*/
-    tblCtn[tblTempIdx] = 0
+    tblCtn[tblTempIdx] = 0;
   }
-
-  /*bmp180Total = bmp180Total - tblTemp[tblTempIdx];*/
   ctnTotal   = ctnTotal   - tblCtn[tblTempIdx];
-  /*tblTemp[tblTempIdx] = tempBmp180;*/
   tblCtn[tblTempIdx] = tempctn;
-  /*bmp180Total = bmp180Total + tblTemp[tblTempIdx];*/
   ctnTotal = ctnTotal + tblCtn[tblTempIdx];
 
   // Avance l'indexe du tableau
@@ -945,12 +778,11 @@ function calculMoyenneTemperature() {
 
   if (largeurTempFull) {
     // calcul la moyenne sur l'ensemble du tableau
-    /*bmp180Moyen = Math.round(bmp180Total / largeurMoyTemp * 100)/100;*/
     ctnMoyen    = Math.round(ctnTotal / largeurMoyTemp * 100)/100;
   } else {
-    // calcul la moyenne jusqu'à l'indexe (le tableau n'est pas complet).
-    /*bmp180Moyen = Math.round(bmp180Total / tblTempIdx * 100)/100;*/
+    // calcul la moyenne jusqu'à l'index (le tableau n'est pas complet).
     ctnMoyen    = Math.round(ctnTotal / tblTempIdx * 100)/100;
+    console.log("tblTempIdx=" + tblTempIdx + "   ctnTotal=" + Math.round(ctnTotal * 100)/100 + "   ctnMoyen=" + ctnMoyen)
   }
   
 }
@@ -962,14 +794,6 @@ function changeSettings() {
 
   var attente = document.getElementById("attente0")
   attente.classList.remove("noshow");
-
-  // mise à jour des champs de saisie
-  var scaleMin = document.getElementById("scaleMin");
-  var scaleMax = document.getElementById("scaleMax");
-  var valeur = Window.graphTemp.scales['y'].max;
-  scaleMax.value = valeur;
-  var valeur = Window.graphTemp.scales['y'].min;
-  scaleMin.value = valeur;
 
   // récupère la config AP
   getAPconfig();
@@ -1028,12 +852,14 @@ function appliqueTheme() {
     Window.graphVent.data.datasets[0].fill.above = couleurFillVent;
     Window.graphVent.data.datasets[0].fill.below = couleurFillVent;
     Window.graphVent.data.datasets[1].borderColor = couleurMoyVent;
-    Window.graphVent.options.scales['y1'].ticks.color = couleurPression;
-    Window.graphVent.data.datasets[2].borderColor = couleurPression;
-    Window.graphVent.data.datasets[2].fill.above = couleurFillPression;
-    Window.graphVent.data.datasets[2].fill.below = couleurFillPression;
-    Window.graphVent.data.datasets[3].borderColor = couleurMoyPres;
-    Window.graphVent.options.scales['y1'].grid.color = couleurGrid;
+    
+    Window.graphPres.options.scales['x'].grid.color = couleurGrid;
+    Window.graphPres.options.scales['y'].grid.color = couleurGrid;
+    Window.graphPres.options.scales['y'].ticks.color = couleurPression;
+    Window.graphPres.data.datasets[0].borderColor = couleurPression;
+    Window.graphPres.data.datasets[0].fill.above = couleurFillPression;
+    Window.graphPres.data.datasets[0].fill.below = couleurFillPression;
+    Window.graphPres.data.datasets[1].borderColor = couleurMoyPres;
 
     Window.graphTemp.options.scales['x'].grid.color = couleurGrid;
     Window.graphTemp.options.scales['y'].grid.color = couleurGrid;
@@ -1042,83 +868,9 @@ function appliqueTheme() {
     Window.graphTemp.data.datasets[0].fill.above = couleurFillCtn;
     Window.graphTemp.data.datasets[0].fill.below = couleurFillCtn;
     Window.graphTemp.data.datasets[1].borderColor = couleurMoyCtn;
-    /*
-    Window.graphTemp.data.datasets[2].borderColor = couleurTempBmp180;
-    Window.graphTemp.data.datasets[3].borderColor = couleurMoyBmp180;
-    Window.graphTemp.options.scales['y1'].ticks.color = couleurPression;
-    Window.graphTemp.data.datasets[4].borderColor = couleurPression;
-    Window.graphTemp.data.datasets[4].fill.above = couleurFillPression;
-    Window.graphTemp.data.datasets[4].fill.below = couleurFillPression;
-    Window.graphTemp.options.scales['y1'].grid.color = couleurGrid;
-    */
 
   }, 500);
   
-}
-
-function visuCourbes() {
-  
-  // Affiche ou masque les différentes courbes
-  
-  // Graphique supérieurs
-  newValue = document.getElementById("showWind").checked;
-  if (newValue != showWind) {
-    showWind = newValue;
-    localStorage.setItem("showWind", showWind);
-  }
-  Window.graphVent.setDatasetVisibility(0, showWind);
-  Window.graphVent.setDatasetVisibility(1, showWind);
-  Window.graphVent.options.scales['y'].ticks.display = showWind;
-  Window.graphVent.options.scales['y'].grid.display = showWind;
-
-  newValue = document.getElementById("showPressU").checked;
-  if (newValue != showPressU) {
-    showPressU = newValue;
-    localStorage.setItem("showPressU", showPressU);
-  }
-  Window.graphVent.setDatasetVisibility(2, showPressU);
-  Window.graphVent.setDatasetVisibility(3, showPressU);
-
-  // Graphique inférieurs
-  newValue = document.getElementById("showT1").checked;
-  if (newValue != showT1) {
-    showT1 = newValue;
-    localStorage.setItem("showT1", showT1);
-  }
-  Window.graphTemp.setDatasetVisibility(0, showT1);
-  Window.graphTemp.setDatasetVisibility(1, showT1);
-
-  /*
-  newValue = document.getElementById("showPressL").checked;
-  if (newValue != showPressL) {
-    showPressL = newValue;
-    localStorage.setItem("showPressL", showPressL);
-  }
-  Window.graphTemp.setDatasetVisibility(4, showPressL);
-  Window.graphTemp.setDatasetVisibility(5, showPressL);
-
-  newValue = document.getElementById("showT2").checked;
-  if (newValue != showT2) {
-    showT2 = newValue;
-    localStorage.setItem("showT2", showT2.toString());
-  }
-  Window.graphTemp.setDatasetVisibility(2, showT2);
-  Window.graphTemp.setDatasetVisibility(3, showT2);
-  */
-
-  // Grilles de pression athmosphérique
-  newValue = document.getElementById("showPressGrid").checked;
-  if (newValue != showPressGrid) {
-    showPressGrid = newValue;
-    localStorage.setItem("showPressGrid", showPressGrid);
-  }
-  Window.graphVent.options.scales['y1'].ticks.display = showPressGrid;
-  Window.graphVent.options.scales['y1'].grid.display  = showPressGrid;
-  /*
-  Window.graphTemp.options.scales['y1'].ticks.display = showPressGrid;
-  Window.graphTemp.options.scales['y1'].grid.display  = showPressGrid;
-  */
-
 }
 
 async function get_networks() {
@@ -1370,6 +1122,60 @@ function deconnect_clique() {
   get_networks();
 }
 
+function refreshPage() {
+  //location.reload();
+  
+  // Affiche l'animation d'attente
+  var attente = document.getElementById("attente0")
+  attente.classList.remove("noshow");
+
+  // reinitialise les variables globales
+  histVentData    = [];
+  histVentMoy     = [];
+  vent            = 0.0;
+  histPression    = [];
+  histPresMoy     = [];
+  pression        = 0.0;
+  histTempCtn     = [];
+  histTCtnMoy     = [];
+  tempctn         = 0.0;
+
+  tblVents        = new Array(largeurMoyVent);
+  tblVentsIdx     = 0;
+  largeurVentFull = false;
+  ventTotal       = 0.0;
+  ventMoyen       = 0.0;
+
+  tblPres         = new Array(largeurMoyPres);
+  tblPresIdx      = 0;
+  largeurPresFull = false;
+  presTotal       = 0.0;
+  presMoyen       = 0.0;
+
+  largDouxPres    = 8;
+  tblPresDoux     = new Array(largDouxPres);
+  tblPresDouxIdx  = 0;
+  tblPresFull     = false;
+  presDouxTotal   = 0.0;
+
+  tblTempIdx      = 0;
+  largeurTempFull = false;
+  tblCtn          = new Array(largeurMoyTemp);
+  ctnTotal        = 0.0;
+  ctnMoyen        = 0.0;
+
+  // Supprime les graphiques
+  Window.graphVent.destroy();
+  Window.graphVent = null;
+  Window.graphPres.destroy();
+  Window.graphPres = null;
+  Window.graphTemp.destroy();
+  Window.graphTemp = null;
+  
+  // relance le script initial
+  index_onload();
+}
+
 function toggleFullscreen() {
   //bouton = document.getElementById("fullScreenButton");
   if (!isFullScreen) {
@@ -1432,7 +1238,7 @@ function inputLargeurVent() {
   var lbl = document.getElementById("valMoyVent");
   var newVal = document.getElementById("lMoyVent").value;
   secondes = newVal * 30;
-  lbl. innerText = new Date(secondes * 1000).toISOString().substring(15, 19);
+  lbl.innerText = new Date(secondes * 1000).toISOString().substring(15, 19);
 }
 
 function changeLargeurVent() {
@@ -1450,33 +1256,49 @@ function changeLargeurVent() {
   localStorage.setItem("largeurMoyVent", largeurMoyVent);
 }
 
+function inputLargeurPres() {
+  // Affiche la largeur de calcul de la moyenne vent
+  var lbl = document.getElementById("valMoyPres");
+  var newVal = document.getElementById("lMoyPres").value;
+  secondes = newVal * 30;
+  lbl.innerText = new Date(secondes * 1000).toISOString().substring(15, 19);
+}
+
+function changeLargeurPres() {
+  // Modifie la largeur de calcul de la moyenne vent
+  var newVal = document.getElementById("lMoyPres").value;
+  largeurMoyPres = newVal * 60;
+  delete tblPres;
+  tblPres    = new Array(largeurMoyPres);
+  tblVentsIdx = 0
+  ventTotal   = 0.0;
+  ventMoyen   = 0.0;
+  // Efface les moyennes précédentes
+  Window.graphVent.data.datasets[1].data = [];
+  // Stocke la préférence dans le localStorage
+  localStorage.setItem("largeurMoyPres", largeurMoyPres);
+}
+
 function inputLargeurTemp() {
   // Affiche la largeur de calcul de la moyenne vent
   var lbl = document.getElementById("valMoyTemp");
   var newVal = document.getElementById("lMoyTemp").value;
   secondes = newVal * 30;
-  lbl. innerText = new Date(secondes * 1000).toISOString().substring(15, 19);
+  lbl.innerText = new Date(secondes * 1000).toISOString().substring(15, 19);
 }
 
 function changeLargeurTemp() {
   // Modifie la largeur de calcul de la moyenne température
   var newVal = document.getElementById("lMoyTemp").value 
   largeurMoyTemp = newVal * 60;
-  delete tblTemp;
-  tblTemp          = new Array(largeurMoyTemp);
-  tblTempIdx       = 0;
-  largeurTempFull  = false;
-  bmp180Total      = 0.0;
-  bmp180Moyen      = 0.0;
   delete tblCtn;
   tblCtn           = new Array(largeurMoyTemp);
+  tblTempIdx       = 0;
+  largeurTempFull  = false;
   ctnTotal         = 0.0;
   ctnMoyen         = 0.0;
   // Efface les moyennes précédentes
   Window.graphTemp.data.datasets[1].data = [];
-  /*
-  Window.graphTemp.data.datasets[3].data = [];
-  */
   // Stocke la préférence dans le localStorage
   localStorage.setItem("largeurMoyTemp", largeurMoyTemp);
 }

@@ -27,47 +27,65 @@ html, body {
   padding: 0;
   height: 100%;
   width: 100%;
-  min-width: 600px;
+  /*min-width: 600px;*/
   text-align: center;
 }
 #lapage {
   height: 100%;
   height: 100vh;
 }
-#valeursV, #valeursTP {
+#valeursV, #valeursP, #valeursT {
   position: absolute;
   width: 100%;
 }
 .fLeft {
   float: left;
   margin: 0;
-  padding-left:38px
 }
 .fRight {
   float: right;
+  margin: 0;
   padding-right: 5px;
 }
+.top10 {
+  margin-top: 10px;
+}
 .valeur {
-  font-size: 50px;
+  padding-left:50px;
+  font-size: 35px;
   font-weight: bold;
+  text-shadow: -2px 0 white, 0 2px white, 2px 0 white, 0 -2px white;
 }
 .valeur p {
   margin: 0;
 }
 .btn {
-  width: 64px;
-  height: 64px;
-  margin-top: 20px;
-  margin-right: 20px;
+  width: 48px;
+  height: 48px;
+  margin-right: 10px;
   cursor: pointer;
 }
 #boutonReboot {
-  margin-left: 20px;
+  margin-left: 10px;
 }
 .graph_container {
-  height: 50%;
+  height: 33.333%;
 }
 #fullScreenButton {
+  display: inline-block;
+  border: 1px solid;
+  border-radius: 5px;
+  width: fit-content;
+  margin: auto;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  background-color: darkgreen;
+  cursor: pointer;
+}
+#refreshButton {
+  display: inline-block;
   border: 1px solid;
   border-radius: 5px;
   width: fit-content;
@@ -226,7 +244,7 @@ border-top: 1px solid white;
   font-family: monospace, sans-serif;
   font-weight: bold;
   position: absolute;
-  top: 50%;
+  top: 52%;
   left: 50%;
   transform: translate(-50%,-50%);
 }

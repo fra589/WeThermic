@@ -26,8 +26,9 @@
   <head>
     <meta charset="UTF-8">
     <!--<meta name="viewport" content="width=device-width, interactive-widget=resizes-content">-->
-    <meta name="viewport" content="width=device-width, initial-scale=0.50, maximum-scale=3.0, minimum-scale=0.50" />
-    <!--<meta name="viewport" content="width=device-width, initial-scale=1" />-->
+    <!--<meta name="viewport" content="width=device-width, initial-scale=0.50, maximum-scale=3.0, minimum-scale=0.50">-->
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">-->
+    <meta name="viewport" content="width=device-width">
     <meta name="description" content="Anémomètre Thermomètre Barmoètre">
     <title>!WeThermic</title>
     <link rel="shortcut icon" type="image/png" href="images/favicon.svg" />
@@ -43,20 +44,30 @@
       <div class="graph_container">
         <div id="valeursV">
           <div class="fLeft valeur"><p id="valeurVent">~~~~m/s</p></div>
-          <span class="fRight"><image id="boutonSettings" class="btn" src="images/settings.svg" onclick="changeSettings();" /></span>
-          <span class="fRight"><image id="boutonChrono" class="btn" src="images/chrono.svg" onclick="toggleChrono();" /></span>
-          <span class="fRight"><image id="boutonSon" class="btn noshow" src="images/sound-on.svg" onclick="toggleSon();" /></span>
+          <div class="fRight">
+            <div><image id="boutonSettings" class="btn top10"  src="images/settings.svg" onclick="changeSettings();" /></div>
+            <div><image id="boutonChrono"   class="btn"        src="images/chrono.svg"   onclick="toggleChrono();" /></div>
+            <div><image id="boutonSon"      class="btn noshow" src="images/sound-on.svg" onclick="toggleSon();" /></div>
+          </div>
         </div>
         <canvas id="graphVent" class="graphjs"></canvas>
       </div>
       <div class="graph_container">
-        <div id="valeursTP">
+        <div id="valeursP">
+          <div class="fLeft valeur"><p id="valeurPress">~~~~hPa</p></div>
+        </div>
+        <canvas id="graphPres" class="graphjs"></canvas>
+      </div>
+      <div class="graph_container">
+        <div id="valeursT">
           <div class="fLeft valeur"><p id="valeurTemp">~~~~°C</p></div>
-          <div class="fRight valeur"><p id="valeurPress">~~~~hPa</p></div>
         </div>
         <canvas id="graphTemp" class="graphjs"></canvas>
       </div>
-      <div id="fullScreenButton" onclick="toggleFullscreen()"><br />View in full screen<br />&nbsp;</div>
+      <div>
+        <span id="fullScreenButton" onclick="toggleFullscreen()"><br />View in full screen<br />&nbsp;</span>
+        <span id="refreshButton"    onclick="refreshPage()"><br />Refresh graphics<br />&nbsp;</span>
+      </div>
       <hr />
       <p>
         <span id="bottomSSID"></span><br />
@@ -66,10 +77,10 @@
       <!-- Config dialog                                                                     -->
       <!--------------------------------------------------------------------------------------->
       <div id="settingsDialog" class="settingsDialog noshow">
-        <span class="fLeft"><image id="boutonReboot" class="btn" src="images/reboot.svg" title="Reboot weather station" onclick="reboot();" /></span>
-        <span class="fLeft"><image id="boutonReset" class="btn" src="images/factory.svg" title="Reset preferences to default" onclick="resetSettings();" /></span>
-        <span class="fLeft"><image id="boutoWakeup" class="btn" src="images/wakeup.svg" title="Wake up station screen" onclick="wakeup();" /></span>
-        <span class="fRight"><image id="boutonClose" class="btn" src="images/close.svg" title="Close settings" onclick="closeSettings();" /></span>
+        <span class="fLeft"><image id="boutonReboot" class="btn top10" src="images/reboot.svg" title="Reboot weather station" onclick="reboot();" /></span>
+        <span class="fLeft"><image id="boutonReset" class="btn top10" src="images/factory.svg" title="Reset preferences to default" onclick="resetSettings();" /></span>
+        <span class="fLeft"><image id="boutoWakeup" class="btn top10" src="images/wakeup.svg" title="Wake up station screen" onclick="wakeup();" /></span>
+        <div class="fRight"><image id="boutonClose" class="btn top10" src="images/close.svg" title="Close settings" onclick="closeSettings();" /></div>
         <h1>Settings :</h1>
         <hr id="ligneHaut" />
         <p class="centerAlign">
@@ -82,55 +93,16 @@
           <label for="clair">Clear</label>
           </span>
         </p>
-        <fieldset class="settingFieldset" id="upperGraphFieldset">
-          <legend>Upper Graph</legend>
-          <p class="leftAlign">
-            <input type="checkbox" id="showWind" name="showWind" onclick="visuCourbes();" checked />
-            <label for="showWind">Show wind speed</label>
-            &nbsp;
-            <input type="checkbox" id="showPressU" name="showPressU" onclick="visuCourbes();" checked />
-            <label for="showPressU">Show atmospheric pressure</label>
-            &nbsp;
-            <input type="checkbox" id="showPressGrid" name="showPressGrid" onclick="visuCourbes();" checked />
-            <label for="showPressGrid">Show pressure grid</label>
-          </p>
+        <fieldset class="settingFieldset" id="graphFieldset">
+          <legend>Average calculations</legend>
           <p class="leftAlign">
             <label class="nowarp">Average wind on&nbsp;<input type="range" class="fullWidth" id="lMoyVent" name="lMoyVent" min="1" max="10" value="2" step="1" onchange="changeLargeurVent()" oninput="inputLargeurVent()" />&nbsp;<span id="valMoyVent" >1:30</span></label>
           </p>
-        </fieldset>
-        <fieldset class="settingFieldset" id="lowerGraphFieldset">
-          <legend>Lower Graph</legend>
           <p class="leftAlign">
-            <input type="checkbox" id="showT1" name="showT1" onclick="visuCourbes();" checked />
-            <label for="showT1">Show CTN temperature</label>
-            <!--&nbsp;
-            <input type="checkbox" id="showPressL" name="showPressL" onclick="visuCourbes();" />
-            <label for="showPressL">Show atmospheric pressure</label>
-            &nbsp;
-            <input type="checkbox" id="showT2" name="showT2" onclick="visuCourbes();" />
-            <label for="showT2">Show BMP180 temperature</label>
-            -->
+            <label class="nowarp">Average press on&nbsp;<input type="range" class="fullWidth" id="lMoyPres" name="lMoyPres" min="1" max="10" value="2" step="1" onchange="changeLargeurPres()" oninput="inputLargeurPres()" />&nbsp;<span id="valMoyPres" >1:30</span></label>
           </p>
           <p class="leftAlign">
-            Temperature scale:&nbsp;
-            <input type="radio" name="scaleTemp" id="scale0" value="0" onclick="echelleTemperature(0);" />
-            <label for="scale0">0</label>
-            &nbsp;
-            <input type="radio" name="scaleTemp" id="scale1" value="1" onclick="echelleTemperature(1);" checked />
-            <label for="scale1">1</label>
-            &nbsp;
-            <input type="radio" name="scaleTemp" id="scale2" value="2" onclick="echelleTemperature(2);" />
-            <label for="scale2">2</label>
-            &nbsp;
-            <input type="radio" name="scaleTemp" id="scale3" value="3" onclick="echelleTemperature(3);" />
-            <label for="scale3">3</label>
-            &nbsp;
-            <label class="nowarp">Min.scale&nbsp;<input type="number" class="numScale" name="scaleMin" id="scaleMin" onchange="echelleTemperature(-1);" /></label>
-            &nbsp;
-            <label class="nowarp">Max.scale&nbsp;<input type="number" class="numScale" name="scaleMax" id="scaleMax" onchange="echelleTemperature(-1);" /></label>
-          </p>
-          <p class="leftAlign">
-            <label class="nowarp">Average temp.on&nbsp;<input type="range" class="fullWidth" id="lMoyTemp" name="lMoyTemp" min="1" max="10" value="2" step="1" onchange="changeLargeurTemp()" oninput="inputLargeurTemp()" />&nbsp;<span id="valMoyTemp" >1:30</span></label>
+            <label class="nowarp">Average temp on&nbsp;<input type="range" class="fullWidth" id="lMoyTemp" name="lMoyTemp" min="1" max="10" value="2" step="1" onchange="changeLargeurTemp()" oninput="inputLargeurTemp()" />&nbsp;<span id="valMoyTemp" >1:30</span></label>
             
           </p>
         </fieldset>

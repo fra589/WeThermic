@@ -37,8 +37,8 @@ var soundOn       = true;
 
 // pour debug du developpement, adresse IP de la Wemos connectée au wifi
 //var netDevURL = 'http://10.10.10.10'; // connected to WeThermic
-//var netDevURL = 'http://192.168.1.107'; // domopassaduy GB1
-var netDevURL = 'http://192.168.1.80'; // domopassaduy GB2
+var netDevURL = 'http://192.168.1.107'; // domopassaduy GB1
+//var netDevURL = 'http://192.168.1.80'; // domopassaduy GB2
 //var netDevURL = 'http://192.168.1.68';  // BlancheNeige
 //var netDevURL = 'http://192.168.1.60';  // La Gouffrerie
 //var netDevURL = 'http://192.168.8.111'; // Cohabit
@@ -103,6 +103,7 @@ var chronoDebut     = 0;
 var chronoSepar     = ':';
 var flagBeep = false;
 var historiqueEnCours = false;
+var refreshTimeoutID = 0;
 
 //             Do       Ré       Mi       Fa       Sol      La       Si       Do
 const notes = [261.625, 293.664, 329.627, 349.228, 391.995, 440.000, 493.883, 523.251];
@@ -474,17 +475,17 @@ async function index_onload() {
     //configTemp
   });
 
-  console.log("Refresh interval = " + Window.graphVent.options.scales['x'].realtime.refresh);
-  console.log("Duration =         " + Window.graphVent.options.scales['x'].realtime.duration);
+  //console.log("Refresh interval = " + Window.graphVent.options.scales['x'].realtime.refresh);
+  //console.log("Duration =         " + Window.graphVent.options.scales['x'].realtime.duration);
 
   // Applique le thème de couleurs
   appliqueTheme();
 
   // Récupération des valeurs temp réel (vent, température et pression)
   if (location.protocol == 'file:') {
-    setTimeout(function() { XMLHttpRequest_get(netDevURL + "/getvalues") }, 500);
+    refreshTimeoutID = setTimeout(function() { XMLHttpRequest_get(netDevURL + "/getvalues") }, interval);
   } else {
-    setTimeout(function() { XMLHttpRequest_get("/getvalues") }, 500);
+    refreshTimeoutID = setTimeout(function() { XMLHttpRequest_get("/getvalues") }, interval);
   }
 
   // Masque l'animation d'attente
@@ -627,12 +628,15 @@ function XMLHttpResult(requette, xml, text) {
 }
 
 function graphHistoryintegration(xml) {
+  // Stop une demande de valeur planifiée
+  clearTimeout(refreshTimeoutID);
   // flag pour éviter l'arrivée de valeurs en cours d'intégration en cas de refresh
   historiqueEnCours = true;
   // Intègre dynamiquement les données d'historique au graphiques
   var flagDebut = false;
   // Récupère la durée (500, 1000 ou 2000)
   interval = Number(xml.getElementsByTagName("d")[0].childNodes[0].nodeValue);
+  // Met à jour la dialog de configuration en fonction de l'interval
   if (interval == 500) {
     document.getElementById("d500").checked = true;
   } else if (interval == 1000) {
@@ -656,6 +660,7 @@ function graphHistoryintegration(xml) {
       if (!(flagDebut)) {
         // C'est la première mesure de température
         tempctn = newCtn;
+        ctnMoyen = newCtn;
         flagDebut = true;
       } else if (Math.abs(newCtn - tempctn) < 3) {
         // Température valide
@@ -687,9 +692,9 @@ function autoRefresh() {
   // Cela assure que te traitement à été terminé avant de relancer
   // la requette vers le serveur web.
   if (location.protocol == 'file:') {
-    setTimeout(function() { XMLHttpRequest_get(netDevURL + "/getvalues") }, 500);
+    refreshTimeoutID = setTimeout(function() { XMLHttpRequest_get(netDevURL + "/getvalues") }, interval);
   } else {
-    setTimeout(function() { XMLHttpRequest_get("/getvalues") }, 500);
+    refreshTimeoutID = setTimeout(function() { XMLHttpRequest_get("/getvalues") }, interval);
   }
 }
 

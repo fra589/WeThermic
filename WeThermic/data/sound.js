@@ -1,1 +1,1 @@
-var audioCont=new(window.AudioContext||window.webkitAudioContext||window.audioContext);onmessage=function(e){console.log("Worker: Message received from main script");const t=e.data[0]*e.data[1];if(isNaN(t))postMessage("Please write two numbers");else{const e="Result: "+t;console.log("Worker: Posting message back to main script"),postMessage(e)}}
+var audioCont=new(window.AudioContext||window.webkitAudioContext||window.audioContext);onmessage=function(e){const t=e.data[0]*e.data[1];if(isNaN(t))postMessage("Please write two numbers");else{const e="Result: "+t;postMessage(e)}}

@@ -24,10 +24,8 @@ help:
 	#-----------------------------------------------------------------------------
 	# Root dir of WeThermic project = $$HOME/src/WeThermic
 	# make should be executed from this dir:
-	# cd $$HOME/src/WeThermic && make <object>
-	#
-	# With <object> as:
-	#
+	# cd $$HOME/src/WeThermic
+	# Then:
 	# make firmware 
 	#   Compile the firmware to:
 	#   $$HOME/src/WeThermic/WeThermic/build/WeThermic.ino.bin
@@ -39,11 +37,11 @@ help:
 	# make flash_littlefs
 	#   Flash the application filesystem to the Wemos D1 mini card
 	# make flash
-	#   Flash both firmware and application filesystem to the Wemos D1
-	#   mini card
+	#   Flash both firmware and application filesystem to the
+	#   Wemos D1 mini card
 	# make release
-	#   copy both firmware and filesystem to the release dir with a name
-	#   which include version
+	#   copy both firmware and filesystem to the release dir with a
+	#   name which include version
 	# make clean
 	#   Erase the $HOME/src/WeThermic/WeThermic/build directory
 	#-----------------------------------------------------------------------------

@@ -306,7 +306,14 @@ void handleGetNetworks(void) {
   XML += "</networks>\n";
 
   server.send(200,"text/xml",XML);
-  
+
+  #ifdef DEBUG_WEB
+    Serial.printf("handleGetNetworks(): réponse envoyée.  %d\n", millis()/1000);
+    Serial.println("----------");
+    Serial.println(XML);
+    Serial.println("----------");
+  #endif
+
 }
 
 void handleDeconnection(void) {
@@ -816,4 +823,3 @@ void handleSetDuree(void) {
   server.send(200,"text/xml",XML);
 
 }
-

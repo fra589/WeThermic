@@ -160,7 +160,8 @@ void wifiClientInit(void) {
         #endif
       }
     } else {
-      ;
+      // Connection failed, on force le mode AP uniquement
+      WiFi.mode(WIFI_AP);
       #ifdef DEBUG
         Serial.print("FAIL, WiFi.status() = ");
         Serial.println(getWiFiStatus(WiFi.status()));
@@ -244,6 +245,9 @@ String getWifiNetworks() {
   #endif
 
   if(WiFi.isConnected()) {
+    #ifdef DEBUG_WEB
+      Serial.printf("WiFi.isConnected() = true\n");
+    #endif
     XML += "  <activeNetwork>\n";
     XML += "    <SSID>";
     XML += WiFi.SSID();
@@ -263,9 +267,13 @@ String getWifiNetworks() {
     XML += "  </activeNetwork>\n";
   } else if (cli_ssid[0] != '\0') {
     // Non connecté mais SSID définit
+    #ifdef DEBUG_WEB
+      Serial.printf("WiFi.isConnected() = false, cli_ssid = %s\n", cli_ssid);
+    #endif
     XML += "  <activeNetwork>\n";
     XML += "    <SSID>";
     XML += String(cli_ssid);
+    XML += "</SSID>\n";
     XML += "    <PSK>";
     XML += String(cli_pwd);
     XML += "</PSK>\n";
@@ -313,6 +321,9 @@ String getWifiNetworks() {
     XML += "  </network>\n";
   }
   WiFi.scanDelete();
+  #ifdef DEBUG_WEB
+    Serial.printf("getWifiNetworks(): Fin du scan des réseaux WiFi.\n", cli_ssid);
+  #endif
 
   return XML;
 

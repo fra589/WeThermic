@@ -25,9 +25,6 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8">
-    <!--<meta name="viewport" content="width=device-width, interactive-widget=resizes-content">-->
-    <!--<meta name="viewport" content="width=device-width, initial-scale=0.50, maximum-scale=3.0, minimum-scale=0.50">-->
-    <!--<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">-->
     <meta name="viewport" content="width=device-width">
     <meta name="description" content="Anémomètre Thermomètre Barmoètre">
     <title>!WeThermic</title>
@@ -84,14 +81,32 @@
         <h1>Settings :</h1>
         <hr id="ligneHaut" />
         <p class="centerAlign">
-          Color theme:
-          <span>
-            <input type="radio" name="theme" id="sombre" value="sombre" onchange="changeTheme('sombre');" checked />
-            <label for="sombre">Dark</label>
-            &nbsp;
-            <input type="radio" name="theme" id="clair" value="clair" onchange="changeTheme('clair');" />
-            <label for="clair">Clear</label>
-          </span>
+          <fieldset class="settingFieldset" id="colorTheme">
+          <legend>Color theme</legend>
+          <div id="fondColorTheme">
+            <span>
+              <input type="radio" name="theme" id="sombre" value="sombre" onchange="changeTheme('sombre');" checked />
+              <label for="sombre">Dark</label>
+              &nbsp;
+              <input type="radio" name="theme" id="clair" value="clair" onchange="changeTheme('clair');" />
+              <label for="clair">Clear</label>
+            </span>
+            <table id="activeColors">
+              <tbody>
+                <tr id="actr1">
+                  <td><div id="iw" class="colorButton" onclick="openColor('iw')"></div></td><td>Instand wind</td>
+                  <td><div id="ip" class="colorButton" onclick="openColor('ip')"></div></td><td>Instand pressure</td>
+                  <td><div id="it" class="colorButton" onclick="openColor('it')"></div></td><td>Instand temperature</td>
+                </tr>
+                <tr id="actr2">
+                  <td><div id="aw" class="colorButton" onclick="openColor('aw')"></div></td><td>Average wind</td>
+                  <td><div id="ap" class="colorButton" onclick="openColor('ap')"></div></td><td>Average pressure</td>
+                  <td><div id="at" class="colorButton" onclick="openColor('at')"></div></td><td>Average temperature</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          </fieldset>
         </p>
         <p>
           <fieldset class="settingFieldset" id="dureeFieldset">
@@ -111,13 +126,13 @@
         <fieldset class="settingFieldset" id="graphFieldset">
           <legend>Average calculations</legend>
           <p class="leftAlign">
-            <label class="nowarp">Average wind on&nbsp;<input type="range" class="fullWidth" id="lMoyVent" name="lMoyVent" min="1" max="10" value="2" step="1" onchange="changeLargeurVent()" oninput="inputLargeurVent()" />&nbsp;<span id="valMoyVent" >1:30</span></label>
+            <label class="nowarp">wind&nbsp;<input type="range" class="fullWidth" id="lMoyVent" name="lMoyVent" min="1" max="10" value="2" step="1" onchange="changeLargeurVent()" oninput="inputLargeurVent()" />&nbsp;<span id="valMoyVent" >1:30</span></label>
           </p>
           <p class="leftAlign">
-            <label class="nowarp">Average pres on&nbsp;<input type="range" class="fullWidth" id="lMoyPres" name="lMoyPres" min="1" max="10" value="2" step="1" onchange="changeLargeurPres()" oninput="inputLargeurPres()" />&nbsp;<span id="valMoyPres" >1:30</span></label>
+            <label class="nowarp">pres&nbsp;<input type="range" class="fullWidth" id="lMoyPres" name="lMoyPres" min="1" max="10" value="2" step="1" onchange="changeLargeurPres()" oninput="inputLargeurPres()" />&nbsp;<span id="valMoyPres" >1:30</span></label>
           </p>
           <p class="leftAlign">
-            <label class="nowarp">Average temp on&nbsp;<input type="range" class="fullWidth" id="lMoyTemp" name="lMoyTemp" min="1" max="10" value="2" step="1" onchange="changeLargeurTemp()" oninput="inputLargeurTemp()" />&nbsp;<span id="valMoyTemp" >1:30</span></label>
+            <label class="nowarp">temp&nbsp;<input type="range" class="fullWidth" id="lMoyTemp" name="lMoyTemp" min="1" max="10" value="2" step="1" onchange="changeLargeurTemp()" oninput="inputLargeurTemp()" />&nbsp;<span id="valMoyTemp" >1:30</span></label>
             
           </p>
         </fieldset>
@@ -130,11 +145,7 @@
           <div class="tblPwd">
             <label for="apSSID">Access Point SSID</label>
             <input type="text" name="apSSID" id="apSSID" value="" maxlength="32" oninput="apConfigChange = true; inputConfigAP()" />
-          </div>
-          <div class="tblPwd">
-            &nbsp;
-          </div>
-          <div class="tblPwd">
+            <br />
             <label for="apPwd1">Access Point password</label>
             <input type="password" name="apPwd1" id="apPwd1" value="" maxlength="63" title="Enter AP password:&#010;min len=8, max len=63&#010;or leave it empty for no password." oninput="apConfigChange = true; inputConfigAP()" />
             <br />
@@ -163,6 +174,44 @@
           <!-- Rempli par script.js: setNetworkList() -->
         </div>
         <span class="fRight" onclick="get_networks();"><image id="boutonRefresh" class="btn" src="images/refresh.svg"/></span>
+
+        <!-- Dialogue sélection couleurs -->
+        <div id="colorChooser" class="noshow">
+          <table id="colorTable">
+            <tbody>
+            <tr>
+              <td style="background-color: rgb(0, 0, 0);"       id="color.0.0.0"       onClick="clickColor(0, 0, 0)"></td>       <!-- Noir -->
+              <td style="background-color: rgb(127, 0, 0);"     id="color.127.0.0"     onClick="clickColor(127, 0, 0)"></td>     <!-- Rouge foncé -->
+              <td style="background-color: rgb(0, 127, 0);"     id="color.0.127.0"     onClick="clickColor(0, 127, 0)"></td>     <!-- Vert foncé -->
+              <td style="background-color: rgb(0, 0, 127);"     id="color.0.0.127"     onClick="clickColor(0, 0, 127)"></td>     <!-- Bleu foncé -->
+            </tr>
+            <tr>
+              <td style="background-color: rgb(127, 127, 127);" id="color.127.127.127" onClick="clickColor(127, 127, 127)"></td> <!-- Gris -->
+              <td style="background-color: rgb(255, 0, 0);"     id="color.255.0.0"     onClick="clickColor(255, 0, 0)"></td>     <!-- Rouge -->
+              <td style="background-color: rgb(0, 255, 0);"     id="color.0.255.0"     onClick="clickColor(0, 255, 0)"></td>     <!-- Vert -->
+              <td style="background-color: rgb(0, 0, 255);"     id="color.0.0.255"     onClick="clickColor(0, 0, 255)"></td>     <!-- Bleu -->
+            </tr>
+            <tr>
+              <td style="background-color: rgb(255, 255, 255);" id="color.255.255.255" onClick="clickColor(255, 255, 255)"></td> <!-- Blanc -->
+              <td style="background-color: rgb(255, 0, 127);"   id="color.255.0.127"   onClick="clickColor(255, 0, 127)"></td>   <!-- Rose -->
+              <td style="background-color: rgb(127, 255, 0);"   id="color.127.255.0"   onClick="clickColor(127, 255, 0)"></td>   <!-- Vert clair -->
+              <td style="background-color: rgb(0, 255, 255);"   id="color.0.255.255"   onClick="clickColor(0, 255, 255)"></td>   <!-- Cyan -->
+            </tr>
+            <tr>
+              <td style="background-color: rgb(255, 127, 0);"   id="color.255.127.0"   onClick="clickColor(255, 127, 0)"></td>   <!-- Orange -->
+              <td style="background-color: rgb(255, 0, 255);"   id="color.255.0.255"   onClick="clickColor(255, 0, 255)"></td>   <!-- Mauve -->
+              <td style="background-color: rgb(255, 255, 0);"   id="color.255.255.0"   onClick="clickColor(255, 255, 0)"></td>   <!-- Jaune -->
+              <td style="background-color: rgb(127, 0, 255);"   id="color.127.0.255"   onClick="clickColor(127, 0, 255)"></td>   <!-- Viollet -->
+            </tr>
+            </tbody>
+          </table>
+          <div>
+            <button id="cancelButton" class="fRight" onclick="closeColor()">Cancel</button>
+            <button id="okButton"     class="fRight" onclick="setColor()">Set color</button>
+            <span id="colorResult"></span>
+          </div>
+          <div class="clear"></div>
+        </div> <!-- id="colorChooser" -->
 
         <!-- Dialogue connection WiFi -->
         <div id="dlgMask0" class="dlgMask noshow">

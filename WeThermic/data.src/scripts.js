@@ -22,8 +22,14 @@
 //------------------------------------------------------------------------------------------
 // Paramètres par défaut, peuvent être stockés dans le localStorage (preférences utilisateur)
 //------------------------------------------------------------------------------------------
+
 //style par défaut
-var cssFile = 'style_theme_clair.css';
+const cssClair  = 'style_theme_clair.css';
+const cssSombre = 'style_theme_sombre.css';
+var cssFile = cssClair;
+var linkClair = null;
+var linkSombre = null;
+
 // Durée de calcul des moyennes
 var largeurMoyVent  = 180; // Moyenne sur 1 minute 30s
 var largeurMoyPres  = 180; // Moyenne sur 1 minute 30s
@@ -37,25 +43,23 @@ var soundOn       = true;
 
 // pour debug du developpement, adresse IP de la Wemos connectée au wifi
 //var netDevURL = 'http://10.10.10.10'; // connected to WeThermic
-var netDevURL = 'http://192.168.1.107'; // domopassaduy GB1
-//var netDevURL = 'http://192.168.1.80'; // domopassaduy GB2
-//var netDevURL = 'http://192.168.1.68';  // BlancheNeige
+//var netDevURL = 'http://192.168.1.107'; // domopassaduy GB1
+var netDevURL = 'http://192.168.1.80'; // domopassaduy GB2
+//var netDevURL = 'http://192.168.1.130';  // BlancheNeige
 //var netDevURL = 'http://192.168.1.60';  // La Gouffrerie
 //var netDevURL = 'http://192.168.8.111'; // Cohabit
 
-// Couleurs du theme clair
-var couleurVent = 'rgb(0, 0, 200)';
-var couleurFillVent = 'rgba(0, 0, 200, 0.1)';
-var couleurMoyVent = 'rgb(0, 0, 160)';
-var couleurPression = 'rgb(0, 140, 32)';
-var couleurFillPression = 'rgba(0, 140, 32, 0.2)';
-var couleurMoyPres = 'rgb(0, 80, 32)';
-var couleurTempBmp180 = 'rgb(0, 150, 0)';
-var couleurMoyBmp180 = 'rgb(0, 127, 0)';
-var couleurTempCtn = 'rgb(230, 0, 0)';
-var couleurFillCtn = 'rgba(230, 0, 0, 0.2)';
-var couleurMoyCtn = 'rgb(200, 30, 30)';
-var couleurGrid = 'rgb(187, 229, 229)';
+var couleurGrid = 'rgb(192, 192, 192)';
+// Couleurs par defaut du theme clair
+var couleurVent = 'rgb(0, 0, 255)';
+var couleurFillVent = 'rgba(0, 0, 255, 0.2)';
+var couleurMoyVent = 'rgb(0, 0, 127)';
+var couleurPression = 'rgb(0, 255, 0)';
+var couleurFillPression = 'rgba(0, 255, 0, 0.2)';
+var couleurMoyPres = 'rgb(0, 127, 0)';
+var couleurTempCtn = 'rgb(255, 0, 0)';
+var couleurFillCtn = 'rgba(255, 0, 0, 0.2)';
+var couleurMoyCtn = 'rgb(127, 0, 0)';
 
 
 var histVentData    = new Array();
@@ -104,6 +108,9 @@ var chronoSepar     = ':';
 var flagBeep = false;
 var historiqueEnCours = false;
 var refreshTimeoutID = 0;
+var theme    = 'clair';
+var newColor = 'rgb(0, 0, 0)';
+var colorEnCours = "";
 
 //             Do       Ré       Mi       Fa       Sol      La       Si       Do
 const notes = [261.625, 293.664, 329.627, 349.228, 391.995, 440.000, 493.883, 523.251];
@@ -128,11 +135,14 @@ async function index_onload() {
   }
   if (cssFile == 'style_theme_sombre.css') {
     document.getElementById("sombre").checked = true;
+    theme    = 'sombre';
   } else {
     document.getElementById("clair").checked = true;
+    theme    = 'clair';
   }
-  loadStyle();
-
+  loadTheme();
+  getThemeColor(theme);
+  
   // Durée de calcul des moyennes par défaut ou celui défini dans le localStorage 
   var moyPref = localStorage.getItem("largeurMoyVent");
   if (moyPref !== null) {
@@ -280,9 +290,6 @@ async function index_onload() {
     maintainAspectRatio: false
   };
 
-
-
-
   // Pression
   var presData = {
     datasets: [
@@ -367,9 +374,6 @@ async function index_onload() {
     responsive: true,
     maintainAspectRatio: false
   };
-
-
-
 
   // Temperature
   var tempData = {
@@ -475,9 +479,6 @@ async function index_onload() {
     //configTemp
   });
 
-  //console.log("Refresh interval = " + Window.graphVent.options.scales['x'].realtime.refresh);
-  //console.log("Duration =         " + Window.graphVent.options.scales['x'].realtime.duration);
-
   // Applique le thème de couleurs
   appliqueTheme();
 
@@ -505,20 +506,6 @@ async function index_onload() {
   */
 
 } // index_onload()
-
-function loadStyle() {
-
-  var head = document.getElementsByTagName('head')[0] ;
-    
-  // Creating link element
-  var style = document.createElement('link')
-  style.id   = 'cssTheme';
-  style.rel  = 'stylesheet';
-  style.type = 'text/css';
-  style.href = cssFile;
-  head.append(style);
-
-}
 
 function XMLHttpRequest_get(requette) {
   // Requette XML HTTP GET
@@ -560,7 +547,7 @@ function XMLHttpResult(requette, xml, text) {
 
         var doc_vent  = document.getElementById("valeurVent");
         doc_vent.innerHTML    = '<span class="couleurVent">I = ' + Number.parseFloat(vent).toFixed(1).padStart(4, ' ') + 'm/s</span><br />';
-        doc_vent.innerHTML   += '<span class="couleurMoyVent">M = ' + Number.parseFloat(ventMoyen).toFixed(1) + ' m/s</span>';
+        doc_vent.innerHTML   += '<span class="couleurMoyVent">A = ' + Number.parseFloat(ventMoyen).toFixed(1) + ' m/s</span>';
 
         var newCtn     = Number(xml.getElementsByTagName("c")[0].childNodes[0].nodeValue);
         if (Math.abs(newCtn - tempctn) < 3) {
@@ -573,14 +560,14 @@ function XMLHttpResult(requette, xml, text) {
         var doc_temp = document.getElementById("valeurTemp");
         doc_temp.innerHTML    = ""
         doc_temp.innerHTML   += '<span class="couleurTempCtn">I = '    + Number.parseFloat(tempctn).toFixed(1) + '°C</span><br />';
-        doc_temp.innerHTML   += '<span class="couleurMoyCtn">M = '      + Number.parseFloat(ctnMoyen).toFixed(1) + '°C</span>'
+        doc_temp.innerHTML   += '<span class="couleurMoyCtn">A = '      + Number.parseFloat(ctnMoyen).toFixed(1) + '°C</span>'
 
         pression    = calculPressionDouce(Number(xml.getElementsByTagName("p")[0].childNodes[0].nodeValue));
         calculMoyennePres();
 
         var doc_press = document.getElementById("valeurPress");
         doc_press.innerHTML  = '<span class="couleurPression">I = ' + Number.parseFloat(pression).toFixed(2) + "hPa</span><br :>";
-        doc_press.innerHTML += '<span class="couleurMoyPres">M = ' + Number.parseFloat(presMoyen).toFixed(2) + "hPa</span>";
+        doc_press.innerHTML += '<span class="couleurMoyPres">A = ' + Number.parseFloat(presMoyen).toFixed(2) + "hPa</span>";
       }
 
     } else if ((requette == "/getnetworks") || (requette == netDevURL + "/getnetworks")) {
@@ -625,6 +612,7 @@ function XMLHttpResult(requette, xml, text) {
       autoRefresh();
     }
   }
+
 }
 
 function graphHistoryintegration(xml) {
@@ -784,7 +772,6 @@ function calculPressionDouce(pBrute) {
   }
 }
 
-
 function calculMoyenneTemperature() {
 
   // Remplace l'élément pointé par l'indexe et recalcul le total
@@ -822,6 +809,10 @@ function changeSettings() {
   var attente = document.getElementById("attente0")
   attente.classList.remove("noshow");
 
+  // Met à jour le jeu de couleur
+  resizeActiveColorTable();
+  setMainDialogColor();
+  
   // récupère la config AP
   getAPconfig();
 
@@ -835,16 +826,44 @@ function closeSettings() {
   dialog.classList.add("noshow");
 }
 
-function changeTheme(theme) {
+function loadTheme() {
 
-  if ((theme == 'clair') && (cssFile == 'style_theme_sombre.css')) {
-    cssFile = 'style_theme_clair.css';
-    themeStyle = document.getElementById('cssTheme');
-    themeStyle.href = cssFile;
-  } else if ((theme == 'sombre') && (cssFile == 'style_theme_clair.css')) {
-    cssFile = 'style_theme_sombre.css';
-    themeStyle = document.getElementById('cssTheme');
-    themeStyle.href = cssFile;
+  // Création des éléments link pour les 2 thèmes
+  if (!document.getElementById(cssClair)) {
+    linkClair      = document.createElement('link')
+    linkClair.id   = cssClair;
+    linkClair.rel  = 'stylesheet';
+    linkClair.type = 'text/css';
+    linkClair.href = cssClair;
+  }
+  if (!document.getElementById(cssSombre)) {
+    linkSombre     = document.createElement('link')
+    linkSombre.id   = cssSombre;
+    linkSombre.rel  = 'stylesheet';
+    linkSombre.type = 'text/css';
+    linkSombre.href = cssSombre;
+  }
+  
+  var head = document.getElementsByTagName('head')[0] ;
+  if (cssFile == cssSombre)  { 
+    head.append(linkSombre);
+  } else {
+    head.append(linkClair);
+  }
+
+}
+
+function changeTheme(theTheme) {
+  
+  theme    = theTheme;
+  var cssCharge = document.getElementById(cssFile);
+  
+  if ((theme == 'clair') && (cssFile == cssSombre)) {
+    cssCharge.parentNode.replaceChild(linkClair, linkSombre);
+    cssFile = cssClair;
+  } else if ((theme == 'sombre') && (cssFile == cssClair)) {
+    cssCharge.parentNode.replaceChild(linkSombre, linkClair);
+    cssFile = cssSombre;
   }
   // Sauvegarde préférece
   localStorage.setItem("cssFile", cssFile);
@@ -858,19 +877,30 @@ function appliqueTheme() {
   setTimeout(() => {
     // setTimeout() pour laisser le temps de recharger le CSS
     // Reconfiguration des graphiques
-    var style = getComputedStyle(document.body);
+    var cssParent = document.getElementById(cssFile).parentNode;
+    var style = getComputedStyle(cssParent);
+    // Couleurs par défaut du thème
+    couleurGrid         = style.getPropertyValue('--couleurGrid');
     couleurVent         = style.getPropertyValue('--couleurVent');
-    couleurFillVent     = style.getPropertyValue('--couleurFillVent');
+    couleurFillVent     = getFillColor(couleurVent);
     couleurMoyVent      = style.getPropertyValue('--couleurMoyVent');
     couleurPression     = style.getPropertyValue('--couleurPression');
-    couleurFillPression = style.getPropertyValue('--couleurFillPression');
+    couleurFillPression = getFillColor(couleurPression);
     couleurMoyPres      = style.getPropertyValue('--couleurMoyPres');
     couleurTempCtn      = style.getPropertyValue('--couleurTempCtn');
-    couleurFillCtn      = style.getPropertyValue('--couleurFillCtn');
+    couleurFillCtn      = getFillColor(couleurTempCtn);
     couleurMoyCtn       = style.getPropertyValue('--couleurMoyCtn');
-    couleurTempBmp180   = style.getPropertyValue('--couleurTempBmp180');
-    couleurMoyBmp180    = style.getPropertyValue('--couleurMoyBmp180');
-    couleurGrid         = style.getPropertyValue('--couleurGrid');
+
+    // Préférences de couleurs
+    getThemeColor(theme);
+    
+    // Correction du CSS en fonction des préférences
+    document.body.style.setProperty('--couleurVent', couleurVent);
+    document.body.style.setProperty('--couleurMoyVent', couleurMoyVent);
+    document.body.style.setProperty('--couleurPression', couleurPression);
+    document.body.style.setProperty('--couleurMoyPres', couleurMoyPres);
+    document.body.style.setProperty('--couleurTempCtn', couleurTempCtn);
+    document.body.style.setProperty('--couleurMoyCtn', couleurMoyCtn);
 
     Window.graphVent.options.scales['x'].grid.color = couleurGrid;
     Window.graphVent.options.scales['y'].grid.color = couleurGrid;
@@ -895,6 +925,8 @@ function appliqueTheme() {
     Window.graphTemp.data.datasets[0].fill.above = couleurFillCtn;
     Window.graphTemp.data.datasets[0].fill.below = couleurFillCtn;
     Window.graphTemp.data.datasets[1].borderColor = couleurMoyCtn;
+
+    setMainDialogColor();
 
   }, 500);
   
@@ -1572,4 +1604,213 @@ function changeDuree(duree) {
   }
 }
 
+function clickColor(R, V, B) {
+  //alert("Color = rvb(" + R + ", " + V + ", " + B + ")");
+  newColor = 'rgb(' + R + ', ' + V + ', ' + B + ')';
+  document.getElementById('colorResult').style.backgroundColor = newColor;
+  //colorCase = document.getElementById('color.' + R + '.' + V + '.' + B)
+  cellID = 'color.' + R + '.' + V + '.' + B
+  table  = document.getElementById('colorTable');
+  tBody  = table.getElementsByTagName("tbody")[0];
+  lignes = tBody.getElementsByTagName("tr")
+  for (const l of lignes) {
+    cellules = l.getElementsByTagName("td");
+    for (const c of cellules) {
+      if (c.getAttribute('id') == cellID) {
+        c.style.backgroundImage = "url(images/coche.svg)";
+      } else {
+        c.style.backgroundImage = "";
+      }
+    }
+  }
+}
+
+function openColor(colorID) {
+  
+  colorEnCours = colorID;
+  
+  newColor = document.getElementById(colorID).style.backgroundColor;
+  const [R,V,B,A] = getRVBA(newColor);
+  clickColor(R, V, B);
+
+  var dialog = document.getElementById('colorChooser')
+  dialog.classList.remove('noshow');
+
+  // Retaille le rond de couleur résultat
+  bouton = document.getElementById('okButton');
+  taille = bouton.offsetHeight;
+  colorResult = document.getElementById('colorResult');
+  colorResult.style.height = taille + "px";
+  colorResult.style.width  = taille + "px";
+  
+}
+
+function setColor() {
+  switch (colorEnCours) {
+    case 'iw':
+      couleurVent = newColor;
+      couleurFillVent = getFillColor(couleurVent);
+      Window.graphVent.options.scales['y'].ticks.color = couleurVent;
+      Window.graphVent.data.datasets[0].borderColor = couleurVent;
+      Window.graphVent.data.datasets[0].fill.above = couleurFillVent;
+      Window.graphVent.data.datasets[0].fill.below = couleurFillVent;
+      document.getElementById('iw').style.backgroundColor = couleurVent;
+      document.body.style.setProperty('--couleurVent', couleurVent);
+      localStorage.setItem(theme + ".couleurVent", couleurVent);
+      break;
+    case 'ip':
+      couleurPression = newColor;
+      couleurFillPression = getFillColor(couleurPression);
+      Window.graphPres.options.scales['y'].ticks.color = couleurPression;
+      Window.graphPres.data.datasets[0].borderColor = couleurPression;
+      Window.graphPres.data.datasets[0].fill.above = couleurFillPression;
+      Window.graphPres.data.datasets[0].fill.below = couleurFillPression;
+      document.getElementById('ip').style.backgroundColor = couleurPression;
+      document.body.style.setProperty('--couleurPression', couleurPression);
+      localStorage.setItem(theme + ".couleurPression", couleurPression);
+      break;
+    case 'it':
+      couleurTempCtn = newColor;
+      couleurFillCtn = getFillColor(couleurTempCtn);
+      Window.graphTemp.options.scales['y'].ticks.color = couleurTempCtn;
+      Window.graphTemp.data.datasets[0].borderColor = couleurTempCtn;
+      Window.graphTemp.data.datasets[0].fill.above = couleurFillCtn;
+      Window.graphTemp.data.datasets[0].fill.below = couleurFillCtn;
+      document.getElementById('it').style.backgroundColor = couleurTempCtn;
+      document.body.style.setProperty('--couleurTempCtn', couleurTempCtn);
+      localStorage.setItem(theme + ".couleurTempCtn", couleurTempCtn);
+      break;
+    case 'aw':
+      couleurMoyVent = newColor;
+      Window.graphVent.data.datasets[1].borderColor = couleurMoyVent;
+      document.getElementById('aw').style.backgroundColor = couleurMoyVent;
+      document.body.style.setProperty('--couleurMoyVent', couleurMoyVent);
+      localStorage.setItem(theme + ".couleurMoyVent", couleurMoyVent);
+      break;
+    case 'ap':
+      couleurMoyPres = newColor;
+      Window.graphPres.data.datasets[1].borderColor = couleurMoyPres;
+      document.getElementById('ap').style.backgroundColor = couleurMoyPres;
+      document.body.style.setProperty('--couleurMoyPres', couleurMoyPres);
+      localStorage.setItem(theme + ".couleurMoyPres", couleurMoyPres);
+      break;
+    case 'at':
+      couleurMoyCtn = newColor;
+      Window.graphTemp.data.datasets[1].borderColor = couleurMoyCtn;
+      document.getElementById('at').style.backgroundColor = couleurMoyCtn;
+      document.body.style.setProperty('--couleurMoyCtn', couleurMoyCtn);
+      localStorage.setItem(theme + ".couleurMoyCtn", couleurMoyCtn);
+      break;
+    default:
+      console.log("setColor(): Erreur, colorEnCours invalide");
+  }
+  closeColor();
+}
+
+function closeColor() {
+  var dialog = document.getElementById('colorChooser')
+  // Ne fonctionne pas sans le timeout ?
+  setTimeout(function() { dialog.classList.add('noshow'); }, 10);
+}
+
+function getThemeColor(theTheme) {
+  // Recupération et correction des choix de couleurs en fonction du theme
+  // Vent
+  var colorPref = localStorage.getItem(theTheme + ".couleurVent");
+  if (colorPref !== null) {
+    couleurVent = colorPref;
+    couleurFillVent = getFillColor(couleurVent);
+  }
+  var colorPref = localStorage.getItem(theTheme + ".couleurMoyVent");
+  if (colorPref !== null) {
+    couleurMoyVent = colorPref;
+  }
+  // Pression
+  var colorPref = localStorage.getItem(theTheme + ".couleurPression");
+  if (colorPref !== null) {
+    couleurPression = colorPref;
+    couleurFillPression = getFillColor(couleurPression);
+  }
+  var colorPref = localStorage.getItem(theTheme + ".couleurMoyPres");
+  if (colorPref !== null) {
+    couleurMoyPres = colorPref;
+  }
+  // Température CTN
+  var colorPref = localStorage.getItem(theTheme + ".couleurTempCtn");
+  if (colorPref !== null) {
+    couleurTempCtn = colorPref;
+    couleurFillCtn = getFillColor(couleurTempCtn);
+  }
+  var colorPref = localStorage.getItem(theTheme + ".couleurMoyCtn");
+  if (colorPref !== null) {
+    couleurMoyCtn = colorPref;
+  }  
+}
+
+function getRVBA(color) {
+  const [R,V,B,A] = color.match(/\d+/g).map(Number);
+  return [R,V,B,A];
+}
+
+function getFillColor(couleur) {
+  [R,V,B,A] = getRVBA(couleur);
+  return 'rgba(' + R + ', ' + V + ', ' + B + ', 0.2)';
+}
+
+function setMainDialogColor() {
+
+  var obj = document.getElementById('fondColorTheme');
+  if (theme == "sombre") {
+    obj.style.backgroundColor = 'black';
+    obj.style.color = 'white';
+  } else {
+    obj.style.backgroundColor = 'white';
+    obj.style.color = 'black';
+  }
+  document.getElementById('iw').style.backgroundColor = couleurVent;
+  document.getElementById('ip').style.backgroundColor = couleurPression;
+  document.getElementById('it').style.backgroundColor = couleurTempCtn;
+  document.getElementById('aw').style.backgroundColor = couleurMoyVent;
+  document.getElementById('ap').style.backgroundColor = couleurMoyPres;
+  document.getElementById('at').style.backgroundColor = couleurMoyCtn;
+
+}
+
+function resizeActiveColorTable() {
+  // retaille les ronds de couleur dans la table de couleur
+  var taille = document.getElementById('actr1').offsetHeight
+  taille = taille * 0.8;
+  radius = taille / 2;
+
+  var obj = document.getElementById('iw');
+  obj.style.width = taille +'px';
+  obj.style.height = taille + 'px';
+  obj.style.borderRadius = radius + 'px';
+
+  obj = document.getElementById('ip');
+  obj.style.width = taille +'px';
+  obj.style.height = taille + 'px';
+  obj.style.borderRadius = radius + 'px';
+
+  obj = document.getElementById('it');
+  obj.style.width = taille +'px';
+  obj.style.height = taille + 'px';
+  obj.style.borderRadius = radius + 'px';
+
+  obj = document.getElementById('aw');
+  obj.style.width = taille +'px';
+  obj.style.height = taille + 'px';
+  obj.style.borderRadius = radius + 'px';
+
+  obj = document.getElementById('ap');
+  obj.style.width = taille +'px';
+  obj.style.height = taille + 'px';
+  obj.style.borderRadius = radius + 'px';
+
+  obj = document.getElementById('at');
+  obj.style.width = taille +'px';
+  obj.style.height = taille + 'px';
+  obj.style.borderRadius = radius + 'px';
+
+}
 

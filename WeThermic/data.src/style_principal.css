@@ -54,7 +54,6 @@ html, body {
   padding-left:50px;
   font-size: 35px;
   font-weight: bold;
-  text-shadow: -2px 0 white, 0 2px white, 2px 0 white, 0 -2px white;
 }
 .valeur p {
   margin: 0;
@@ -98,13 +97,8 @@ html, body {
   cursor: pointer;
 }
 .settingsDialog {
-  /*display: inline-block;*/
   position: absolute;
   border: 1px solid;
-  /*top: 10%;
-  left: 10%;
-  width: 80%;
-  height: 80%;*/
   top: 0%;
   left: 0%;
   width: 100%;
@@ -300,13 +294,14 @@ border-top: 1px solid white;
   background-color: beige;
 }
 #apConfig label {
-  margin-left: 18px;
+  /*margin-left: 18px;*/
   width: 13em;
   display: inline-block;
 }
 .tblPwd {
-  display: table-cell;
-  vertical-align: top;
+  /*display: table-cell;
+  vertical-align: top;*/
+  margin-left: 20px;
 }
 .tblPwdCenter {
   display: table-cell;
@@ -316,13 +311,54 @@ border-top: 1px solid white;
   margin-left: 20px;
   cursor: pointer;
 }
-
-
-
-
-
-
-
+#colorChooser {
+  width: 80%;
+  position: absolute;
+  top: 50vh;
+  transform: translateY(-50%); /* tiré de la moitié de sa propre hauteur */
+  left: 10%;
+  background-color: darkgray;
+}
+#colorChooser button {
+  background-color: lightgray;
+  padding: 15px;
+  margin: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+#okButton {
+  margin-left: 15px;
+}
+#colorTable {
+  width: 100%;
+  border-spacing: 10px;
+  cursor: pointer;
+  /*background-color: rgba(127, 127, 127, 0.5);*/
+}
+#colorTable tr {
+  height: 60px;
+}
+#colorTable td {
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.clear {
+  clear: both;
+  height: 0; overflow: hidden; /* Précaution pour IE 7 */
+}
+#colorResult {
+  display: inline-block;
+  margin: 10px;
+  /*border: solid 2px black;*/
+  border-radius: 50px;
+}
+#fondColorTheme {
+  margin-left: 3px;
+  margin-right: 3px;
+}
+.colorButton {
+  cursor: pointer;
+}
 
 
 

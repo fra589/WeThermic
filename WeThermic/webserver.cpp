@@ -50,7 +50,9 @@ void webServerInit(void) {
   server.on("/setapconfig",      handleSetAPconfig);
   server.on("/reboot",           handleReboot);
   server.on("/fsinfo",           handleFSInfo);
-  server.on("/wakeup",           handleWakeup);
+  #ifdef HAVE_SCREEN
+    server.on("/wakeup",           handleWakeup);
+  #endif
   server.on("/factory",          handleFactory);
   server.on("/setduree",         handleSetDuree);
   
@@ -273,19 +275,26 @@ void handleGetVersion(void) {
   XML += F("<version>\n");
   XML += F("  <app>");
   XML += String(APP_NAME);
-  XML += F("  </app>\n");
+  XML += F("</app>\n");
   XML += F("  <major>");
   XML += String(APP_VERSION_MAJOR);
-  XML += F("  </major>\n");
+  XML += F("</major>\n");
   XML += F("  <minor>");
   XML += String(APP_VERSION_MINOR);
-  XML += F("  </minor>\n");
+  XML += F("</minor>\n");
   XML += F("  <date>");
   XML += String(APP_VERSION_DATE);
-  XML += F("  </date>\n");
+  XML += F("</date>\n");
   XML += F("  <string>");
   XML += String(APP_VERSION_STRING);
-  XML += F("  </string>\n");
+  XML += F("</string>\n");
+  XML += F("  <screen>");
+  #ifdef HAVE_SCREEN
+    XML += F("SSD1306");
+  #else
+    XML += F("NO");
+  #endif
+  XML += F("</screen>\n");
   XML += F("</version>\n");
 
   server.send(200,"text/xml",XML);
@@ -718,27 +727,29 @@ String getFileList(String path) {
   
 }
 
-void handleWakeup(void) {
-  
-  String XML;
-  
-  // Réactive l'affichage
-  affichage_on = 1;
-  wakeupDisplay();
-  // Réinitialise le compteur de durée pour la prochaine veille
-  debutCompteurVeille = millis();
-  
-  // Réponse au client
-  XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
-  XML += F("<wakeup>\n");
-  XML += F("  <result>OK</result>\n");
-  XML += F("</wakeup>\n");
+#ifdef HAVE_SCREEN
+  void handleWakeup(void) {
+    
+    String XML;
+    
+    // Réactive l'affichage
+    affichage_on = 1;
+    wakeupDisplay();
+    // Réinitialise le compteur de durée pour la prochaine veille
+    debutCompteurVeille = millis();
+    
+    // Réponse au client
+    XML  = F("<?xml version=\"1.0\" encoding=\"UTF-8\"\?>\n");
+    XML += F("<wakeup>\n");
+    XML += F("  <result>OK</result>\n");
+    XML += F("</wakeup>\n");
 
-  // Renvoi la réponse au client http
-  server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.send(200,"text/xml",XML);
+    // Renvoi la réponse au client http
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.send(200,"text/xml",XML);
 
-}
+  }
+#endif
 
 void handleFactory(void) {
 

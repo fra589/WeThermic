@@ -23,26 +23,33 @@
   #define WeThermic_h
 
   #define DEBUG
+  #define DEBUG_WEB
   //#define DEBUG_INTERRUPT
   //#define DEBUG2
   //#define DEBUG3
   //#define DEBUG_PROBE
-  #define DEBUG_WEB
 
+  // Screen SSD1306 disabled by default
+  //#define HAVE_SCREEN
+  
   #include <EEPROM.h>
   #include <ESP8266WiFi.h>
   #include <ESP8266mDNS.h>
   #include <ESP8266WebServer.h>
   #include <DNSServer.h>
   #include <LittleFS.h>
-  #include <Adafruit_SSD1306.h>
+  #ifdef HAVE_SCREEN
+    #include <Adafruit_SSD1306.h>
+  #endif
   #include <SFE_BMP180.h>
 
   #include "WeThermicLogo.h"
   #include "eeprom.h"
   #include "wwwifi.h"
   #include "webserver.h"
-  #include "affichage.h"
+  #ifdef HAVE_SCREEN
+    #include "affichage.h"
+  #endif
   #include "sfe_bmp180.h"
   #include "thermistance.h"
 
@@ -57,7 +64,6 @@
 
   // Paramètres mesure du vent
   #define HALL_PIN D5 // Entrée numérique esp8266
-  //#define COEF_VENT 0.245
   #define COEF_VENT 0.3
   extern volatile uint32_t pulse;
   extern float vent;
@@ -110,10 +116,13 @@
   // Web server
   extern ESP8266WebServer server;
 
-  // Pour mise en veille de l'affichage
-  extern uint8_t affichage_on;
-  extern long debutCompteurVeille;
-  #define DELAY_VEILLE 300000 // 300 secondes (5 minutes)
+  #ifdef HAVE_SCREEN
+    // Pour mise en veille de l'affichage
+    extern uint8_t affichage_on;
+    extern long debutCompteurVeille;
+    #define DELAY_VEILLE 300000 // 300 secondes (5 minutes)
+  #endif
+
   // DNS server
   extern DNSServer dnsServer;
   #define DNS_PORT 53

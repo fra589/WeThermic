@@ -536,6 +536,12 @@ function XMLHttpResult(requette, xml, text) {
       var version_string = xml.getElementsByTagName("string")[0].childNodes[0].nodeValue;
       var doc_version = document.getElementById("version");
       doc_version.textContent = version_string;
+      var haveScreen  = xml.getElementsByTagName("screen")[0].childNodes[0].nodeValue;
+      if (haveScreen == 'NO') {
+        // Pas d'écran, on masque le bouton de réveil
+        var bouton = document.getElementById("boutoWakeup");
+        bouton.classList.add("noshow");
+      }
 
     } else if ((requette == "/history") || (requette == netDevURL + "/history")) {
       graphHistoryintegration(xml);

@@ -75,9 +75,11 @@ DNSServer dnsServer;
 // Web server
 ESP8266WebServer server(80);
 
-// Pour mise en veille de l'affichage, on le mettra à 0...
-uint8_t affichage_on = 1;
-long debutCompteurVeille = 0;
+#ifdef HAVE_SCREEN
+  // Pour mise en veille de l'affichage, on le mettra à 0...
+  uint8_t affichage_on = 1;
+  long debutCompteurVeille = 0;
+#endif
 
 void IRAM_ATTR hall_ISR() {
   // Interruption du capteur à effet Hall
@@ -118,9 +120,11 @@ void setup() {
   pinMode(CTN_PIN, INPUT);
   pinMode(LED_BUILTIN, OUTPUT);
 
-  // Init affichage
-  affichage_init();
-  afficheSplash();
+  #ifdef HAVE_SCREEN
+    // Init affichage
+    affichage_init();
+    afficheSplash();
+  #endif
 
   // Récupération des paramètres EEPROM
   getEepromStartupData();
@@ -138,13 +142,15 @@ void setup() {
   // Interruptions pour détection Hall
   attachInterrupt(digitalPinToInterrupt(HALL_PIN), hall_ISR, CHANGE);
 
-  //Efface le logo par un scroll vers le haut
-  scrollScreen();
+  #ifdef HAVE_SCREEN
+    //Efface le logo par un scroll vers le haut
+    scrollScreen();
+    displayWifiStatus();
+    delay(3000);
+    debutCompteurVeille = millis();
+  #endif
 
-  displayWifiStatus();
-  delay(3000);
-
-  debutCompteurVeille = millis();
+  delay(1000);
 
 }
 
@@ -192,8 +198,10 @@ void loop() {
     // Lecture du capteur de pression
     read_bmp180();
 
-    // Affichage sur écran
-    displayTemp();
+    #ifdef HAVE_SCREEN
+      // Affichage sur écran
+      displayTemp();
+    #endif
 
     // Mémorise les 5 dernières minutes de mesures
     histVent[idxHistorique]       = vent;
@@ -217,15 +225,16 @@ void loop() {
     #endif
   }
 
-  
-  if ((millis() > debutCompteurVeille + DELAY_VEILLE) && (affichage_on !=0)) {
-    // Mise en veille
-    #ifdef DEBUG
-      Serial.println("Demande de mise en veille");
-    #endif
-    affichage_on = 0;
-  }
-  
+  #ifdef HAVE_SCREEN
+    if ((millis() > debutCompteurVeille + DELAY_VEILLE) && (affichage_on !=0)) {
+      // Mise en veille
+      #ifdef DEBUG
+        Serial.println("Demande de mise en veille");
+      #endif
+      affichage_on = 0;
+    }
+  #endif
+
   // Process DNS
   dnsServer.processNextRequest();
   yield();

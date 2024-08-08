@@ -58,3 +58,6 @@ html, body {
 .valeur {
   text-shadow: -2px 0 white, 0 2px white, 2px 0 white, 0 -2px white;
 }
+#chrono0 {
+  text-shadow: -3px 0 black, 0 3px black, 3px 0 black, 0 -3px black;
+}

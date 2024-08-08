@@ -56,9 +56,9 @@
   #define ORG_NAME              "fra589"
   #define COPYRIGHT             "G.Brière 2024-2024"
   #define APP_NAME              "WeThermic"
-  #define APP_VERSION_MAJOR     "0"
-  #define APP_VERSION_MINOR     "10"
-  #define APP_VERSION_DATE      "20240730"
+  #define APP_VERSION_MAJOR     "1"
+  #define APP_VERSION_MINOR     "0"
+  #define APP_VERSION_DATE      "20240808"
   #define APP_VERSION_STRING    "v" APP_VERSION_MAJOR "." APP_VERSION_MINOR "." APP_VERSION_DATE
   #define APP_NAME_VERSION      APP_NAME " - " APP_VERSION_STRING "\0"
 

@@ -151,6 +151,7 @@ void setup() {
   #endif
 
   delay(1000);
+  digitalWrite(LED_BUILTIN, HIGH); // Eteint la LED
 
 }
 

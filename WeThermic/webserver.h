@@ -41,5 +41,8 @@
   String getFileList(String path);
   void handleFactory(void);
   void handleSetDuree(void);
-  
+  #ifdef GENERATE_204
+    void generate_204(void);
+  #endif
+
 #endif

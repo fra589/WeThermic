@@ -32,6 +32,11 @@
   // Screen SSD1306 disabled by default
   //#define HAVE_SCREEN
   
+  // define GENERATE_204 to reply to Google Internet verification 
+  // and avoid automatic captive portal redirection on android
+  // Comment next line if you want the automatic redirection
+  #define GENERATE_204
+  
   #include <EEPROM.h>
   #include <ESP8266WiFi.h>
   #include <ESP8266mDNS.h>

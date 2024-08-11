@@ -103,7 +103,14 @@ void handleRoot(void) {
     Serial.println(uri);
   #endif
 
-  if (captivePortal()) { // If caprive portal redirect instead of displaying the page.
+  #ifdef GENERATE_204
+    if (uri == "/generate_204") {
+      generate_204();
+      return;
+    }
+  #endif
+  
+  if (captivePortal()) { // If captive portal redirect instead of displaying the page.
     return;
   }
 
@@ -114,6 +121,19 @@ void handleRoot(void) {
   handleFileRead("/index.html");
 
 }
+
+#ifdef GENERATE_204
+  void generate_204(void) {
+
+    #ifdef DEBUG_WEB
+      Serial.println("Entrée dans generate_204()");
+    #endif
+    
+    server.send(204, "No Content", ""); // Reply for Android captive portal detection
+    server.client().stop();             // Stop is needed because we sent no content length
+    
+  }
+#endif
 
 void handleNotFound(void) {
 

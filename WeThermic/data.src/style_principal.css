@@ -38,6 +38,12 @@ html, body {
   position: absolute;
   width: 100%;
 }
+.topRight {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-right: 5px;
+}
 .fLeft {
   float: left;
   margin: 0;
@@ -359,6 +365,9 @@ border-top: 1px solid white;
 .colorButton {
   cursor: pointer;
 }
-
+#tblGraphOrder {
+  width: 80%;
+  margin: auto;
+}
 
 

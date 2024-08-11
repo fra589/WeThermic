@@ -30,6 +30,12 @@ var cssFile = cssClair;
 var linkClair = null;
 var linkSombre = null;
 
+// Ordre des graphiques par défaut
+var graph0 = "Wind";
+var graph1 = "Pressure";
+var graph2 = "Temperature";
+graphOrderChanged = false;
+
 // Durée de calcul des moyennes
 var largeurMoyVent  = 180; // Moyenne sur 1 minute 30s
 var largeurMoyPres  = 180; // Moyenne sur 1 minute 30s
@@ -43,8 +49,8 @@ var soundOn       = true;
 
 // pour debug du developpement, adresse IP de la Wemos connectée au wifi
 //var netDevURL = 'http://10.10.10.10'; // connected to WeThermic
-//var netDevURL = 'http://192.168.1.107'; // domopassaduy GB1
-var netDevURL = 'http://192.168.1.80'; // domopassaduy GB2
+var netDevURL = 'http://192.168.1.107'; // domopassaduy GB1
+//var netDevURL = 'http://192.168.1.80'; // domopassaduy GB2
 //var netDevURL = 'http://192.168.1.130';  // BlancheNeige
 //var netDevURL = 'http://192.168.1.60';  // La Gouffrerie
 //var netDevURL = 'http://192.168.8.111'; // Cohabit
@@ -462,6 +468,27 @@ async function index_onload() {
   };
 
   // Création des graphiques
+  // Préférences de l'ordre des graphiques
+  var graphPref = localStorage.getItem("graph0");
+  if (graphPref !== null) {
+    graph0 = graphPref;
+  }
+  setRadValue("gOrder0", graph0);
+
+  var graphPref = localStorage.getItem("graph1");
+  if (graphPref !== null) {
+    graph1 = graphPref;
+  }
+  setRadValue("gOrder1", graph1);
+  
+  var graphPref = localStorage.getItem("graph2");
+  if (graphPref !== null) {
+    graph2 = graphPref;
+  }
+  setRadValue("gOrder2", graph2);
+  // Création des conteneurs
+  setGraphicsContainers();
+  
   Window.graphVent = new Chart(document.getElementById('graphVent'), {
     type: 'line',
     data: ventData,
@@ -830,6 +857,9 @@ function changeSettings() {
 function closeSettings() {
   var dialog = document.getElementById('settingsDialog')
   dialog.classList.add("noshow");
+  if (graphOrderChanged) {
+    location.reload();
+  }
 }
 
 function loadTheme() {
@@ -1188,7 +1218,6 @@ function deconnect_clique() {
 }
 
 function refreshPage() {
-  //location.reload();
   
   // Affiche l'animation d'attente
   var attente = document.getElementById("attente0")
@@ -1430,7 +1459,6 @@ function updateAPconfig() {
     xhttp.onreadystatechange = function() {
       if (xhttp.readyState == 4) {
         if ((xhttp.status == 200) || (xhttp.status == 0)) {
-          ////XMLHttpResult("/setapconfig", xhttp.responseXML, xhttp.responseText);
           alert("updateAPconfig():\n" + xhttp.responseText);
         } else {
           alert("updateAPconfig() : Error " + xhttp.status);
@@ -1454,7 +1482,7 @@ function updateAPconfig() {
 function resetSettings() {
   if (confirm("Reset preferences to default?") == true) {
     localStorage.clear();
-    window.location.reload();
+    location.reload();
   }
 }
 
@@ -1819,4 +1847,119 @@ function resizeActiveColorTable() {
   obj.style.borderRadius = radius + 'px';
 
 }
+
+function changeGraphOrder(radio) {
+  
+  if (radio.name == "gOrder0") {
+    // Inverse les valeurs avec le graphique qui avait précédament la valeur cochée
+    if (getRadValue("gOrder1") == radio.value) {
+      setRadValue("gOrder1", graph0);
+      graph1 = graph0;
+    }
+    if (getRadValue("gOrder2") == radio.value) {
+      setRadValue("gOrder2", graph0);
+      graph2 = graph0;
+    }
+    graph0 = radio.value;
+  } else if (radio.name == "gOrder1") {
+    // Inverse les valeurs avec le graphique qui avait précédament la valeur cochée
+    if (getRadValue("gOrder0") == radio.value) {
+      setRadValue("gOrder0", graph1);
+      graph0 = graph1;
+    }
+    if (getRadValue("gOrder2") == radio.value) {
+      setRadValue("gOrder2", graph1);
+      graph2 = graph1;
+    }
+    graph1 = radio.value;
+  } else if (radio.name == "gOrder2") {
+    // Inverse les valeurs avec le graphique qui avait précédament la valeur cochée
+    if (getRadValue("gOrder0") == radio.value) {
+      setRadValue("gOrder0", graph2);
+      graph0 = graph2;
+    }
+    if (getRadValue("gOrder1") == radio.value) {
+      setRadValue("gOrder1", graph2);
+      graph1 = graph2;
+    }
+    graph2 = radio.value;
+  }
+
+  // Sauvegarde les préférences
+  localStorage.setItem("graph0", graph0);
+  localStorage.setItem("graph1", graph1);
+  localStorage.setItem("graph2", graph2);
+
+  // Change les graphiques
+  setGraphicsContainers();
+  
+  // Prévient du changement pour reload à la fermeture de 
+  // la boite de dialogue de configuration
+  graphOrderChanged = true;
+}
+
+function setRadValue(radName, valeur) {
+  for (rad of document.getElementsByName(radName)) {
+    if (rad.value == valeur) {
+      rad.checked = true;
+      break;
+    }
+  }
+}
+
+function getRadValue(radName) {
+  for (rad of document.getElementsByName(radName)) {
+    if (rad.checked) {
+      return rad.value;
+      break;
+    }
+  }
+}
+
+function setGraphicsContainers() {
+  // Vent
+  CV  = "        <div id=\"valeursV\">";
+  CV += "          <div class=\"fLeft valeur\"><p id=\"valeurVent\">~~~~m/s</p></div>";
+  CV += "        </div>";
+  CV += "        <canvas id=\"graphVent\" class=\"graphjs\"></canvas>";
+  // Pression
+  CP  = "        <div id=\"valeursP\">";
+  CP += "          <div class=\"fLeft valeur\"><p id=\"valeurPress\">~~~~hPa</p></div>";
+  CP += "        </div>";
+  CP += "        <canvas id=\"graphPres\" class=\"graphjs\"></canvas>";
+  // Température
+  CT  = "        <div id=\"valeursT\">";
+  CT += "          <div class=\"fLeft valeur\"><p id=\"valeurTemp\">~~~~°C</p></div>";
+  CT += "        </div>";
+  CT += "        <canvas id=\"graphTemp\" class=\"graphjs\"></canvas>";
+
+  if (graph0 == "Wind") {
+    document.getElementById("container0").innerHTML = CV;
+  } else if (graph0 == "Pressure") {
+    document.getElementById("container0").innerHTML = CP;
+  }  else if (graph0 == "Temperature") {
+    document.getElementById("container0").innerHTML = CT;
+  }
+  
+  if (graph1 == "Wind") {
+    document.getElementById("container1").innerHTML = CV;
+  } else if (graph1 == "Pressure") {
+    document.getElementById("container1").innerHTML = CP;
+  }  else if (graph1 == "Temperature") {
+    document.getElementById("container1").innerHTML = CT;
+  }
+  
+  if (graph2 == "Wind") {
+    document.getElementById("container2").innerHTML = CV;
+  } else if (graph2 == "Pressure") {
+    document.getElementById("container2").innerHTML = CP;
+  }  else if (graph2 == "Temperature") {
+    document.getElementById("container2").innerHTML = CT;
+  }
+  
+  
+}
+
+
+
 

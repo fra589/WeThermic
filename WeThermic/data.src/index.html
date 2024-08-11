@@ -38,28 +38,35 @@
   </head>
   <body onload="index_onload();" onresize="index_resize()">
     <div id="lapage">
-      <div class="graph_container">
+      <div id="container0" class="graph_container">
+        <!-- Déplacé dans le script pour pouvoir changer l'ordre
         <div id="valeursV">
           <div class="fLeft valeur"><p id="valeurVent">~~~~m/s</p></div>
-          <div class="fRight">
-            <div><image id="boutonSettings" class="btn top10"  src="images/settings.svg" onclick="changeSettings();" /></div>
-            <div><image id="boutonChrono"   class="btn"        src="images/chrono.svg"   onclick="toggleChrono();" /></div>
-            <div><image id="boutonSon"      class="btn noshow" src="images/sound-on.svg" onclick="toggleSon();" /></div>
-          </div>
         </div>
         <canvas id="graphVent" class="graphjs"></canvas>
+        -->
       </div>
-      <div class="graph_container">
+      <div id="container1" class="graph_container">
+        <!--
         <div id="valeursP">
           <div class="fLeft valeur"><p id="valeurPress">~~~~hPa</p></div>
         </div>
         <canvas id="graphPres" class="graphjs"></canvas>
+        -->
       </div>
-      <div class="graph_container">
+      <div id="container2" class="graph_container">
+        <!--
         <div id="valeursT">
           <div class="fLeft valeur"><p id="valeurTemp">~~~~°C</p></div>
         </div>
         <canvas id="graphTemp" class="graphjs"></canvas>
+        -->
+      </div>
+      <!-- Boutons en haut à droite -->
+      <div class="topRight">
+        <div><image id="boutonSettings" class="btn top10"  onclick="changeSettings();" src="images/settings.svg" /></div>
+        <div><image id="boutonChrono"   class="btn"        onclick="toggleChrono();"   src="images/chrono.svg"   /></div>
+        <div><image id="boutonSon"      class="btn noshow" onclick="toggleSon();"      src="images/sound-on.svg" /></div>
       </div>
       <div>
         <span id="fullScreenButton" onclick="toggleFullscreen()"><br />View in full screen<br />&nbsp;</span>
@@ -80,49 +87,76 @@
         <div class="fRight"><image id="boutonClose" class="btn top10" src="images/close.svg" title="Close settings" onclick="closeSettings();" /></div>
         <h1>Settings :</h1>
         <hr id="ligneHaut" />
-        <p class="centerAlign">
-          <fieldset class="settingFieldset" id="colorTheme">
-          <legend>Color theme</legend>
-          <div id="fondColorTheme">
-            <span>
-              <input type="radio" name="theme" id="sombre" value="sombre" onchange="changeTheme('sombre');" checked />
-              <label for="sombre">Dark</label>
-              &nbsp;
-              <input type="radio" name="theme" id="clair" value="clair" onchange="changeTheme('clair');" />
-              <label for="clair">Clear</label>
-            </span>
-            <table id="activeColors">
-              <tbody>
-                <tr id="actr1">
-                  <td><div id="iw" class="colorButton" onclick="openColor('iw')"></div></td><td>Instand wind</td>
-                  <td><div id="ip" class="colorButton" onclick="openColor('ip')"></div></td><td>Instand pressure</td>
-                  <td><div id="it" class="colorButton" onclick="openColor('it')"></div></td><td>Instand temperature</td>
-                </tr>
-                <tr id="actr2">
-                  <td><div id="aw" class="colorButton" onclick="openColor('aw')"></div></td><td>Average wind</td>
-                  <td><div id="ap" class="colorButton" onclick="openColor('ap')"></div></td><td>Average pressure</td>
-                  <td><div id="at" class="colorButton" onclick="openColor('at')"></div></td><td>Average temperature</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          </fieldset>
-        </p>
-        <p>
-          <fieldset class="settingFieldset" id="dureeFieldset">
-            <legend>Graph time length / refresh</legend>
-            <span class="nowarp">
-              <input type="radio" name="rDuree" id="d500" value="500" onchange="changeDuree(500);" checked />
-              <label for="d500">5 mn / 0.5 s</label>
-              &nbsp;
-              <input type="radio" name="rDuree" id="d1000" value="1000" onchange="changeDuree(1000);" />
-              <label for="d1000">10 mn / 1 s</label>
-              &nbsp;
-              <input type="radio" name="rDuree" id="d2000" value="2000" onchange="changeDuree(2000);" />
-              <label for="d2000">20 mn / 2 s</label>
-            </span>
-          </fieldset>
-        </p>
+        
+        <fieldset class="settingFieldset" id="colorTheme">
+        <legend>Color theme</legend>
+        <div id="fondColorTheme">
+          <span>
+            <input type="radio" name="theme" id="sombre" value="sombre" onchange="changeTheme('sombre');" checked />
+            <label for="sombre">Dark</label>
+            &nbsp;
+            <input type="radio" name="theme" id="clair" value="clair" onchange="changeTheme('clair');" />
+            <label for="clair">Clear</label>
+          </span>
+          <table id="activeColors">
+            <tbody>
+              <tr id="actr1">
+                <td><div id="iw" class="colorButton" onclick="openColor('iw')"></div></td><td>Instand wind</td>
+                <td><div id="ip" class="colorButton" onclick="openColor('ip')"></div></td><td>Instand pressure</td>
+                <td><div id="it" class="colorButton" onclick="openColor('it')"></div></td><td>Instand temperature</td>
+              </tr>
+              <tr id="actr2">
+                <td><div id="aw" class="colorButton" onclick="openColor('aw')"></div></td><td>Average wind</td>
+                <td><div id="ap" class="colorButton" onclick="openColor('ap')"></div></td><td>Average pressure</td>
+                <td><div id="at" class="colorButton" onclick="openColor('at')"></div></td><td>Average temperature</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        </fieldset>
+        
+        <fieldset class="settingFieldset" id="graphOrder">
+          <legend>Graph order</legend>
+          <span>
+          <table id="tblGraphOrder">
+            <tbody>
+              <tr>
+                <td>Upper graph:</td>
+                <td><input type="radio" name="gOrder0" id="gOrder00" onchange="changeGraphOrder(this);" value="Wind"        /><label for="gOrder00">Wind</label></td>
+                <td><input type="radio" name="gOrder0" id="gOrder01" onchange="changeGraphOrder(this);" value="Pressure"    /><label for="gOrder01">Pressure</label></td>
+                <td><input type="radio" name="gOrder0" id="gOrder02" onchange="changeGraphOrder(this);" value="Temperature" /><label for="gOrder02">Temperature</label></td>
+              </tr>
+              <tr>
+                <td>Middle graph:</td>
+                <td><input type="radio" name="gOrder1" id="gOrder10" onchange="changeGraphOrder(this);" value="Wind"        /><label for="gOrder10">Wind</label></td>
+                <td><input type="radio" name="gOrder1" id="gOrder11" onchange="changeGraphOrder(this);" value="Pressure"    /><label for="gOrder11">Pressure</label></td>
+                <td><input type="radio" name="gOrder1" id="gOrder12" onchange="changeGraphOrder(this);" value="Temperature" /><label for="gOrder12">Temperature</label></td>
+              </tr>
+              <tr>
+                <td>Bottom graph:</td>
+                <td><input type="radio" name="gOrder2" id="gOrder20" onchange="changeGraphOrder(this);" value="Wind"        /><label for="gOrder20">Wind</label></td>
+                <td><input type="radio" name="gOrder2" id="gOrder21" onchange="changeGraphOrder(this);" value="Pressure"    /><label for="gOrder21">Pressure</label></td>
+                <td><input type="radio" name="gOrder2" id="gOrder22" onchange="changeGraphOrder(this);" value="Temperature" /><label for="gOrder22">Temperature</label></td>
+              </tr>
+            </tbody>
+          </table>
+          </span>
+        </fieldset>
+        
+        <fieldset class="settingFieldset" id="dureeFieldset">
+          <legend>Graph time length / refresh</legend>
+          <span class="nowarp">
+            <input type="radio" name="rDuree" id="d500" value="500" onchange="changeDuree(500);" checked />
+            <label for="d500">5 mn / 0.5 s</label>
+            &nbsp;
+            <input type="radio" name="rDuree" id="d1000" value="1000" onchange="changeDuree(1000);" />
+            <label for="d1000">10 mn / 1 s</label>
+            &nbsp;
+            <input type="radio" name="rDuree" id="d2000" value="2000" onchange="changeDuree(2000);" />
+            <label for="d2000">20 mn / 2 s</label>
+          </span>
+        </fieldset>
+
         <fieldset class="settingFieldset" id="graphFieldset">
           <legend>Average calculations</legend>
           <p class="leftAlign">
@@ -136,6 +170,7 @@
             
           </p>
         </fieldset>
+
         <hr />
         <!--------------------------------------------------------------------------------------->
         <!-- Config réseau                                                                     -->

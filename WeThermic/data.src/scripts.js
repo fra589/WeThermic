@@ -120,6 +120,7 @@ var colorEnCours = "";
 
 //             Do       Ré       Mi       Fa       Sol      La       Si       Do
 const notes = [261.625, 293.664, 329.627, 349.228, 391.995, 440.000, 493.883, 523.251];
+var noteNum = 0;
 // Pour la fonction beep()
 // if you have another AudioContext class use that one, as some browsers have a limit
 var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
@@ -168,6 +169,13 @@ async function index_onload() {
   inputLargeurPres();
   document.getElementById("lMoyTemp").value = largeurMoyTemp / 60;
   inputLargeurTemp();
+
+  var chronoPref = localStorage.getItem("chronoMaxTime");
+  if (chronoPref !== null) {
+    chronoMaxTime = Number(chronoPref);
+  }
+  document.getElementById('countDownTime').value = chronoMaxTime;
+  afficheChronoMaxTime();
 
   var soundPref = localStorage.getItem("sound");
   if (soundPref !== null) {
@@ -1512,8 +1520,22 @@ function toggleChrono() {
   }
 }
 
+function changeCountDown() {
+  var inp = document.getElementById('countDownTime')
+  if (!chronoRunning) {
+    // Change & store the value
+    chronoMaxTime = inp.value;
+    afficheChronoMaxTime();
+    localStorage.setItem("chronoMaxTime", chronoMaxTime);
+    console.log(chronoMaxTime)
+  } else {
+    // Chrono is running, the value can't be changed !
+    inp.value = chronoMaxTime;
+  }
+}
+
 function startStopChrono() {
-  var chrono = document.getElementById('chrono0');
+  //////var chrono = document.getElementById('chrono0');
   const bouton = document.getElementById('btnChrono');
   if (!chronoRunning) {
     // Démarre le chrono
@@ -1523,20 +1545,25 @@ function startStopChrono() {
     bouton.src="images/stop-chrono.svg"
     refreshChrono();
     clignottementChrono();
+    noteNum = 0;
     if (soundOn) {
-      beep(500, notes[0], 2, "sine", function(){flagBeep = false;});
+      beep(500, notes[noteNum], 2, "sine", function(){flagBeep = false;});
     }
   } else {
     if (confirm("Stopping time countdown?") == true) {
       chronoRunning = false;
-      var chrono = document.getElementById('chrono0');
-      minutes = Math.trunc(chronoMaxTime / 60);
-      seconds = chronoMaxTime % 60;
-      newText = minutes.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + ":" + seconds.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
-      chrono.innerHTML = newText;
+      afficheChronoMaxTime();
       bouton.src="images/start-chrono.svg"
     }
   }
+}
+
+function afficheChronoMaxTime() {
+  var chrono = document.getElementById('chrono0');
+  minutes = Math.trunc(chronoMaxTime / 60);
+  seconds = chronoMaxTime % 60;
+  newText = minutes.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + ":" + seconds.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+  chrono.innerHTML = newText;
 }
 
 function refreshChrono() {
@@ -1550,7 +1577,7 @@ function refreshChrono() {
       seconds = Math.floor((secondesRestante % 60000) / 1000);
       newText = minutes.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + chronoSepar + seconds.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
       chrono.innerHTML = newText;
-      if ((seconds == 0) && (soundOn)) {
+      if ((seconds == 0) && (soundOn) && (chronoSepar == ':')) {
         if (!flagBeep) { // Pour éviter les doubles beeps
           flagBeep = true;
           if (minutes == 0) {
@@ -1558,7 +1585,12 @@ function refreshChrono() {
           } else {
             duree = 500;
           }
-          beep(duree, notes[7 - minutes], 2, "sine", function(){flagBeep = false;});
+          noteNum++;
+          if (noteNum >= notes.length) {
+            noteNum = 0;
+          }
+          console.log("noteNum = ",noteNum);
+          beep(duree, notes[noteNum], 2, "sine", function(){flagBeep = false;});
         }
       }
     } else {
@@ -1569,7 +1601,7 @@ function refreshChrono() {
     }
     setTimeout(function() { refreshChrono() }, 500);
   } else {
-    chrono.innerHTML = "07:00";
+    afficheChronoMaxTime();
   }
 }
 

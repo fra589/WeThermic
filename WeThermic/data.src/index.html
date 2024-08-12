@@ -167,7 +167,18 @@
           </p>
           <p class="leftAlign">
             <label class="nowarp">temp&nbsp;<input type="range" class="fullWidth" id="lMoyTemp" name="lMoyTemp" min="1" max="10" value="2" step="1" onchange="changeLargeurTemp()" oninput="inputLargeurTemp()" />&nbsp;<span id="valMoyTemp" >1:30</span></label>
-            
+          </p>
+        </fieldset>
+
+        <fieldset class="settingFieldset" id="chronoFieldset">
+          <legend>Countdown time</legend>
+          <p>
+            <label for="countDownTime">Count down time (seconds from 60 to 7200):&nbsp;</label>
+            <input type="number" id="countDownTime" name="countDownTime" min="60" max="7200" value="420" step="30" oninput="changeCountDown()" />
+            <button type="button" onclick="document.getElementById('countDownTime').value=420; changeCountDown();">7mn</button>
+            <button type="button" onclick="document.getElementById('countDownTime').value=1800; changeCountDown();">30mn</button>
+            <button type="button" onclick="document.getElementById('countDownTime').value=3600; changeCountDown();">1h</button>
+            <button type="button" onclick="document.getElementById('countDownTime').value=5400; changeCountDown();">1h30mn</button>
           </p>
         </fieldset>
 

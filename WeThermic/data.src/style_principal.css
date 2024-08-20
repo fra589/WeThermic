@@ -86,7 +86,6 @@ html, body {
   padding-bottom: 5px;
   padding-left: 10px;
   padding-right: 10px;
-  background-color: darkgreen;
   cursor: pointer;
 }
 #refreshButton {
@@ -99,7 +98,6 @@ html, body {
   padding-bottom: 5px;
   padding-left: 10px;
   padding-right: 10px;
-  background-color: darkgreen;
   cursor: pointer;
 }
 .settingsDialog {
@@ -255,6 +253,7 @@ border-top: 1px solid white;
   cursor: pointer;
 }
 .attente {
+  margin: auto;
   border: 7px solid #f3f3f3;
   border-top: 7px solid yellow;
   border-right: 12px solid green;

@@ -135,6 +135,10 @@ function index_resize() {
 
 async function index_onload() {
 
+  // affiche l'animation d'attente
+  var attente = document.getElementById("attente0")
+  attente.classList.remove("noshow");
+
   // Restauration des préférences avec l'API localStorage plutôt que des cookies
   var cssPref = localStorage.getItem("cssFile");
   if (cssPref !== null) {
@@ -525,7 +529,6 @@ async function index_onload() {
   }
 
   // Masque l'animation d'attente
-  var attente = document.getElementById("attente0")
   attente.classList.add("noshow");
 
   // récupère la config AP
@@ -582,8 +585,19 @@ function XMLHttpResult(requette, xml, text) {
       graphHistoryintegration(xml);
 
     } else if ((requette == "/getvalues") || (requette == netDevURL + "/getvalues")) {
-      if (!historiqueEnCours) {
-        vent        = Number(xml.getElementsByTagName("v")[0].childNodes[0].nodeValue);
+      if (historiqueEnCours === false) {
+        newVent        = Number(xml.getElementsByTagName("v")[0].childNodes[0].nodeValue);
+        if (vent < 3) {
+          rafaleMax = 3;
+        } else {
+          rafaleMax = vent;
+        }
+        if (Math.abs(newVent - vent) < rafaleMax) {
+          vent = newVent;
+        } else {
+          // Elimination des points abérants, on garde la dernière valeur
+          //////vent = ventMoyen;
+        }
         calculMoyenneVent();
 
         var doc_vent  = document.getElementById("valeurVent");
@@ -594,7 +608,8 @@ function XMLHttpResult(requette, xml, text) {
         if (Math.abs(newCtn - tempctn) < 3) {
           tempctn = newCtn;
         } else {
-          tempctn = ctnMoyen;
+          // Elimination des points abérants, on garde la dernière valeur
+          //////tempctn = ctnMoyen;
         }
         calculMoyenneTemperature();
 
@@ -646,7 +661,7 @@ function XMLHttpResult(requette, xml, text) {
   }
 
   if ((requette == "/getvalues") || (requette == netDevURL + "/getvalues")) {
-    if (!historiqueEnCours) {
+    if (historiqueEnCours === false) {
       // Appel recursif pour boucler au lieu d'utiliser  setInterval()
       // Cela assure que te traitement à été terminé avant de relancer
       // la requette vers le serveur web.
@@ -657,10 +672,10 @@ function XMLHttpResult(requette, xml, text) {
 }
 
 function graphHistoryintegration(xml) {
-  // Stop une demande de valeur planifiée
-  clearTimeout(refreshTimeoutID);
   // flag pour éviter l'arrivée de valeurs en cours d'intégration en cas de refresh
   historiqueEnCours = true;
+  // Stop une demande de valeur planifiée
+  clearTimeout(refreshTimeoutID);
   // Intègre dynamiquement les données d'historique au graphiques
   var flagDebut = false;
   // Récupère la durée (500, 1000 ou 2000)
@@ -678,6 +693,7 @@ function graphHistoryintegration(xml) {
   // Il y a 5, 10 ou 20 minutes :
   tX = tX - ((interval / 100) * 60 * 1000) 
   hist = xml.getElementsByTagName("h");
+
   for (const h of hist) {
     pression   = calculPressionDouce(Number(h.getElementsByTagName("p")[0].childNodes[0].nodeValue));
     if (pression != 0) {
@@ -695,8 +711,8 @@ function graphHistoryintegration(xml) {
         // Température valide
         tempctn = newCtn;
       } else {
-        // Elimination des points abérants, on les remplace par la valeur moyenne
-        tempctn = ctnMoyen;
+        // Elimination des points abérants,  on garde la dernière valeur
+        //////tempctn = ctnMoyen;
       }
       /*tempBmp180 = Number(h.getElementsByTagName("b")[0].childNodes[0].nodeValue);*/
       calculMoyenneTemperature();
@@ -837,7 +853,6 @@ function calculMoyenneTemperature() {
   } else {
     // calcul la moyenne jusqu'à l'index (le tableau n'est pas complet).
     ctnMoyen    = Math.round(ctnTotal / tblTempIdx * 100)/100;
-    //console.log("tblTempIdx=" + tblTempIdx + "   ctnTotal=" + Math.round(ctnTotal * 100)/100 + "   ctnMoyen=" + ctnMoyen)
   }
   
 }
@@ -1246,13 +1261,13 @@ function refreshPage() {
   tblVentsIdx     = 0;
   largeurVentFull = false;
   ventTotal       = 0.0;
-  ventMoyen       = 0.0;
+  //////ventMoyen       = 0.0;
 
   tblPres         = new Array(largeurMoyPres);
   tblPresIdx      = 0;
   largeurPresFull = false;
   presTotal       = 0.0;
-  presMoyen       = 0.0;
+  //////presMoyen       = 0.0;
 
   largDouxPres    = 8;
   tblPresDoux     = new Array(largDouxPres);
@@ -1262,9 +1277,10 @@ function refreshPage() {
 
   tblTempIdx      = 0;
   largeurTempFull = false;
+  delete tblCtn;
   tblCtn          = new Array(largeurMoyTemp);
   ctnTotal        = 0.0;
-  ctnMoyen        = 0.0;
+  //////ctnMoyen        = 0.0;
 
   // Supprime les graphiques
   Window.graphVent.destroy();
@@ -1527,7 +1543,6 @@ function changeCountDown() {
     chronoMaxTime = inp.value;
     afficheChronoMaxTime();
     localStorage.setItem("chronoMaxTime", chronoMaxTime);
-    console.log(chronoMaxTime)
   } else {
     // Chrono is running, the value can't be changed !
     inp.value = chronoMaxTime;
@@ -1589,7 +1604,6 @@ function refreshChrono() {
           if (noteNum >= notes.length) {
             noteNum = 0;
           }
-          console.log("noteNum = ",noteNum);
           beep(duree, notes[noteNum], 2, "sine", function(){flagBeep = false;});
         }
       }

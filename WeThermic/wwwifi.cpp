@@ -54,7 +54,9 @@ void wifiApInit(void) {
   // Soft AP network parameters
   IPAddress apIP(10, 10, 10, 10);
   IPAddress netMsk(255, 255, 255, 0);
-
+  int ssid_hidden = 0; // 1 pour masquer le SSID
+  int max_connection = 4; // 8 au maximum possible, 4 max préconisé pour les perfos et la stabilité
+  
   if (strcmp(ap_ssid, DEFAULT_AP_SSID) == 0) {
     String SSID_MAC = String(DEFAULT_AP_SSID + WiFi.softAPmacAddress().substring(9));
     SSID_MAC.toCharArray(ap_ssid, MAX_SSID_LEN);
@@ -69,7 +71,7 @@ void wifiApInit(void) {
   #endif
 
   WiFi.softAPConfig(apIP, apIP, netMsk);
-  WiFi.softAP(ap_ssid, ap_pwd, DEFAULT_AP_CHANNEL); // (AP ouverte si de mot de passe vide ou null)
+  WiFi.softAP(ap_ssid, ap_pwd, DEFAULT_AP_CHANNEL, ssid_hidden, max_connection); // (AP ouverte si de mot de passe vide ou null)
 
   delay(500); // Without delay I've seen the IP address blank
 

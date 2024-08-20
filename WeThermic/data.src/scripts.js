@@ -36,6 +36,9 @@ var graph1 = "Pressure";
 var graph2 = "Temperature";
 graphOrderChanged = false;
 
+// Position échelles Y
+var scalesPositions = 'left';
+
 // Durée de calcul des moyennes
 var largeurMoyVent  = 180; // Moyenne sur 1 minute 30s
 var largeurMoyPres  = 180; // Moyenne sur 1 minute 30s
@@ -174,6 +177,17 @@ async function index_onload() {
   document.getElementById("lMoyTemp").value = largeurMoyTemp / 60;
   inputLargeurTemp();
 
+  // Position des l'échelles Y
+  var scalesPref = localStorage.getItem("scalesPositions");
+  if (scalesPref !== null) {
+    scalesPositions = scalesPref;
+  }
+  if (scalesPositions == 'left') {
+    document.getElementById("scalesPL").checked = true;
+  } else if (scalesPositions == 'right') {
+    document.getElementById("scalesPR").checked = true;
+  }
+
   var chronoPref = localStorage.getItem("chronoMaxTime");
   if (chronoPref !== null) {
     chronoMaxTime = Number(chronoPref);
@@ -292,6 +306,8 @@ async function index_onload() {
       y: {
         type: 'linear',
         beginAtZero: true,
+        display: true,
+        position: scalesPositions,
         suggestedMax: 3,
         ticks: {
           color: couleurVent
@@ -378,6 +394,7 @@ async function index_onload() {
         type: 'linear',
         beginAtZero: false,
         display: true,
+        position: scalesPositions,
         ticks: {
           color: couleurPression
         },
@@ -463,7 +480,7 @@ async function index_onload() {
         type: 'linear',
         beginAtZero: false,
         display: true,
-        position:'left',
+        position: scalesPositions,
         ticks: {
           color: couleurTempCtn
         },
@@ -1942,6 +1959,16 @@ function changeGraphOrder(radio) {
   // Prévient du changement pour reload à la fermeture de 
   // la boite de dialogue de configuration
   graphOrderChanged = true;
+}
+
+function changeScalesPos(radio) {
+  scalesPositions = radio.value;
+  // Repositionne les échelles
+  Window.graphVent.options.scales['y'].position = scalesPositions;
+  Window.graphPres.options.scales['y'].position = scalesPositions;
+  Window.graphTemp.options.scales['y'].position = scalesPositions;
+  
+  localStorage.setItem("scalesPositions", scalesPositions);
 }
 
 function setRadValue(radName, valeur) {

@@ -62,8 +62,8 @@
   #define COPYRIGHT             "G.Brière 2024-2024"
   #define APP_NAME              "WeThermic"
   #define APP_VERSION_MAJOR     "1"
-  #define APP_VERSION_MINOR     "01"
-  #define APP_VERSION_DATE      "20240811"
+  #define APP_VERSION_MINOR     "02"
+  #define APP_VERSION_DATE      "20240820"
   #define APP_VERSION_STRING    "v" APP_VERSION_MAJOR "." APP_VERSION_MINOR "." APP_VERSION_DATE
   #define APP_NAME_VERSION      APP_NAME " - " APP_VERSION_STRING "\0"
 

@@ -367,6 +367,9 @@ border-top: 1px solid white;
 #tblGraphOrder {
   width: 80%;
   margin: auto;
+  border-collapse: collapse;
 }
-
+.borderSup {
+  border-top: 1px solid;
+}
 

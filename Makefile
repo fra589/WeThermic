@@ -62,6 +62,7 @@ MINIFY=/usr/bin/minify
 # cette configuration n'est pas compatible avec les cartes Wemos D1 mini.
 # il faut une version compilée avec LFS_NAME_MAX=32.
 MKLITTLEFS=/usr/local/bin/mklittlefs
+#MKLITTLEFS=/home/gauthier/.arduino15/packages/esp8266/tools/mklittlefs/3.1.0-gcc10.3-e5f9fec/mklittlefs
 
 # Compiation Arduino
 ARDUINO=/${HOME}/Logiciels/arduino/arduino

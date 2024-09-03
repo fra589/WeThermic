@@ -51,8 +51,8 @@ var soundOn       = true;
 //------------------------------------------------------------------------------------------
 
 // pour debug du developpement, adresse IP de la Wemos connectée au wifi
-//var netDevURL = 'http://10.10.10.10'; // connected to WeThermic
-var netDevURL = 'http://192.168.1.107'; // domopassaduy GB1
+var netDevURL = 'http://10.10.10.10'; // connected to WeThermic
+//var netDevURL = 'http://192.168.1.107'; // domopassaduy GB1
 //var netDevURL = 'http://192.168.1.80'; // domopassaduy GB2
 //var netDevURL = 'http://192.168.1.130';  // BlancheNeige
 //var netDevURL = 'http://192.168.1.60';  // La Gouffrerie
@@ -186,6 +186,13 @@ async function index_onload() {
     document.getElementById("scalesPL").checked = true;
   } else if (scalesPositions == 'right') {
     document.getElementById("scalesPR").checked = true;
+    // les boutons sont du mauvais coté, on les change
+    document.getElementById("buttonBox").classList.remove("topRight");
+    document.getElementById("buttonBox").classList.add("topLeft");
+    document.getElementById("buttonsReset").classList.remove("fLeft");
+    document.getElementById("buttonsReset").classList.add("fRight");
+    document.getElementById("buttonClose").classList.remove("fRight");
+    document.getElementById("buttonClose").classList.add("fLeft");
   }
 
   var chronoPref = localStorage.getItem("chronoMaxTime");
@@ -612,9 +619,12 @@ function XMLHttpResult(requette, xml, text) {
         if (Math.abs(newVent - vent) < rafaleMax) {
           vent = newVent;
         } else {
-          // Elimination des points abérants, on garde la dernière valeur
+          // Elimination des points abérants, 
+          // on garde la dernière valeur donc, 
+          // pas de mise à jour de la valeur.
           //////vent = ventMoyen;
         }
+        ////console.log("newVent = " + newVent + " rafaleMax = " + rafaleMax + " vent = " + vent);
         calculMoyenneVent();
 
         var doc_vent  = document.getElementById("valeurVent");
@@ -625,7 +635,8 @@ function XMLHttpResult(requette, xml, text) {
         if (Math.abs(newCtn - tempctn) < 3) {
           tempctn = newCtn;
         } else {
-          // Elimination des points abérants, on garde la dernière valeur
+          // Elimination des points abérants,
+          // on garde la dernière valeur
           //////tempctn = ctnMoyen;
         }
         calculMoyenneTemperature();
@@ -641,7 +652,7 @@ function XMLHttpResult(requette, xml, text) {
         var doc_press = document.getElementById("valeurPress");
         doc_press.innerHTML  = '<span class="couleurPression">I = ' + Number.parseFloat(pression).toFixed(2) + "hPa</span><br :>";
         doc_press.innerHTML += '<span class="couleurMoyPres">A = ' + Number.parseFloat(presMoyen).toFixed(2) + "hPa</span>";
-      }
+      } // if (historiqueEnCours === false)
 
     } else if ((requette == "/getnetworks") || (requette == netDevURL + "/getnetworks")) {
       // Rempli la liste des réseaux disponibles
@@ -1963,6 +1974,23 @@ function changeGraphOrder(radio) {
 
 function changeScalesPos(radio) {
   scalesPositions = radio.value;
+  if (scalesPositions == 'left') {
+    // On change les boutons de coté
+    document.getElementById("buttonBox").classList.remove("topLeft");
+    document.getElementById("buttonBox").classList.add("topRight");
+    document.getElementById("buttonsReset").classList.remove("fRight");
+    document.getElementById("buttonsReset").classList.add("fLeft");
+    document.getElementById("buttonClose").classList.remove("fLeft");
+    document.getElementById("buttonClose").classList.add("fRight");
+  } else if (scalesPositions == 'right') {
+    // On change les boutons de coté
+    document.getElementById("buttonBox").classList.remove("topRight");
+    document.getElementById("buttonBox").classList.add("topLeft");
+    document.getElementById("buttonsReset").classList.remove("fLeft");
+    document.getElementById("buttonsReset").classList.add("fRight");
+    document.getElementById("buttonClose").classList.remove("fRight");
+    document.getElementById("buttonClose").classList.add("fLeft");
+  }
   // Repositionne les échelles
   Window.graphVent.options.scales['y'].position = scalesPositions;
   Window.graphPres.options.scales['y'].position = scalesPositions;

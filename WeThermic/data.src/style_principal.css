@@ -44,9 +44,15 @@ html, body {
   right: 0;
   margin-right: 5px;
 }
+.topLeft {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin-left: 5px;
+}
 .fLeft {
   float: left;
-  margin: 0;
+  margin-left: 5px;
 }
 .fRight {
   float: right;
@@ -62,7 +68,7 @@ html, body {
   font-weight: bold;
 }
 .valeur p {
-  margin: 0;
+  margin: 0 0 0 10px;
 }
 .btn {
   width: 48px;

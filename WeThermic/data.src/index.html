@@ -63,7 +63,7 @@
         -->
       </div>
       <!-- Boutons en haut à droite -->
-      <div class="topRight">
+      <div id="buttonBox" class="topRight">
         <div><image id="boutonSettings" class="btn top10"  onclick="changeSettings();" src="images/settings.svg" /></div>
         <div><image id="boutonChrono"   class="btn"        onclick="toggleChrono();"   src="images/chrono.svg"   /></div>
         <div><image id="boutonSon"      class="btn noshow" onclick="toggleSon();"      src="images/sound-on.svg" /></div>
@@ -81,10 +81,14 @@
       <!-- Config dialog                                                                     -->
       <!--------------------------------------------------------------------------------------->
       <div id="settingsDialog" class="settingsDialog noshow">
-        <span class="fLeft"><image id="boutonReboot" class="btn top10" src="images/reboot.svg" title="Reboot weather station" onclick="reboot();" /></span>
-        <span class="fLeft"><image id="boutonReset" class="btn top10" src="images/factory.svg" title="Reset preferences to default" onclick="resetSettings();" /></span>
-        <span class="fLeft"><image id="boutoWakeup" class="btn top10" src="images/wakeup.svg" title="Wake up station screen" onclick="wakeup();" /></span>
-        <div class="fRight"><image id="boutonClose" class="btn top10" src="images/close.svg" title="Close settings" onclick="closeSettings();" /></div>
+        <div id="buttonsReset" class="fLeft">
+          <image id="boutonReboot" class="btn top10" src="images/reboot.svg" title="Reboot weather station" onclick="reboot();" />
+          <image id="boutonReset" class="btn top10" src="images/factory.svg" title="Reset preferences to default" onclick="resetSettings();" />
+          <image id="boutoWakeup" class="btn top10" src="images/wakeup.svg" title="Wake up station screen" onclick="wakeup();" />
+        </div>
+        <div id="buttonClose" class="fRight">
+          <image id="boutonClose" class="btn top10" src="images/close.svg" title="Close settings" onclick="closeSettings();" />
+        </div>
         <h1>Settings :</h1>
         <hr id="ligneHaut" />
         

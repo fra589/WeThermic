@@ -24,6 +24,11 @@
 void webServerInit(void) {
 
   // Montage du système de fichier ou sont stockés les éléments web
+  // Désactive le formatage automatique
+  LittleFSConfig cfg;
+  cfg.setAutoFormat(false);
+  LittleFS.setConfig(cfg);
+  // Monte le système de fichier
   if (!LittleFS.begin()) {
     ;
     #ifdef DEBUG

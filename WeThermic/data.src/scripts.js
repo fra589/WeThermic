@@ -125,8 +125,7 @@ var colorEnCours = "";
 const notes = [261.625, 293.664, 329.627, 349.228, 391.995, 440.000, 493.883, 523.251];
 var noteNum = 0;
 // Pour la fonction beep()
-// if you have another AudioContext class use that one, as some browsers have a limit
-var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
+var audioCtx = null;
 
 function index_resize() {
   // Redimentionnement des graphiques en fonction de la page
@@ -1667,21 +1666,25 @@ function clignottementChrono() {
 //type of tone. Possible values are sine, square, sawtooth, triangle, and custom. Default is sine.
 //callback to use on end of tone
 function beep(duration, frequency, volume, type, callback) {
-    var oscillator = audioCtx.createOscillator();
-    var gainNode = audioCtx.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    
-    if (volume){gainNode.gain.value = volume;}
-    if (frequency){oscillator.frequency.value = frequency;}
-    if (type){oscillator.type = type;}
-    if (callback){oscillator.onended = callback;}
-    if (duration){duree = duration/1000;} else {duree = 0.5;}
+  if (audioCtx === null) {
+    // if you have another AudioContext class use that one, as some browsers have a limit
+    audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
+  }
+  var oscillator = audioCtx.createOscillator();
+  var gainNode = audioCtx.createGain();
 
-    oscillator.start(audioCtx.currentTime);
-    oscillator.stop(audioCtx.currentTime + duree);
-};
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  if (volume){gainNode.gain.value = volume;}
+  if (frequency){oscillator.frequency.value = frequency;}
+  if (type){oscillator.type = type;}
+  if (callback){oscillator.onended = callback;}
+  if (duration){duree = duration/1000;} else {duree = 0.5;}
+
+  oscillator.start(audioCtx.currentTime);
+  oscillator.stop(audioCtx.currentTime + duree);
+}
 
 function toggleSon() {
   const bouton = document.getElementById('boutonSon');

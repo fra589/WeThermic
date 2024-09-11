@@ -51,9 +51,9 @@ var soundOn       = true;
 //------------------------------------------------------------------------------------------
 
 // pour debug du developpement, adresse IP de la Wemos connectée au wifi
-var netDevURL = 'http://10.10.10.10'; // connected to WeThermic
+//var netDevURL = 'http://10.10.10.10'; // connected to WeThermic
 //var netDevURL = 'http://192.168.1.107'; // domopassaduy GB1
-//var netDevURL = 'http://192.168.1.80'; // domopassaduy GB2
+var netDevURL = 'http://192.168.1.80'; // domopassaduy GB2
 //var netDevURL = 'http://192.168.1.130';  // BlancheNeige
 //var netDevURL = 'http://192.168.1.60';  // La Gouffrerie
 //var netDevURL = 'http://192.168.8.111'; // Cohabit
@@ -63,9 +63,9 @@ var couleurGrid = 'rgb(192, 192, 192)';
 var couleurVent = 'rgb(0, 0, 255)';
 var couleurFillVent = 'rgba(0, 0, 255, 0.2)';
 var couleurMoyVent = 'rgb(0, 0, 127)';
-var couleurPression = 'rgb(0, 255, 0)';
-var couleurFillPression = 'rgba(0, 255, 0, 0.2)';
-var couleurMoyPres = 'rgb(0, 127, 0)';
+var couleurPression = 'rgb(0, 127, 0)';
+var couleurFillPression = 'rgba(0, 127, 0, 0.2)';
+var couleurMoyPres = 'rgb(0, 63, 0)';
 var couleurTempCtn = 'rgb(255, 0, 0)';
 var couleurFillCtn = 'rgba(255, 0, 0, 0.2)';
 var couleurMoyCtn = 'rgb(127, 0, 0)';

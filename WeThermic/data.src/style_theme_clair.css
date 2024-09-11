@@ -25,9 +25,9 @@
   --couleurVent: rgb(0, 0, 255);
   --couleurFillVent: rgba(0, 0, 255, 0.1);
   --couleurMoyVent: rgb(0, 0, 127);
-  --couleurPression: rgb(0, 255, 0);
-  --couleurFillPression: rgba(0, 255, 0, 0.2);
-  --couleurMoyPres: rgb(0, 127, 0);
+  --couleurPression: rgb(0, 127, 0);
+  --couleurFillPression: rgba(0, 127, 0, 0.2);
+  --couleurMoyPres: rgb(0, 63, 0);
   --couleurTempCtn: rgb(255, 0, 0);
   --couleurFillCtn: rgba(255, 0, 0, 0.2);
   --couleurMoyCtn: rgb(127, 0, 0);

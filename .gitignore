@@ -10,4 +10,4 @@ WeThermic/build/*
 doc
 WeThermic/data.src/chartjs
 WeThermic/data/knownWiFi.xml
-releases/*.bin
+releases/*

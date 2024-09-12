@@ -51,9 +51,9 @@ var soundOn       = true;
 //------------------------------------------------------------------------------------------
 
 // pour debug du developpement, adresse IP de la Wemos connectée au wifi
-var netDevURL = 'http://10.10.10.10'; // connected to WeThermic
+//var netDevURL = 'http://10.10.10.10'; // connected to WeThermic
 //var netDevURL = 'http://192.168.1.107'; // domopassaduy GB1
-//var netDevURL = 'http://192.168.1.80'; // domopassaduy GB2
+var netDevURL = 'http://192.168.1.80'; // domopassaduy GB2
 //var netDevURL = 'http://192.168.1.130';  // BlancheNeige
 //var netDevURL = 'http://192.168.1.60';  // La Gouffrerie
 //var netDevURL = 'http://192.168.8.111'; // Cohabit
@@ -63,9 +63,9 @@ var couleurGrid = 'rgb(192, 192, 192)';
 var couleurVent = 'rgb(0, 0, 255)';
 var couleurFillVent = 'rgba(0, 0, 255, 0.2)';
 var couleurMoyVent = 'rgb(0, 0, 127)';
-var couleurPression = 'rgb(0, 255, 0)';
-var couleurFillPression = 'rgba(0, 255, 0, 0.2)';
-var couleurMoyPres = 'rgb(0, 127, 0)';
+var couleurPression = 'rgb(0, 127, 0)';
+var couleurFillPression = 'rgba(0, 127, 0, 0.2)';
+var couleurMoyPres = 'rgb(0, 63, 0)';
 var couleurTempCtn = 'rgb(255, 0, 0)';
 var couleurFillCtn = 'rgba(255, 0, 0, 0.2)';
 var couleurMoyCtn = 'rgb(127, 0, 0)';
@@ -125,8 +125,7 @@ var colorEnCours = "";
 const notes = [261.625, 293.664, 329.627, 349.228, 391.995, 440.000, 493.883, 523.251];
 var noteNum = 0;
 // Pour la fonction beep()
-// if you have another AudioContext class use that one, as some browsers have a limit
-var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
+var audioCtx = null;
 
 function index_resize() {
   // Redimentionnement des graphiques en fonction de la page
@@ -1667,21 +1666,25 @@ function clignottementChrono() {
 //type of tone. Possible values are sine, square, sawtooth, triangle, and custom. Default is sine.
 //callback to use on end of tone
 function beep(duration, frequency, volume, type, callback) {
-    var oscillator = audioCtx.createOscillator();
-    var gainNode = audioCtx.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    
-    if (volume){gainNode.gain.value = volume;}
-    if (frequency){oscillator.frequency.value = frequency;}
-    if (type){oscillator.type = type;}
-    if (callback){oscillator.onended = callback;}
-    if (duration){duree = duration/1000;} else {duree = 0.5;}
+  if (audioCtx === null) {
+    // if you have another AudioContext class use that one, as some browsers have a limit
+    audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
+  }
+  var oscillator = audioCtx.createOscillator();
+  var gainNode = audioCtx.createGain();
 
-    oscillator.start(audioCtx.currentTime);
-    oscillator.stop(audioCtx.currentTime + duree);
-};
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  if (volume){gainNode.gain.value = volume;}
+  if (frequency){oscillator.frequency.value = frequency;}
+  if (type){oscillator.type = type;}
+  if (callback){oscillator.onended = callback;}
+  if (duration){duree = duration/1000;} else {duree = 0.5;}
+
+  oscillator.start(audioCtx.currentTime);
+  oscillator.stop(audioCtx.currentTime + duree);
+}
 
 function toggleSon() {
   const bouton = document.getElementById('boutonSon');

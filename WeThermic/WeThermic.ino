@@ -1,6 +1,6 @@
 /****************************************************************************/
 /*                                                                          */
-/* Copyright (C) 2024-2024 Gauthier Brière (gauthier.briere "at" gmail.com) */
+/* Copyright (C) 2024-2025 Gauthier Brière (gauthier.briere "at" gmail.com) */
 /*                                                                          */
 /* This file: WeThermic.ino is part of WeThermic                            */
 /*                                                                          */

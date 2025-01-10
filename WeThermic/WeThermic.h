@@ -1,6 +1,6 @@
 /****************************************************************************/
 /*                                                                          */
-/* Copyright (C) 2024-2024 Gauthier Brière (gauthier.briere "at" gmail.com) */
+/* Copyright (C) 2024-2025 Gauthier Brière (gauthier.briere "at" gmail.com) */
 /*                                                                          */
 /* This file: WeThermic.h is part of WeThermic                              */
 /*                                                                          */
@@ -59,7 +59,7 @@
   #include "thermistance.h"
 
   #define ORG_NAME              "fra589"
-  #define COPYRIGHT             "G.Brière 2024-2024"
+  #define COPYRIGHT             "G.Brière 2023-2025"
   #define APP_NAME              "WeThermic"
   #define APP_VERSION_MAJOR     "1"
   #define APP_VERSION_MINOR     "03"

@@ -1,6 +1,6 @@
 /****************************************************************************/
 /*                                                                          */
-/* Copyright (C) 2023-2024 Gauthier Brière (gauthier.briere "at" gmail.com) */
+/* Copyright (C) 2023-2025 Gauthier Brière (gauthier.briere "at" gmail.com) */
 /*                                                                          */
 /* This file: webserver.cpp is part of WeThermic                            */
 /*                                                                          */
@@ -79,7 +79,14 @@ void webServerInit(void) {
 // la requette.
 bool captivePortal(void) {
 
-  if (!isIp(server.hostHeader()) && server.hostHeader() != (String(myHostname) + ".local")) {
+  // Conversion de myHostname.local en minuscules
+  String monNomDNS = String(myHostname) + ".local";
+  monNomDNS.toLowerCase();
+  // Conversion de hostHeader en minuscule
+  String hostHeader = server.hostHeader();
+  hostHeader.toLowerCase();
+
+  if ((!isIp(server.hostHeader())) && (hostHeader != monNomDNS)) {
     #ifdef DEBUG_WEB
       Serial.println("Redirection vers le portail captif");
     #endif

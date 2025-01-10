@@ -42,7 +42,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.6958333"
-     inkscape:cx="319.90172"
+     inkscape:cx="319.90173"
      inkscape:cy="240"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -65,7 +65,13 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-80.75099,-76.971948)"><g
+     transform="translate(-80.75099,-76.971948)"><rect
+       style="fill:#faffff;fill-opacity:1;stroke:none;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"
+       id="rect4062"
+       width="640"
+       height="480"
+       x="80.750992"
+       y="76.971947" /><g
        fill="#ffffff"
        fill-opacity="1"
        font-weight="400"

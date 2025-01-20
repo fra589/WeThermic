@@ -85,14 +85,14 @@ void IRAM_ATTR hall_ISR() {
   // Interruption du capteur à effet Hall
   if (digitalRead(HALL_PIN) == HIGH) {
     // Interruption front montant
-    #ifdef DEBUG_INTERRUPT
-      ets_printf("hall_ISR() rising\n");
-    #endif
     pulse++;
+    #ifdef DEBUG_INTERRUPT
+      ets_printf("hall_ISR() rising pulse = %d\n", pulse);
+    #endif
   } else {
     // Interruption front descendant
     #ifdef DEBUG_INTERRUPT
-      ets_printf("hall_ISR() falling\n");
+      ets_printf("hall_ISR() falling pulse = %d\n", pulse);
     #endif
     ;
   }
